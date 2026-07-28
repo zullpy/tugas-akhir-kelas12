@@ -1,0 +1,232 @@
+/* Global Web Sekolah Base Styles */
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Space+Grotesk:wght@700;800&display=swap');
+
+:root {
+    /* Color Palette matching SMKS SUKAPURA Logo */
+    --nb-yellow: #FFE600;      /* Logo Vibrant Yellow */
+    --nb-navy: #0A4D68;        /* Logo Deep Teal/Navy Blue */
+    --nb-navy-dark: #053B50;   /* Logo Darker Teal/Navy */
+    --nb-red: #FF4B4B;         /* Logo Accent Red */
+    --nb-bg: #FFFDF0;          /* Warm Cream Background for Neubrutalism */
+    --nb-black: #000000;       /* Bold Neubrutalism Outline & Hard Shadows */
+    --nb-white: #FFFFFF;       /* Crisp White Accent */
+    --nb-gray: #F3F4F6;
+    
+    /* Typography */
+    --font-heading: 'Space Grotesk', sans-serif;
+    --font-body: 'Plus Jakarta Sans', sans-serif;
+    
+    /* Neubrutalism Shadows & Borders */
+    --border-thick: 3.5px solid var(--nb-black);
+    --border-medium: 2.5px solid var(--nb-black);
+    --border-thin: 2px solid var(--nb-black);
+    --shadow-sm: 3px 3px 0px var(--nb-black);
+    --shadow-md: 5px 5px 0px var(--nb-black);
+    --shadow-lg: 7px 7px 0px var(--nb-black);
+    --radius-box: 14px;
+    --radius-pill: 999px;
+    --radius-btn: 10px;
+}
+
+/* Global Reset & Base Styles */
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: var(--font-body);
+    background-color: var(--nb-bg);
+    color: var(--nb-black);
+    line-height: 1.6;
+    min-height: 100vh;
+}
+
+/* Neubrutalism Carousel Styles */
+.carousel {
+    position: relative;
+    width: 100%;
+    height: 480px;
+    border-top: var(--border-thick);
+    border-bottom: var(--border-thick);
+    overflow: hidden;
+    background-color: var(--nb-black);
+    margin: 40px 0;
+}
+
+.carousel-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+.carousel-slide {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.8s ease-in-out, transform 0.8s ease-in-out;
+    transform: scale(1.02);
+    z-index: 1;
+}
+
+.carousel-slide.active {
+    opacity: 1;
+    visibility: visible;
+    transform: scale(1);
+    z-index: 2;
+}
+
+.carousel-slide img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    filter: brightness(0.7);
+}
+
+/* Neubrutalism Caption Card */
+.carousel-caption {
+    position: absolute;
+    bottom: 30px;
+    left: 30px;
+    background-color: var(--nb-white);
+    border: var(--border-medium);
+    border-radius: var(--radius-box);
+    box-shadow: var(--shadow-md);
+    padding: 20px 25px;
+    max-width: 500px;
+    z-index: 10;
+    transform: translateY(20px);
+    opacity: 0;
+    transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) 0.3s, opacity 0.6s ease 0.3s;
+}
+
+.carousel-slide.active .carousel-caption {
+    transform: translateY(0);
+    opacity: 1;
+}
+
+.carousel-caption h2 {
+    font-family: var(--font-heading);
+    font-size: 1.6rem;
+    font-weight: 800;
+    margin-bottom: 8px;
+    color: var(--nb-navy-dark);
+}
+
+.carousel-caption p {
+    font-family: var(--font-body);
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--nb-black);
+    line-height: 1.4;
+}
+
+/* Controls */
+.carousel-control {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;
+    background-color: var(--nb-yellow);
+    border: var(--border-medium);
+    border-radius: var(--radius-pill);
+    box-shadow: var(--shadow-sm);
+    width: 45px;
+    height: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.carousel-control:hover {
+    transform: translateY(-53%) translate(-2px, -2px);
+    box-shadow: 5px 5px 0px var(--nb-black);
+    background-color: var(--nb-white);
+}
+
+.carousel-control:active {
+    transform: translateY(-47%) translate(1px, 1px);
+    box-shadow: 1px 1px 0px var(--nb-black);
+}
+
+.carousel-control.prev {
+    left: 20px;
+}
+
+.carousel-control.next {
+    right: 20px;
+}
+
+/* Indicators */
+.carousel-indicators {
+    position: absolute;
+    bottom: 20px;
+    right: 30px;
+    display: flex;
+    gap: 8px;
+    z-index: 10;
+}
+
+.indicator {
+    width: 14px;
+    height: 14px;
+    border: var(--border-thin);
+    border-radius: 50%;
+    background-color: var(--nb-white);
+    box-shadow: 1.5px 1.5px 0px var(--nb-black);
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.indicator:hover {
+    transform: scale(1.1);
+}
+
+.indicator.active {
+    background-color: var(--nb-red);
+    transform: scale(1.2);
+}
+
+/* Responsive adjustment for small screens */
+@media (max-width: 768px) {
+    .carousel {
+        height: 350px;
+    }
+    
+    .carousel-caption {
+        bottom: 20px;
+        left: 20px;
+        right: 20px;
+        max-width: none;
+        padding: 15px;
+    }
+    
+    .carousel-caption h2 {
+        font-size: 1.25rem;
+    }
+    
+    .carousel-caption p {
+        font-size: 0.85rem;
+    }
+
+    .carousel-control {
+        width: 35px;
+        height: 35px;
+        font-size: 1rem;
+    }
+
+    .carousel-indicators {
+        bottom: 15px;
+        right: 20px;
+    }
+}
