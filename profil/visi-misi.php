@@ -37,20 +37,25 @@ $subPageTitle = 'visi-misi';
     <header class="profile-hero">
         <img src="../assets/bawah.webp" alt="Banner Visi Misi">
         <div class="background-overlay"></div>
+        <div class="hero-title-overlay">
+            <div class="hero-badge"><i class="ph-bold ph-tree-structure"></i> PROFIL SEKOLAH</div>
+            <h1 class="hero-heading">Visi & Misi</h1>
+            <p class="hero-sub">SMKS Sukapura Kab. Tasikmalaya</p>
+        </div>
     </header>
 
     <main class="visi-misi-container">
         <!-- Header area with watermark -->
-        <div class="profile-header">
+        <!-- <div class="profile-header">
             <h1 class="title">VISI DAN MISI</h1>
-        </div>
+        </div> -->
 
         <!-- VISI SECTION -->
         <section class="visi-section">
+            <div class="visi-badge">
+                <i class="ph-bold ph-compass"></i> VISI SEKOLAH
+            </div>
             <div class="visi-card">
-                <div class="visi-badge">
-                    <i class="ph-bold ph-compass"></i> VISI SEKOLAH
-                </div>
                 <blockquote class="visi-text">
                     "Menjadikan sekolah yang unggul dengan lulusan yang <span class="highlight-yellow">Berprestasi</span>, <span class="highlight-green">Disiplin</span>, <span class="highlight-blue">Berkarakter baik</span>, <span class="highlight-pink">Inovatif</span>, <span class="highlight-purple">Kreatif</span>, dan <span class="highlight-red">siap berkarir</span>."
                 </blockquote>

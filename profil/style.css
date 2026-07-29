@@ -226,7 +226,11 @@ footer {
 /* Visi Card Section */
 .visi-section {
     margin-bottom: 55px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
+
 
 .visi-card {
     background-color: #FFFFFF;
@@ -236,6 +240,7 @@ footer {
     padding: 36px 32px;
     position: relative;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
+    width: 100%;
 }
 
 .visi-card:hover {
@@ -713,5 +718,318 @@ footer {
 
     .hero-title-overlay {
         padding: 20px 4%;
+    }
+}
+
+/* ============================================================
+   HALAMAN KONTAK — NEOBRUTALISM STYLE
+   ============================================================ */
+
+.kontak-main {
+    width: 92%;
+    max-width: 1100px;
+    margin: 0 auto 80px;
+    font-family: var(--font-body, 'Plus Jakarta Sans', sans-serif);
+}
+
+/* ── Section Header ── */
+.kontak-section-header {
+    text-align: center;
+    padding: 60px 0 40px;
+}
+
+.kontak-maps-section,
+.kontak-form-section {
+    margin-top: 64px;
+}
+
+.kontak-maps-section .kontak-section-title,
+.kontak-maps-section .kontak-section-sub,
+.kontak-form-section .kontak-section-title,
+.kontak-form-section .kontak-section-sub {
+    text-align: center;
+}
+
+.kontak-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    background-color: #FFE600;
+    color: #000;
+    border: 2.5px solid #000;
+    border-radius: 10px;
+    padding: 6px 16px;
+    font-family: var(--font-heading, 'Space Grotesk', sans-serif);
+    font-weight: 800;
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
+    box-shadow: 3px 3px 0 #000;
+    margin-bottom: 18px;
+}
+
+.kontak-section-title {
+    font-family: var(--font-heading, 'Space Grotesk', sans-serif);
+    font-size: clamp(1.6rem, 3vw, 2.2rem);
+    font-weight: 800;
+    color: #0F172A;
+    margin-bottom: 10px;
+}
+
+.kontak-section-sub {
+    font-size: 1rem;
+    color: #475569;
+    max-width: 560px;
+    margin: 0 auto;
+    line-height: 1.65;
+}
+
+/* ── Info Cards Grid ── */
+.kontak-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+}
+
+.kontak-info-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 18px;
+    border: 3px solid #000;
+    border-radius: 14px;
+    padding: 24px 22px;
+    box-shadow: 5px 5px 0 #000;
+    transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.kontak-info-card:hover {
+    transform: translate(-3px, -3px);
+    box-shadow: 8px 8px 0 #000;
+}
+
+.card-yellow { background-color: #FFF9C4; }
+.card-blue   { background-color: #DBEAFE; }
+.card-green  { background-color: #DCFCE7; }
+.card-pink   { background-color: #FCE7F3; }
+
+.kontak-info-icon {
+    flex-shrink: 0;
+    width: 48px;
+    height: 48px;
+    border: 2.5px solid #000;
+    border-radius: 10px;
+    background-color: #000;
+    color: #FFE600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+}
+
+.kontak-info-label {
+    display: block;
+    font-family: var(--font-heading, 'Space Grotesk', sans-serif);
+    font-weight: 800;
+    font-size: 0.78rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: #64748B;
+    margin-bottom: 6px;
+}
+
+.kontak-info-value {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #0F172A;
+    line-height: 1.6;
+}
+
+a.kontak-link {
+    text-decoration: none;
+    color: #0F172A;
+    border-bottom: 2px solid transparent;
+    transition: border-color 0.15s;
+}
+a.kontak-link:hover {
+    border-bottom-color: #000;
+}
+
+/* Jam operasional rows */
+.jam-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #0F172A;
+    padding: 3px 0;
+    border-bottom: 1px dashed #CBD5E1;
+}
+.jam-row:last-child { border-bottom: none; }
+.jam-libur { color: #DC2626; }
+
+/* ── Social Media Bar ── */
+.kontak-sosmed-wrap {
+    margin-top: 28px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.kontak-sosmed-label {
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: #0F172A;
+    white-space: nowrap;
+}
+
+.kontak-sosmed-btns {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.sosmed-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border: 2.5px solid #000;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 0.85rem;
+    text-decoration: none;
+    box-shadow: 3px 3px 0 #000;
+    background-color: #F1F5F9;
+    color: #0F172A;
+    transition: transform 0.15s ease, box-shadow 0.15s ease,
+                background-color 0.18s ease, color 0.18s ease;
+}
+.sosmed-btn:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 5px 5px 0 #000;
+}
+
+.sosmed-yt:hover { background-color: #FF0000; color: #fff; }
+.sosmed-ig:hover { background: linear-gradient(135deg, #F58529, #DD2A7B, #8134AF); color: #fff; }
+.sosmed-fb:hover { background-color: #1877F2; color: #fff; }
+.sosmed-tt:hover { background-color: #000; color: #fff; }
+
+/* ── Maps ── */
+.kontak-maps-wrapper {
+    margin-top: 24px;
+    border: 3.5px solid #000;
+    border-radius: 16px;
+    box-shadow: 7px 7px 0 #000;
+    overflow: hidden;
+}
+
+.kontak-maps-wrapper iframe {
+    display: block;
+    width: 100%;
+}
+
+/* ── Form Pesan ── */
+.kontak-form {
+    margin-top: 28px;
+    background-color: #fff;
+    border: 3px solid #000;
+    border-radius: 16px;
+    box-shadow: 7px 7px 0 #000;
+    padding: 36px 32px;
+}
+
+.kontak-form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+    margin-bottom: 18px;
+}
+
+.kontak-form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    margin-bottom: 18px;
+}
+.kontak-form-group:last-of-type {
+    margin-bottom: 0;
+}
+
+.kontak-form-group label {
+    font-weight: 700;
+    font-size: 0.88rem;
+    color: #0F172A;
+    letter-spacing: 0.3px;
+}
+
+.kontak-form-group input,
+.kontak-form-group textarea {
+    width: 100%;
+    padding: 12px 14px;
+    border: 2.5px solid #000;
+    border-radius: 10px;
+    font-family: var(--font-body, 'Plus Jakarta Sans', sans-serif);
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: #0F172A;
+    background-color: #FAFAFA;
+    box-shadow: 3px 3px 0 #000;
+    transition: box-shadow 0.15s, transform 0.15s;
+    box-sizing: border-box;
+    outline: none;
+}
+
+.kontak-form-group input:focus,
+.kontak-form-group textarea:focus {
+    background-color: #FFFDE7;
+    box-shadow: 4px 4px 0 #000;
+    transform: translate(-1px, -1px);
+}
+
+.kontak-form-group textarea {
+    resize: vertical;
+    min-height: 130px;
+}
+
+.kontak-submit-btn {
+    margin-top: 24px;
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    background-color: #FFE600;
+    color: #000;
+    border: 2.5px solid #000;
+    border-radius: 10px;
+    padding: 13px 28px;
+    font-family: var(--font-heading, 'Space Grotesk', sans-serif);
+    font-weight: 800;
+    font-size: 1rem;
+    cursor: pointer;
+    box-shadow: 4px 4px 0 #000;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.kontak-submit-btn:hover {
+    transform: translate(-3px, -3px);
+    box-shadow: 7px 7px 0 #000;
+}
+
+/* ── Responsive Kontak ── */
+@media (max-width: 768px) {
+    .kontak-cards-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .kontak-form-row {
+        grid-template-columns: 1fr;
+    }
+
+    .kontak-sosmed-wrap {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .kontak-form {
+        padding: 24px 18px;
     }
 }

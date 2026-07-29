@@ -54,7 +54,7 @@ body {
 .carousel {
     position: relative;
     width: 100%;
-    height: clamp(520px, 55vh, 520px);
+    height: clamp(480px, 52vh, 680px);
     border-bottom: var(--border-thick);
     overflow: hidden;
     background-color: var(--nb-navy-dark);
@@ -1002,3 +1002,16 @@ body {
     }
 }
 
+/* Large monitors: 1440p (2560x1440) dan ke atas */
+@media (min-width: 1920px) {
+    .carousel {
+        height: clamp(620px, 56vh, 860px);
+    }
+}
+
+/* 4K / monitor sangat besar */
+@media (min-width: 2560px) {
+    .carousel {
+        height: clamp(800px, 58vh, 1080px);
+    }
+}
