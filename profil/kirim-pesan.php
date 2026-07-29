@@ -56,6 +56,14 @@ if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
     exit;
 }
 
+// Validasi keberadaan domain server email (MX / A Record)
+$domain = substr(strrchr($email, "@"), 1);
+if (!empty($domain) && !checkdnsrr($domain, 'MX') && !checkdnsrr($domain, 'A')) {
+    ob_clean();
+    echo json_encode(['success' => false, 'message' => 'Domain email tidak valid atau tidak memiliki server email aktif.']);
+    exit;
+}
+
 if (strlen($nama) > 100 || strlen($pesan) > 3000) {
     ob_clean();
     echo json_encode(['success' => false, 'message' => 'Input terlalu panjang.']);
