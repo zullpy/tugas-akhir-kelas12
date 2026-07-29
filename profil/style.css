@@ -1,0 +1,717 @@
+/* Styling for Profile Page */
+*{
+    margin: 0;
+    padding: 0;
+}
+.profile-main-container {
+    width: 92%;
+    max-width: 1100px;
+    margin: 40px auto 60px;
+    font-family: var(--font-body, 'Plus Jakarta Sans', sans-serif);
+}
+
+/* Header with background watermark */
+.profile-header {
+    text-align: center;
+    position: relative;
+    padding: 30px 10px;
+    margin-bottom: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.profile-header .watermark {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-family: var(--font-heading, 'Space Grotesk', sans-serif);
+    font-size: clamp(2.8rem, 6vw, 4.2rem);
+    font-weight: 800;
+    color: rgba(15, 23, 42, 0.07);
+    letter-spacing: 2px;
+    white-space: nowrap;
+    user-select: none;
+    pointer-events: none;
+    text-transform: uppercase;
+}
+
+.profile-header .title {
+    position: relative;
+    z-index: 2;
+    font-family: var(--font-heading, 'Space Grotesk', sans-serif);
+    font-size: clamp(1.6rem, 3vw, 2.2rem);
+    font-weight: 800;
+    color: #1B365D; /* Dark navy color matching screenshot */
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin: 0;
+}
+
+/* Card Container for Logo & Table */
+.profile-content-card {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 40px;
+    background-color: #ffffff;
+    padding: 20px 10px;
+    border-radius: 8px;
+}
+
+/* Left Column: Logo */
+.profile-logo-wrapper {
+    flex: 0 0 320px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-top: 10px;
+}
+
+.profile-logo-img {
+    width: 100%;
+    max-width: 320px;
+    height: auto;
+    object-fit: contain;
+}
+
+/* Right Column: Information Details Table */
+.profile-details-wrapper {
+    flex: 1;
+    min-width: 0; /* Prevents flex item from overflowing */
+}
+
+.profile-details-wrapper .section-title {
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: #000000;
+    margin-bottom: 20px;
+    font-family: var(--font-body, 'Plus Jakarta Sans', sans-serif);
+}
+
+.profile-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.95rem;
+}
+
+.profile-table tr {
+    border-bottom: 1.5px solid #cbd5e1;
+}
+
+.profile-table tr:last-child {
+    border-bottom: 1.5px solid #cbd5e1;
+}
+
+.profile-table td {
+    padding: 10px 8px;
+    vertical-align: top;
+    line-height: 1.5;
+}
+
+.profile-table td.label {
+    width: 220px;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.profile-table td.value {
+    color: #1e293b;
+    font-weight: 500;
+}
+
+/* Responsive adjustments */
+@media (max-width: 850px) {
+    .profile-content-card {
+        flex-direction: column;
+        align-items: center;
+        gap: 30px;
+    }
+
+    .profile-logo-wrapper {
+        flex: initial;
+        width: 100%;
+        max-width: 260px;
+    }
+
+    .profile-details-wrapper {
+        width: 100%;
+    }
+
+    .profile-table td.label {
+        width: 180px;
+    }
+}
+
+.profile-hero {
+    position: relative;
+    width: 100%;
+    height: 350px;
+    overflow: hidden;
+}
+
+.profile-hero img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.profile-hero .background-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(30, 64, 175, 0.4);
+    z-index: 1;
+    pointer-events: none;
+}
+
+@media (max-width: 540px) {
+    .profile-table td.label,
+    .profile-table td.value {
+        display: block;
+        width: 100%;
+        padding: 4px 0;
+    }
+
+    .profile-table tr {
+        padding: 8px 0;
+        display: block;
+    }
+
+    .profile-table td.label {
+        font-size: 0.9rem;
+        color: #475569;
+    }
+
+    .profile-table td.value {
+        font-size: 0.95rem;
+        margin-bottom: 4px;
+    }
+}
+
+/* Banner Footer & Footer Gap Removal */
+.profile-footer {
+    width: 100%;
+    margin-top: 50px;
+    margin-bottom: 0;
+    line-height: 0;
+}
+
+.profile-footer img {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+footer {
+    margin-top: 0 !important;
+}
+
+/* ==========================================
+   VISI & MISI STYLING
+   ========================================== */
+
+.visi-misi-container {
+    width: 92%;
+    max-width: 1100px;
+    margin: 40px auto 70px;
+    font-family: var(--font-body, 'Plus Jakarta Sans', sans-serif);
+}
+
+/* Visi Card Section */
+.visi-section {
+    margin-bottom: 55px;
+}
+
+.visi-card {
+    background-color: #FFFFFF;
+    border: 3.5px solid #000000;
+    border-radius: 16px;
+    box-shadow: 7px 7px 0px #000000;
+    padding: 36px 32px;
+    position: relative;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.visi-card:hover {
+    transform: translate(-3px, -3px);
+    box-shadow: 10px 10px 0px #000000;
+}
+
+.visi-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background-color: #FFE600;
+    color: #000000;
+    border: 2.5px solid #000000;
+    border-radius: 10px;
+    padding: 6px 16px;
+    font-family: var(--font-heading, 'Space Grotesk', sans-serif);
+    font-weight: 800;
+    font-size: 0.95rem;
+    letter-spacing: 0.5px;
+    box-shadow: 3px 3px 0px #000000;
+    margin-bottom: 22px;
+}
+
+.visi-text {
+    font-size: clamp(1.2rem, 2.2vw, 1.55rem);
+    font-weight: 700;
+    color: #0F172A;
+    line-height: 1.6;
+    margin-bottom: 28px;
+}
+
+/* Color Highlights inside Visi quote */
+.highlight-yellow {
+    background-color: #FFE600;
+    padding: 2px 8px;
+    border-radius: 6px;
+    border: 1.5px solid #000000;
+}
+
+.highlight-green {
+    background-color: #86EFAC;
+    padding: 2px 8px;
+    border-radius: 6px;
+    border: 1.5px solid #000000;
+}
+
+.highlight-blue {
+    background-color: #93C5FD;
+    padding: 2px 8px;
+    border-radius: 6px;
+    border: 1.5px solid #000000;
+}
+
+.highlight-pink {
+    background-color: #F9A8D4;
+    padding: 2px 8px;
+    border-radius: 6px;
+    border: 1.5px solid #000000;
+}
+
+.highlight-purple {
+    background-color: #C084FC;
+    padding: 2px 8px;
+    border-radius: 6px;
+    border: 1.5px solid #000000;
+    color: #FFFFFF;
+}
+
+.highlight-red {
+    background-color: #FF4B4B;
+    color: #FFFFFF;
+    padding: 2px 8px;
+    border-radius: 6px;
+    border: 1.5px solid #000000;
+}
+
+/* Visi Tags Pills */
+.visi-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.tag-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background-color: #FFFDF0;
+    border: 2.5px solid #000000;
+    border-radius: 999px;
+    padding: 8px 18px;
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: #000000;
+    box-shadow: 2.5px 2.5px 0px #000000;
+    transition: transform 0.15s ease, background-color 0.15s ease;
+}
+
+.tag-pill:hover {
+    transform: translate(-2px, -2px);
+    background-color: #FFE600;
+    box-shadow: 4px 4px 0px #000000;
+}
+
+/* Misi Section Header */
+.misi-header {
+    text-align: center;
+    margin-bottom: 35px;
+}
+
+.misi-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background-color: #FFE600;
+    color: #000000;
+    border: 2.5px solid #000000;
+    border-radius: 10px;
+    padding: 6px 16px;
+    font-family: var(--font-heading, 'Space Grotesk', sans-serif);
+    font-weight: 800;
+    font-size: 0.95rem;
+    letter-spacing: 0.5px;
+    box-shadow: 3px 3px 0px #000000;
+    margin-bottom: 12px;
+}
+
+.misi-title {
+    font-family: var(--font-heading, 'Space Grotesk', sans-serif);
+    font-size: clamp(1.4rem, 2.5vw, 1.85rem);
+    font-weight: 800;
+    color: #0F172A;
+}
+
+/* Misi Grid Layout */
+.misi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 24px;
+}
+
+.misi-card {
+    background-color: #FFFFFF;
+    border: 3.5px solid #000000;
+    border-radius: 14px;
+    padding: 26px 24px;
+    box-shadow: 5px 5px 0px #000000;
+    position: relative;
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.misi-card:hover {
+    transform: translate(-3px, -3px);
+    box-shadow: 8px 8px 0px #000000;
+}
+
+.misi-number {
+    position: absolute;
+    top: 14px;
+    right: 18px;
+    font-family: var(--font-heading, 'Space Grotesk', sans-serif);
+    font-weight: 800;
+    font-size: 1.3rem;
+    color: rgba(0, 0, 0, 0.12);
+    user-select: none;
+}
+
+.misi-icon-box {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    border: 2.5px solid #000000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    flex-shrink: 0;
+    box-shadow: 2.5px 2.5px 0px #000000;
+}
+
+.misi-icon-box.color-1 { background-color: #FFE600; color: #000000; }
+.misi-icon-box.color-2 { background-color: #4ADE80; color: #000000; }
+.misi-icon-box.color-3 { background-color: #38BDF8; color: #000000; }
+.misi-icon-box.color-4 { background-color: #F472B6; color: #000000; }
+.misi-icon-box.color-5 { background-color: #FACC15; color: #000000; }
+.misi-icon-box.color-6 { background-color: #FF4B4B; color: #FFFFFF; }
+
+.misi-content {
+    flex: 1;
+    padding-right: 20px;
+}
+
+.misi-content h3 {
+    font-family: var(--font-heading, 'Space Grotesk', sans-serif);
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: #0F172A;
+    margin-bottom: 8px;
+}
+
+.misi-content p {
+    font-size: 0.93rem;
+    color: #334155;
+    line-height: 1.55;
+    font-weight: 500;
+}
+
+@media (max-width: 640px) {
+    .visi-card {
+        padding: 24px 20px;
+    }
+
+    .misi-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ==========================================
+   HERO TITLE OVERLAY (Visi Misi & Struktur)
+   ========================================== */
+
+.profile-hero {
+    position: relative;
+}
+
+.hero-title-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    z-index: 2;
+    padding: 30px 5%;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    background-color: #FFE600;
+    color: #000000;
+    border: 2.5px solid #000000;
+    border-radius: 8px;
+    padding: 5px 14px;
+    font-family: var(--font-heading, 'Space Grotesk', sans-serif);
+    font-weight: 800;
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
+    box-shadow: 3px 3px 0px #000000;
+    width: fit-content;
+}
+
+.hero-heading {
+    font-family: var(--font-heading, 'Space Grotesk', sans-serif);
+    font-size: clamp(1.8rem, 4vw, 2.8rem);
+    font-weight: 800;
+    color: #FFFFFF;
+    text-shadow: 2px 2px 8px rgba(0,0,0,0.5);
+    margin: 0;
+}
+
+.hero-sub {
+    font-family: var(--font-body, 'Plus Jakarta Sans', sans-serif);
+    font-size: 1rem;
+    color: rgba(255,255,255,0.88);
+    font-weight: 600;
+    text-shadow: 1px 1px 4px rgba(0,0,0,0.4);
+}
+
+/* ==========================================
+   STRUKTUR ORGANISASI STYLING
+   ========================================== */
+
+.struktur-container {
+    width: 92%;
+    max-width: 1100px;
+    margin: 40px auto 70px;
+    font-family: var(--font-body, 'Plus Jakarta Sans', sans-serif);
+}
+
+/* Main diagram card */
+.struktur-card {
+    background-color: #FFFFFF;
+    border: 3.5px solid #000000;
+    border-radius: 16px;
+    box-shadow: 7px 7px 0px #000000;
+    overflow: hidden;
+    margin-bottom: 36px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.struktur-card:hover {
+    transform: translate(-3px, -3px);
+    box-shadow: 10px 10px 0px #000000;
+}
+
+.struktur-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 24px;
+    background-color: #FFFDF0;
+    border-bottom: 3px solid #000000;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.struktur-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background-color: #0A4D68;
+    color: #FFFFFF;
+    border: 2.5px solid #000000;
+    border-radius: 10px;
+    padding: 6px 16px;
+    font-family: var(--font-heading, 'Space Grotesk', sans-serif);
+    font-weight: 800;
+    font-size: 0.9rem;
+    letter-spacing: 0.4px;
+    box-shadow: 2.5px 2.5px 0px #000000;
+}
+
+.struktur-year {
+    font-family: var(--font-body, 'Plus Jakarta Sans', sans-serif);
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: #475569;
+    background-color: #F1F5F9;
+    border: 2px solid #CBD5E1;
+    border-radius: 8px;
+    padding: 5px 14px;
+}
+
+.struktur-img-wrapper {
+    background-color: #F8FAFC;
+    padding: 32px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-bottom: 3px solid #000000;
+}
+
+.struktur-img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    border: 2.5px solid #000000;
+    border-radius: 8px;
+    box-shadow: 4px 4px 0px #000000;
+}
+
+.struktur-card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 12px;
+    padding: 16px 24px;
+    background-color: #FFFDF0;
+}
+
+.struktur-download-btn,
+.struktur-view-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 9px 20px;
+    font-family: var(--font-body, 'Plus Jakarta Sans', sans-serif);
+    font-weight: 700;
+    font-size: 0.9rem;
+    border-radius: 10px;
+    border: 2.5px solid #000000;
+    text-decoration: none;
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    box-shadow: 3px 3px 0px #000000;
+}
+
+.struktur-download-btn {
+    background-color: #FFE600;
+    color: #000000;
+}
+
+.struktur-view-btn {
+    background-color: #0A4D68;
+    color: #FFFFFF;
+}
+
+.struktur-download-btn:hover,
+.struktur-view-btn:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 5px 5px 0px #000000;
+}
+
+/* Info Grid */
+.struktur-info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 20px;
+}
+
+.info-card {
+    background-color: #FFFFFF;
+    border: 3px solid #000000;
+    border-radius: 14px;
+    box-shadow: 4px 4px 0px #000000;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.info-card:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 6px 6px 0px #000000;
+}
+
+.info-icon-box {
+    width: 50px;
+    height: 50px;
+    border-radius: 12px;
+    border: 2.5px solid #000000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    flex-shrink: 0;
+    box-shadow: 2.5px 2.5px 0px #000000;
+    color: #000000;
+}
+
+.info-text {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.info-label {
+    font-family: var(--font-heading, 'Space Grotesk', sans-serif);
+    font-size: 0.95rem;
+    font-weight: 800;
+    color: #0F172A;
+}
+
+.info-value {
+    font-size: 0.82rem;
+    font-weight: 500;
+    color: #475569;
+    line-height: 1.4;
+}
+
+@media (max-width: 640px) {
+    .struktur-card-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .struktur-card-footer {
+        justify-content: stretch;
+        flex-direction: column;
+    }
+
+    .struktur-download-btn,
+    .struktur-view-btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .hero-title-overlay {
+        padding: 20px 4%;
+    }
+}

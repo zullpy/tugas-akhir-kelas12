@@ -1,4 +1,9 @@
 <!-- components/footer.php -->
+<?php
+if (!isset($base_url)) {
+    $base_url = '';
+}
+?>
 <style>
 /* Neubrutalism Footer */
 footer {
@@ -91,7 +96,7 @@ footer {
 
 <footer>
     <div class="footer-container">
-        <img src="assets/logo2.webp" alt="Logo SMKS SUKAPURA" class="footer-logo" onerror="this.onerror=null; this.src='assets/favicon.ico';">
+        <img src="<?php echo $base_url; ?>assets/logo2.webp" alt="Logo SMKS SUKAPURA" class="footer-logo" onerror="this.onerror=null; this.src='<?php echo $base_url; ?>assets/favicon.ico';">
         <div class="footer-content">
             <p class="footer-text">SMK PK (Pusat Keunggulan) merupakan program pengembangan SMK dengan kompetensi keahlian (Busana) dalam peningkatan kualitas dan kinerja, yang diperkuat melalui kemitraan dan penyelarasan dengan dunia usaha, dunia industri, dan dunia kerja, yang akhirnya menjadi SMK rujukan yang dapat berfungsi sebagai sekolah penggerak dan pusat peningkatan kualitas dan kinerja SMK.</p>
         </div>

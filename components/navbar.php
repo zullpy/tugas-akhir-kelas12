@@ -1,4 +1,11 @@
 <!-- components/navbar.php -->
+<?php
+if (!isset($base_url)) {
+    $base_url = '';
+}
+$current_page_file = basename($_SERVER['SCRIPT_NAME'] ?? '');
+$current_script_path = $_SERVER['SCRIPT_NAME'] ?? '';
+?>
 <style>
 /* Google Fonts import: Plus Jakarta Sans & Space Grotesk */
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Space+Grotesk:wght@700;800&display=swap');
@@ -30,7 +37,8 @@
     background-color: var(--nb-yellow);
     border-bottom: var(--border-thick);
     box-shadow: 0 4px 0px var(--nb-black);
-    position: relative;
+    position: sticky;
+    top: 0;
     z-index: 1000;
 }
 
@@ -225,7 +233,8 @@
     transition: all 0.15s ease;
 }
 
-.sub-menu a:hover {
+.sub-menu a:hover,
+.sub-menu a.active {
     background-color: var(--nb-yellow);
     border: var(--border-thin);
     box-shadow: 2px 2px 0px var(--nb-black);
@@ -341,9 +350,9 @@
         <div class="nav-center">
             <!-- brand / logo -->
             <div class="nav-header">
-                <a href="index.php" class="nav-logo" title="SMKS SUKAPURA">
+                <a href="<?php echo $base_url; ?>index.php" class="nav-logo" title="SMKS SUKAPURA">
                     <div class="logo-img-wrapper">
-                        <img src="assets/favicon.ico" alt="Logo SMKS SUKAPURA" class="logo-img" onerror="this.onerror=null; this.src='assets/favicon.ico';">
+                        <img src="<?php echo $base_url; ?>assets/favicon.ico" alt="Logo SMKS SUKAPURA" class="logo-img" onerror="this.onerror=null; this.src='<?php echo $base_url; ?>assets/favicon.ico';">
                     </div>
                     <span class="logo-badge">SMKS SUKAPURA</span>
                 </a>
@@ -357,41 +366,42 @@
             <!-- navigation links -->
             <ul class="nav-links" id="nav-links">
                 <li class="nav-item">
-                    <a href="index.php" class="nav-link <?php echo isset($pageTitle) && $pageTitle === 'beranda' ? 'active' : ''; ?>">
+                    <a href="<?php echo $base_url; ?>index.php" class="nav-link <?php echo (isset($pageTitle) && $pageTitle === 'beranda') || ($current_page_file === 'index.php' && strpos($current_script_path, '/profil/') === false) ? 'active' : ''; ?>">
                         Beranda
                     </a>
                 </li>
                 <li class="nav-item has-dropdown">
-                    <a href="#" class="nav-link <?php echo isset($pageTitle) && $pageTitle === 'profil' ? 'active' : ''; ?>">
+                    <a href="<?php echo $base_url; ?>profil/index.php" class="nav-link <?php echo (isset($pageTitle) && $pageTitle === 'profil') || strpos($current_script_path, '/profil/') !== false ? 'active' : ''; ?>">
                         Profil <span class="dropdown-icon">▼</span>
                     </a>
                     <ul class="sub-menu">
-                        <li><a href="profil/visi-misi.php">Visi Misi</a></li>
-                        <li><a href="profil/struktur-organisasi.php">Struktur Organisasi</a></li>
+                        <li><a href="<?php echo $base_url; ?>profil/visi-misi.php" class="<?php echo ($current_page_file === 'visi-misi.php' || (isset($subPageTitle) && $subPageTitle === 'visi-misi')) ? 'active' : ''; ?>">Visi Misi</a></li>
+                        <li><a href="<?php echo $base_url; ?>profil/struktur-organisasi.php" class="<?php echo ($current_page_file === 'struktur-organisasi.php' || (isset($subPageTitle) && $subPageTitle === 'struktur-organisasi')) ? 'active' : ''; ?>">Struktur Organisasi</a></li>
+                        <li><a href="<?php echo $base_url; ?>profil/kontak.php" class="<?php echo ($current_page_file === 'kontak.php' || (isset($subPageTitle) && $subPageTitle === 'kontak')) ? 'active' : ''; ?>">Kontak</a></li>
                     </ul>
                 </li>
                 <li class="nav-item has-dropdown">
-                    <a href="#" class="nav-link <?php echo isset($pageTitle) && $pageTitle === 'program unggulan' ? 'active' : ''; ?>">
+                    <a href="#" class="nav-link <?php echo (isset($pageTitle) && $pageTitle === 'program unggulan') || strpos($current_script_path, '/program/') !== false ? 'active' : ''; ?>">
                         Program Unggulan <span class="dropdown-icon">▼</span>
                     </a>
                     <ul class="sub-menu">
-                        <li><a href="program/excellent-class.php">Excellent Class</a></li>
-                        <li><a href="program/atlet-class.php">Atlet Class</a></li>
+                        <li><a href="<?php echo $base_url; ?>program/excellent-class.php" class="<?php echo ($current_page_file === 'excellent-class.php' || (isset($subPageTitle) && $subPageTitle === 'excellent-class')) ? 'active' : ''; ?>">Excellent Class</a></li>
+                        <li><a href="<?php echo $base_url; ?>program/atlet-class.php" class="<?php echo ($current_page_file === 'atlet-class.php' || (isset($subPageTitle) && $subPageTitle === 'atlet-class')) ? 'active' : ''; ?>">Atlet Class</a></li>
                     </ul>
                 </li>
                 <li class="nav-item has-dropdown">
-                    <a href="#" class="nav-link <?php echo isset($pageTitle) && $pageTitle === 'data' ? 'active' : ''; ?>">
+                    <a href="#" class="nav-link <?php echo (isset($pageTitle) && $pageTitle === 'data') || strpos($current_script_path, '/data/') !== false ? 'active' : ''; ?>">
                         Data <span class="dropdown-icon">▼</span>
                     </a>
                     <ul class="sub-menu">
-                        <li><a href="data/guru.php">Guru</a></li>
-                        <li><a href="data/siswa.php">Siswa</a></li>
-                        <li><a href="data/kelas.php">Kelas</a></li>
-                        <li><a href="data/ekstrakurikuler.php">Ekstrakurikuler</a></li>
+                        <li><a href="<?php echo $base_url; ?>data/guru.php" class="<?php echo ($current_page_file === 'guru.php' || (isset($subPageTitle) && $subPageTitle === 'guru')) ? 'active' : ''; ?>">Guru</a></li>
+                        <li><a href="<?php echo $base_url; ?>data/siswa.php" class="<?php echo ($current_page_file === 'siswa.php' || (isset($subPageTitle) && $subPageTitle === 'siswa')) ? 'active' : ''; ?>">Siswa</a></li>
+                        <li><a href="<?php echo $base_url; ?>data/kelas.php" class="<?php echo ($current_page_file === 'kelas.php' || (isset($subPageTitle) && $subPageTitle === 'kelas')) ? 'active' : ''; ?>">Kelas</a></li>
+                        <li><a href="<?php echo $base_url; ?>data/ekstrakurikuler.php" class="<?php echo ($current_page_file === 'ekstrakurikuler.php' || (isset($subPageTitle) && $subPageTitle === 'ekstrakurikuler')) ? 'active' : ''; ?>">Ekstrakurikuler</a></li>
                     </ul>
                 </li>
                 <li class="nav-item">
-                    <a href="galeri.php" class="nav-link <?php echo isset($pageTitle) && $pageTitle === 'galeri' ? 'active' : ''; ?>">
+                    <a href="<?php echo $base_url; ?>galeri.php" class="nav-link <?php echo (isset($pageTitle) && $pageTitle === 'galeri') || $current_page_file === 'galeri.php' ? 'active' : ''; ?>">
                         Galeri Sekolah
                     </a>
                 </li>

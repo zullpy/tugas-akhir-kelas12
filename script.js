@@ -133,4 +133,71 @@ document.addEventListener('DOMContentLoaded', () => {
         // Start Auto-Slide
         slideInterval = setInterval(nextSlide, intervalTime);
     }
+
+    // Mitra Carousel Logic (Auto-play + Prev/Next controls + Touch Scroll)
+    const mitraContainer = document.getElementById('mitra-track-container');
+    const mitraTrack = document.getElementById('mitra-track');
+    const mitraPrev = document.getElementById('mitra-prev');
+    const mitraNext = document.getElementById('mitra-next');
+
+    if (mitraContainer && mitraTrack && mitraPrev && mitraNext) {
+        let mitraAutoScrollTimer;
+        const autoScrollInterval = 3500;
+
+        function getScrollStep() {
+            const firstCard = mitraTrack.querySelector('.mitra-card');
+            if (!firstCard) return 200;
+            const cardWidth = firstCard.offsetWidth;
+            return (cardWidth + 20) * 2;
+        }
+
+        function scrollMitra(direction) {
+            const step = getScrollStep();
+            const maxScroll = mitraContainer.scrollWidth - mitraContainer.clientWidth;
+
+            if (direction === 'next') {
+                if (mitraContainer.scrollLeft >= maxScroll - 15) {
+                    mitraContainer.scrollTo({ left: 0, behavior: 'smooth' });
+                } else {
+                    mitraContainer.scrollBy({ left: step, behavior: 'smooth' });
+                }
+            } else {
+                if (mitraContainer.scrollLeft <= 15) {
+                    mitraContainer.scrollTo({ left: maxScroll, behavior: 'smooth' });
+                } else {
+                    mitraContainer.scrollBy({ left: -step, behavior: 'smooth' });
+                }
+            }
+        }
+
+        mitraNext.addEventListener('click', () => {
+            scrollMitra('next');
+            resetMitraAutoScroll();
+        });
+
+        mitraPrev.addEventListener('click', () => {
+            scrollMitra('prev');
+            resetMitraAutoScroll();
+        });
+
+        function startMitraAutoScroll() {
+            mitraAutoScrollTimer = setInterval(() => {
+                scrollMitra('next');
+            }, autoScrollInterval);
+        }
+
+        function resetMitraAutoScroll() {
+            clearInterval(mitraAutoScrollTimer);
+            startMitraAutoScroll();
+        }
+
+        // Pause auto-scroll on hover
+        const mitraWrapper = document.querySelector('.mitra-carousel-wrapper');
+        if (mitraWrapper) {
+            mitraWrapper.addEventListener('mouseenter', () => clearInterval(mitraAutoScrollTimer));
+            mitraWrapper.addEventListener('mouseleave', () => startMitraAutoScroll());
+        }
+
+        startMitraAutoScroll();
+    }
 });
