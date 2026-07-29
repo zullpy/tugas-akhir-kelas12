@@ -26,10 +26,12 @@ use PHPMailer\PHPMailer\SMTP;
 use PHPMailer\PHPMailer\Exception;
 
 // ─── KONFIGURASI GMAIL SMTP ───────────────────────────────
-// Mendukung Environment Variables (SMTP_USER, SMTP_PASSWORD, TO_EMAIL) atau fallback default
+// Mendukung Environment Variables (SMTP_USER, SMTP_PASSWORD, TO_EMAIL, SMTP_PORT, SMTP_HOST)
 $smtp_user     = getenv('SMTP_USER')     ?: 'mzulfahmi008@gmail.com';
 $smtp_password = getenv('SMTP_PASSWORD') ?: 'bisviqjcrlbqrnsd';
 $to_email      = getenv('TO_EMAIL')      ?: 'mzulfahmi008@gmail.com';
+$smtp_host     = getenv('SMTP_HOST')     ?: 'smtp.gmail.com';
+$smtp_port     = (int)(getenv('SMTP_PORT') ?: 465);
 // ─────────────────────────────────────────────────────────
 
 // Validasi method
@@ -59,10 +61,14 @@ if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
 
 // Validasi keberadaan domain server email (MX / A Record)
 $domain = substr(strrchr($email, "@"), 1);
-if (!empty($domain) && !checkdnsrr($domain, 'MX') && !checkdnsrr($domain, 'A')) {
-    ob_clean();
-    echo json_encode(['success' => false, 'message' => 'Domain email tidak valid atau tidak memiliki server email aktif.']);
-    exit;
+if (!empty($domain) && function_exists('checkdnsrr')) {
+    $has_mx = @checkdnsrr($domain, 'MX');
+    $has_a  = @checkdnsrr($domain, 'A');
+    if (!$has_mx && !$has_a) {
+        ob_clean();
+        echo json_encode(['success' => false, 'message' => 'Domain email tidak valid atau tidak memiliki server email aktif.']);
+        exit;
+    }
 }
 
 if (strlen($nama) > 100 || strlen($pesan) > 3000) {
@@ -76,14 +82,28 @@ try {
 
     // Server SMTP
     $mail->isSMTP();
-    $mail->Host       = 'smtp.gmail.com';
+    $mail->Host       = $smtp_host;
     $mail->SMTPAuth   = true;
     $mail->Username   = $smtp_user;
     $mail->Password   = $smtp_password;
-    $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-    $mail->Port       = 587;
+    
+    if ($smtp_port === 465) {
+        $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
+    } else {
+        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+    }
+    $mail->Port       = $smtp_port;
     $mail->CharSet    = 'UTF-8';
-    $mail->Timeout    = 10; // Timeout 10 detik
+    $mail->Timeout    = 15;
+
+    // SSL options untuk kompatibilitas server cloud container (Railway/Render/cPanel)
+    $mail->SMTPOptions = [
+        'ssl' => [
+            'verify_peer'       => false,
+            'verify_peer_name'  => false,
+            'allow_self_signed' => true
+        ]
+    ];
 
     // Pengirim & penerima
     $mail->setFrom($smtp_user, 'Website SMKS Sukapura');
