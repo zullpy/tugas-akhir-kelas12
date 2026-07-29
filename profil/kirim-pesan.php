@@ -2,6 +2,7 @@
 // Handler pengiriman pesan dari form kontak
 // Menggunakan PHPMailer + Gmail SMTP (Railway-compatible)
 ob_start();
+date_default_timezone_set('Asia/Jakarta');
 header('Content-Type: application/json');
 
 // Path vendor PHPMailer
