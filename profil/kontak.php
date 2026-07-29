@@ -36,7 +36,7 @@ $subPageTitle = 'kontak';
     <main class="kontak-main">
 
         <!-- ── SECTION HEADER ── -->
-        <div class="kontak-section-header">
+        <div class="kontak-section-header reveal">
             <div class="kontak-badge"><i class="ph-bold ph-address-book"></i> INFORMASI KONTAK</div>
             <h2 class="kontak-section-title">Hubungi Kami</h2>
             <p class="kontak-section-sub">Jangan ragu untuk menghubungi kami melalui salah satu saluran di bawah ini.</p>
@@ -45,7 +45,7 @@ $subPageTitle = 'kontak';
         <!-- ── INFO CARDS ── -->
         <div class="kontak-cards-grid">
 
-            <div class="kontak-info-card card-yellow">
+            <div class="kontak-info-card card-yellow reveal reveal-delay-1">
                 <div class="kontak-info-icon"><i class="ph-bold ph-map-pin-area"></i></div>
                 <div class="kontak-info-body">
                     <span class="kontak-info-label">Alamat</span>
@@ -53,7 +53,7 @@ $subPageTitle = 'kontak';
                 </div>
             </div>
 
-            <div class="kontak-info-card card-blue">
+            <div class="kontak-info-card card-blue reveal reveal-delay-2">
                 <div class="kontak-info-icon"><i class="ph-bold ph-envelope-simple"></i></div>
                 <div class="kontak-info-body">
                     <span class="kontak-info-label">Email</span>
@@ -63,7 +63,7 @@ $subPageTitle = 'kontak';
                 </div>
             </div>
 
-            <div class="kontak-info-card card-green">
+            <div class="kontak-info-card card-green reveal reveal-delay-3">
                 <div class="kontak-info-icon"><i class="ph-bold ph-phone"></i></div>
                 <div class="kontak-info-body">
                     <span class="kontak-info-label">Telepon / WhatsApp</span>
@@ -73,7 +73,7 @@ $subPageTitle = 'kontak';
                 </div>
             </div>
 
-            <div class="kontak-info-card card-pink">
+            <div class="kontak-info-card card-pink reveal reveal-delay-4">
                 <div class="kontak-info-icon"><i class="ph-bold ph-clock"></i></div>
                 <div class="kontak-info-body">
                     <span class="kontak-info-label">Jam Operasional</span>
@@ -88,7 +88,7 @@ $subPageTitle = 'kontak';
         </div>
 
         <!-- ── SOCIAL MEDIA ── -->
-        <div class="kontak-sosmed-wrap">
+        <div class="kontak-sosmed-wrap reveal">
             <span class="kontak-sosmed-label">Temukan kami di media sosial:</span>
             <div class="kontak-sosmed-btns">
                 <a href="https://www.youtube.com/@smksukapurakab.tasikmalaya" target="_blank" aria-label="YouTube" class="sosmed-btn sosmed-yt">
@@ -111,7 +111,7 @@ $subPageTitle = 'kontak';
         </div>
 
         <!-- ── MAPS SECTION ── -->
-        <div class="kontak-maps-section">
+        <div class="kontak-maps-section reveal">
             <div class="kontak-badge"><i class="ph-bold ph-map-trifold"></i> LOKASI KAMI</div>
             <h2 class="kontak-section-title">Temukan Kami di Peta</h2>
             <p class="kontak-section-sub">SMKS Sukapura — Jl. Dalem Wirawangsa Km. 03, Tanjungjaya, Kab. Tasikmalaya</p>
@@ -121,7 +121,7 @@ $subPageTitle = 'kontak';
         </div>
 
         <!-- ── FORM PESAN ── -->
-        <div class="kontak-form-section">
+        <div class="kontak-form-section reveal">
             <div class="kontak-badge"><i class="ph-bold ph-paper-plane-tilt"></i> KIRIM PESAN</div>
             <h2 class="kontak-section-title">Kirimkan Pesan Anda</h2>
             <p class="kontak-section-sub">Kesan dan masukan Anda membantu kami terus meningkatkan kualitas pelayanan sekolah.</p>

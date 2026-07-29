@@ -100,13 +100,13 @@ $pageTitle = "beranda";
 
 <main style="width: 92%; max-width: 1200px; margin: 50px auto 60px; min-height: 400px;">
     <section class="sambutan-section">
-        <div class="section-header">
+        <div class="section-header reveal">
             <h2 class="section-title">Sambutan Kepala Sekolah</h2>
             <p class="section-subtitle">SMK Sukapura Kab. Tasikmalaya</p>
         </div>
 
         <div class="sambutan-grid">
-            <div class="sambutan-left">
+            <div class="sambutan-left reveal-left">
                 <div class="kepala-card">
                     <div class="kepala-img-wrapper">
                         <img src="assets/kepala.png" alt="Dedi Ah Kurniadi, S.Pd., M.Pd." class="kepala-img">
@@ -118,7 +118,7 @@ $pageTitle = "beranda";
                 </div>
             </div>
 
-            <div class="sambutan-right">
+            <div class="sambutan-right reveal-right">
                 <div class="sambutan-content">
                     <div class="quote-icon">&ldquo;</div>
                     <div class="greeting-header">
@@ -142,7 +142,7 @@ $pageTitle = "beranda";
     </section>
 
     <section class="prestasi-section">
-        <div class="section-header center">
+        <div class="section-header center reveal">
             <span class="section-badge badge-yellow">PRESTASI & SANG JUARA</span>
             <h2 class="section-title">Prestasi SMK Sukapura</h2>
             <p class="section-subtitle">Ukiran Kebanggaan dan Raihan Juara Siswa-Siswi SMK Sukapura</p>
@@ -150,7 +150,7 @@ $pageTitle = "beranda";
 
         <div class="prestasi-grid">
             <!-- Card 1: Kiki Nopiansyah -->
-            <div class="prestasi-card">
+            <div class="prestasi-card reveal reveal-scale reveal-delay-1">
                 <div class="prestasi-img-wrapper">
                     <img src="assets/prestasi/kiki.jpg" alt="Kiki Nopiansyah - Pasanggiri Mojang Jajaka Sukapura" class="prestasi-img">
                     <span class="prestasi-category">MOJANG JAJAKA</span>
@@ -163,7 +163,7 @@ $pageTitle = "beranda";
             </div>
 
             <!-- Card 2: Shota Abdullah -->
-            <div class="prestasi-card">
+            <div class="prestasi-card reveal reveal-scale reveal-delay-2">
                 <div class="prestasi-img-wrapper">
                     <img src="assets/prestasi/shota.jpg" alt="Shota Abdullah - Pasanggiri Mojang Jajaka Sukapura" class="prestasi-img">
                     <span class="prestasi-category">MOJANG JAJAKA</span>
@@ -176,7 +176,7 @@ $pageTitle = "beranda";
             </div>
 
             <!-- Card 3: OSIS -->
-            <div class="prestasi-card">
+            <div class="prestasi-card reveal reveal-scale reveal-delay-3">
                 <div class="prestasi-img-wrapper">
                     <img src="assets/prestasi/osis.jpg" alt="OSIS SMK Sukapura" class="prestasi-img">
                     <span class="prestasi-category">ORGANISASI SISWA</span>
@@ -189,7 +189,7 @@ $pageTitle = "beranda";
             </div>
 
             <!-- Card 4: Paskibra 1 -->
-            <div class="prestasi-card">
+            <div class="prestasi-card reveal reveal-scale reveal-delay-1">
                 <div class="prestasi-img-wrapper">
                     <img src="assets/prestasi/paskibra.jpg" alt="Paskibra Pasuja SMK Sukapura" class="prestasi-img">
                     <span class="prestasi-category">PASUJA PASKIBRA</span>
@@ -202,7 +202,7 @@ $pageTitle = "beranda";
             </div>
 
             <!-- Card 5: Paskibra 2 -->
-            <div class="prestasi-card">
+            <div class="prestasi-card reveal reveal-scale reveal-delay-2">
                 <div class="prestasi-img-wrapper">
                     <img src="assets/prestasi/paskibra2.jpg" alt="Trofi Paskibra SMK Sukapura" class="prestasi-img">
                     <span class="prestasi-category">PASUJA PASKIBRA</span>
@@ -215,7 +215,7 @@ $pageTitle = "beranda";
             </div>
 
             <!-- Card 6: Volly Putri -->
-            <div class="prestasi-card">
+            <div class="prestasi-card reveal reveal-scale reveal-delay-3">
                 <div class="prestasi-img-wrapper">
                     <img src="assets/prestasi/vollypi.jpg" alt="Tim Voli Putri SMK Sukapura" class="prestasi-img">
                     <span class="prestasi-category">OLAHRAGA VOLI</span>
@@ -228,7 +228,7 @@ $pageTitle = "beranda";
             </div>
 
             <!-- Card 7: Volly Putra -->
-            <div class="prestasi-card">
+            <div class="prestasi-card reveal reveal-scale reveal-delay-1">
                 <div class="prestasi-img-wrapper">
                     <img src="assets/prestasi/vollypa.jpg" alt="Tim Voli Putra SMK Sukapura" class="prestasi-img">
                     <span class="prestasi-category">OLAHRAGA VOLI</span>
@@ -241,7 +241,7 @@ $pageTitle = "beranda";
             </div>
 
             <!-- Card 8: MGMP PAI -->
-            <div class="prestasi-card">
+            <div class="prestasi-card reveal reveal-scale reveal-delay-2">
                 <div class="prestasi-img-wrapper">
                     <img src="assets/prestasi/mgmp.jpg" alt="Juara Pentas MGMP PAI SMK Sukapura" class="prestasi-img">
                     <span class="prestasi-category">LOMBA PAI</span>
@@ -254,7 +254,7 @@ $pageTitle = "beranda";
             </div>
 
             <!-- Card 9: Poster Digital -->
-            <div class="prestasi-card">
+            <div class="prestasi-card reveal reveal-scale reveal-delay-3">
                 <div class="prestasi-img-wrapper">
                     <img src="assets/prestasi/poster.jpg" alt="Juara Lomba Poster Digital SMK Sukapura" class="prestasi-img">
                     <span class="prestasi-category">DESAIN DIGITAL</span>
@@ -269,12 +269,12 @@ $pageTitle = "beranda";
     </section>
 
     <section class="mitra-section">
-        <div class="section-header center">
+        <div class="section-header center reveal">
             <h2 class="section-title">Mitra Kerja Sama</h2>
             <p class="section-subtitle">Dunia Usaha & Dunia Industri Terkemuka</p>
         </div>
 
-        <div class="mitra-carousel-wrapper">
+        <div class="mitra-carousel-wrapper reveal">
             <button class="mitra-control prev" id="mitra-prev" aria-label="Mitra Sebelumnya">
                 <i class="ph-bold ph-caret-left"></i>
             </button>

@@ -52,10 +52,10 @@ $subPageTitle = 'visi-misi';
 
         <!-- VISI SECTION -->
         <section class="visi-section">
-            <div class="visi-badge">
+            <div class="visi-badge reveal-left">
                 <i class="ph-bold ph-compass"></i> VISI SEKOLAH
             </div>
-            <div class="visi-card">
+            <div class="visi-card reveal">
                 <blockquote class="visi-text">
                     "Menjadikan sekolah yang unggul dengan lulusan yang <span class="highlight-yellow">Berprestasi</span>, <span class="highlight-green">Disiplin</span>, <span class="highlight-blue">Berkarakter baik</span>, <span class="highlight-pink">Inovatif</span>, <span class="highlight-purple">Kreatif</span>, dan <span class="highlight-red">siap berkarir</span>."
                 </blockquote>
@@ -72,7 +72,7 @@ $subPageTitle = 'visi-misi';
 
         <!-- MISI SECTION -->
         <section class="misi-section">
-            <div class="misi-header">
+            <div class="misi-header reveal">
                 <div class="misi-badge">
                     <i class="ph-bold ph-target"></i> MISI SEKOLAH
                 </div>
@@ -81,7 +81,7 @@ $subPageTitle = 'visi-misi';
 
             <div class="misi-grid">
                 <!-- Card 1 -->
-                <div class="misi-card">
+                <div class="misi-card reveal reveal-delay-1">
                     <div class="misi-number">01</div>
                     <div class="misi-icon-box color-1">
                         <i class="ph-bold ph-book-open"></i>
@@ -93,7 +93,7 @@ $subPageTitle = 'visi-misi';
                 </div>
 
                 <!-- Card 2 -->
-                <div class="misi-card">
+                <div class="misi-card reveal reveal-delay-2">
                     <div class="misi-number">02</div>
                     <div class="misi-icon-box color-2">
                         <i class="ph-bold ph-shield-check"></i>
@@ -105,7 +105,7 @@ $subPageTitle = 'visi-misi';
                 </div>
 
                 <!-- Card 3 -->
-                <div class="misi-card">
+                <div class="misi-card reveal reveal-delay-3">
                     <div class="misi-number">03</div>
                     <div class="misi-icon-box color-3">
                         <i class="ph-bold ph-trophy"></i>
@@ -117,7 +117,7 @@ $subPageTitle = 'visi-misi';
                 </div>
 
                 <!-- Card 4 -->
-                <div class="misi-card">
+                <div class="misi-card reveal reveal-delay-1">
                     <div class="misi-number">04</div>
                     <div class="misi-icon-box color-4">
                         <i class="ph-bold ph-lightbulb"></i>
@@ -129,7 +129,7 @@ $subPageTitle = 'visi-misi';
                 </div>
 
                 <!-- Card 5 -->
-                <div class="misi-card">
+                <div class="misi-card reveal reveal-delay-2">
                     <div class="misi-number">05</div>
                     <div class="misi-icon-box color-5">
                         <i class="ph-bold ph-users-three"></i>
@@ -141,7 +141,7 @@ $subPageTitle = 'visi-misi';
                 </div>
 
                 <!-- Card 6 -->
-                <div class="misi-card">
+                <div class="misi-card reveal reveal-delay-3">
                     <div class="misi-number">06</div>
                     <div class="misi-icon-box color-6">
                         <i class="ph-bold ph-rocket-launch"></i>

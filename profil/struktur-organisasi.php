@@ -37,12 +37,12 @@ $subPageTitle = 'struktur-organisasi';
     <main class="struktur-container">
 
         <!-- Section header -->
-        <div class="profile-header">
+        <div class="profile-header reveal">
             <h2 class="title">BAGAN STRUKTUR ORGANISASI</h2>
         </div>
 
         <!-- Diagram card -->
-        <div class="struktur-card">
+        <div class="struktur-card reveal">
             <div class="struktur-card-header">
                 <span class="struktur-badge"><i class="ph-bold ph-tree-structure"></i> SMKS SUKAPURA</span>
                 <span class="struktur-year">Tahun Pelajaran 2024/2025</span>
@@ -62,7 +62,7 @@ $subPageTitle = 'struktur-organisasi';
 
         <!-- Info Cards Row -->
         <div class="struktur-info-grid">
-            <div class="info-card">
+            <div class="info-card reveal reveal-delay-1">
                 <div class="info-icon-box" style="background:#FFE600;">
                     <i class="ph-bold ph-crown"></i>
                 </div>
@@ -71,7 +71,7 @@ $subPageTitle = 'struktur-organisasi';
                     <span class="info-value">Pimpinan tertinggi satuan pendidikan</span>
                 </div>
             </div>
-            <div class="info-card">
+            <div class="info-card reveal reveal-delay-2">
                 <div class="info-icon-box" style="background:#4ADE80;">
                     <i class="ph-bold ph-users-three"></i>
                 </div>
@@ -80,7 +80,7 @@ $subPageTitle = 'struktur-organisasi';
                     <span class="info-value">Bidang Kurikulum, Kesiswaan &amp; Humas</span>
                 </div>
             </div>
-            <div class="info-card">
+            <div class="info-card reveal reveal-delay-3">
                 <div class="info-icon-box" style="background:#38BDF8;">
                     <i class="ph-bold ph-chalkboard-teacher"></i>
                 </div>
@@ -89,7 +89,7 @@ $subPageTitle = 'struktur-organisasi';
                     <span class="info-value">Guru produktif &amp; normatif adaptif</span>
                 </div>
             </div>
-            <div class="info-card">
+            <div class="info-card reveal reveal-delay-4">
                 <div class="info-icon-box" style="background:#F472B6;">
                     <i class="ph-bold ph-graduation-cap"></i>
                 </div>

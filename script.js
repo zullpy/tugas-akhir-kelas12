@@ -200,4 +200,27 @@ document.addEventListener('DOMContentLoaded', () => {
 
         startMitraAutoScroll();
     }
+
+    // ============================================
+    // SCROLL REVEAL - Intersection Observer
+    // ============================================
+    const revealSelectors = '.reveal, .reveal-left, .reveal-right, .reveal-scale';
+    const revealElements = document.querySelectorAll(revealSelectors);
+
+    if (revealElements.length > 0) {
+        const revealObserver = new IntersectionObserver((entries) => {
+            entries.forEach((entry) => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('revealed');
+                    // Berhenti observe setelah muncul (animasi cukup sekali)
+                    revealObserver.unobserve(entry.target);
+                }
+            });
+        }, {
+            threshold: 0.1,       // Mulai animasi saat 10% elemen terlihat
+            rootMargin: '0px 0px -60px 0px' // Mulai sedikit sebelum benar-benar masuk
+        });
+
+        revealElements.forEach((el) => revealObserver.observe(el));
+    }
 });

@@ -40,17 +40,17 @@ $pageTitle = 'profil';
 
     <main class="profile-main-container">
         <!-- Header area with watermark -->
-        <div class="profile-header">
+        <div class="profile-header reveal">
             <h1 class="title">PROFIL SINGKAT</h1>
         </div>
 
         <!-- Main content grid -->
-        <div class="profile-content-card">
-            <div class="profile-logo-wrapper">
+        <div class="profile-content-card reveal">
+            <div class="profile-logo-wrapper reveal-left">
                 <img src="../assets/favicon.ico" alt="Logo SMKS Sukapura Kab. Tasikmalaya" class="profile-logo-img">
             </div>
             
-            <div class="profile-details-wrapper">
+            <div class="profile-details-wrapper reveal-right">
                 <h2 class="section-title">Identitas Satuan Pendidikan</h2>
                 
                 <table class="profile-table">
