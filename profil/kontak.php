@@ -180,11 +180,26 @@ $subPageTitle = 'kontak';
                     method: 'POST',
                     body:   new FormData(form)
                 });
-                const data = await res.json();
-                showNotif(data.success, data.message);
+
+                const contentType = res.headers.get('content-type') || '';
+                let data;
+
+                if (contentType.includes('application/json')) {
+                    data = await res.json();
+                } else {
+                    const rawText = await res.text();
+                    console.error('Server response (non-JSON):', rawText);
+                    data = {
+                        success: false,
+                        message: `Respon server tidak valid (${res.status} ${res.statusText}).`
+                    };
+                }
+
+                showNotif(data.success, data.message || 'Terjadi kesalahan.');
                 if (data.success) form.reset();
             } catch (err) {
-                showNotif(false, 'Terjadi kesalahan jaringan. Silakan coba lagi.');
+                console.error('Network/Fetch error:', err);
+                showNotif(false, 'Gagal terhubung ke server. Silakan periksa koneksi internet Anda atau coba beberapa saat lagi.');
             } finally {
                 btn.disabled  = false;
                 btn.innerHTML = '<i class="ph-bold ph-paper-plane-tilt"></i> Kirim Pesan';

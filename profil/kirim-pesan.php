@@ -1,27 +1,39 @@
 <?php
 // Handler pengiriman pesan dari form kontak
 // Menggunakan PHPMailer + Gmail SMTP (Railway-compatible)
+ob_start();
 header('Content-Type: application/json');
 
-// Load PHPMailer manual (tanpa Composer)
-require __DIR__ . '/../vendor/phpmailer/phpmailer/src/Exception.php';
-require __DIR__ . '/../vendor/phpmailer/phpmailer/src/PHPMailer.php';
-require __DIR__ . '/../vendor/phpmailer/phpmailer/src/SMTP.php';
+// Path vendor PHPMailer
+$vendor_dir = __DIR__ . '/../vendor/phpmailer/phpmailer/src/';
+
+if (!file_exists($vendor_dir . 'PHPMailer.php')) {
+    ob_clean();
+    echo json_encode([
+        'success' => false,
+        'message' => 'Library PHPMailer tidak ditemukan di server.'
+    ]);
+    exit;
+}
+
+require_once $vendor_dir . 'Exception.php';
+require_once $vendor_dir . 'PHPMailer.php';
+require_once $vendor_dir . 'SMTP.php';
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\SMTP;
 use PHPMailer\PHPMailer\Exception;
 
 // ─── KONFIGURASI GMAIL SMTP ───────────────────────────────
-// Isi dengan akun Gmail + App Password (bukan password biasa!)
-// Cara buat App Password: myaccount.google.com → Security → 2-Step Verification → App Passwords
-$smtp_user     = 'mzulfahmi008@gmail.com';   // Akun Gmail pengirim
-$smtp_password = 'bisviqjcrlbqrnsd';    // App Password 16 karakter dari Google
-$to_email      = 'mzulfahmi008@gmail.com';   // Email tujuan penerima
+// Mendukung Environment Variables (SMTP_USER, SMTP_PASSWORD, TO_EMAIL) atau fallback default
+$smtp_user     = getenv('SMTP_USER')     ?: 'mzulfahmi008@gmail.com';
+$smtp_password = getenv('SMTP_PASSWORD') ?: 'bisviqjcrlbqrnsd';
+$to_email      = getenv('TO_EMAIL')      ?: 'mzulfahmi008@gmail.com';
 // ─────────────────────────────────────────────────────────
 
 // Validasi method
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    ob_clean();
     echo json_encode(['success' => false, 'message' => 'Method tidak valid.']);
     exit;
 }
@@ -33,24 +45,26 @@ $pesan = trim(strip_tags($_POST['pesan'] ?? ''));
 
 // Validasi input
 if (empty($nama) || empty($email) || empty($pesan)) {
+    ob_clean();
     echo json_encode(['success' => false, 'message' => 'Semua field harus diisi.']);
     exit;
 }
 
 if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    ob_clean();
     echo json_encode(['success' => false, 'message' => 'Format email tidak valid.']);
     exit;
 }
 
 if (strlen($nama) > 100 || strlen($pesan) > 3000) {
+    ob_clean();
     echo json_encode(['success' => false, 'message' => 'Input terlalu panjang.']);
     exit;
 }
 
-// Kirim email via PHPMailer
-$mail = new PHPMailer(true);
-
 try {
+    $mail = new PHPMailer(true);
+
     // Server SMTP
     $mail->isSMTP();
     $mail->Host       = 'smtp.gmail.com';
@@ -60,6 +74,7 @@ try {
     $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
     $mail->Port       = 587;
     $mail->CharSet    = 'UTF-8';
+    $mail->Timeout    = 10; // Timeout 10 detik
 
     // Pengirim & penerima
     $mail->setFrom($smtp_user, 'Website SMKS Sukapura');
@@ -105,15 +120,18 @@ try {
 
     $mail->send();
 
+    ob_clean();
     echo json_encode([
         'success' => true,
         'message' => 'Pesan berhasil dikirim! Kami akan segera menghubungi Anda.'
     ]);
 
-} catch (Exception $e) {
+} catch (\Throwable $e) {
+    ob_clean();
+    $errMsg = $e->getMessage();
     echo json_encode([
         'success' => false,
-        'message' => 'Gagal mengirim pesan. Silakan coba lagi atau hubungi kami langsung.'
-        // Debug: 'debug' => $mail->ErrorInfo  // aktifkan saat development
+        'message' => 'Gagal mengirim pesan: ' . $errMsg
     ]);
 }
+
