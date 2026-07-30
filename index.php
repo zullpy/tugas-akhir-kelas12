@@ -83,7 +83,7 @@ $pageTitle = "beranda";
                 <div class="stat-label">Siswa</div>
             </div>
             <div class="stat-item">
-                <div class="stat-value">70+</div>
+                <div class="stat-value">80+</div>
                 <div class="stat-label">Guru & Staf</div>
             </div>
             <div class="stat-item">
@@ -263,6 +263,156 @@ $pageTitle = "beranda";
                 <div class="prestasi-content">
                     <h3 class="prestasi-title">Juara Lomba Desain Poster Digital</h3>
                     <p class="prestasi-caption">Kreativitas dan keahlian siswa SMK Sukapura dalam merancang poster digital artistik yang edukatif dan inspiratif.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="keahlian-section">
+        <div class="section-header center reveal">
+            <span class="section-badge badge-yellow"><i class="ph-bold ph-graduation-cap"></i> PROGRAM KEAHLIAN</span>
+            <h2 class="section-title">Konsentrasi Keahlian Unggulan</h2>
+            <p class="section-subtitle">10 Program Keahlian Siap Kerja Berbasis Industri &amp; Teknologi di SMKS Sukapura</p>
+        </div>
+
+        <div class="keahlian-grid">
+            <div class="keahlian-card reveal reveal-scale reveal-delay-1">
+                <div class="keahlian-card-top">
+                    <span class="keahlian-tag tag-blue">TI</span>
+                    <span class="keahlian-code">PPLG</span>
+                </div>
+                <div class="keahlian-img-box">
+                    <img src="assets/jurusan/pplg.png" alt="Pengembangan Perangkat Lunak & Gim (PPLG)" class="keahlian-img">
+                </div>
+                <div class="keahlian-card-body">
+                    <h3 class="keahlian-title">PPLG</h3>
+                    <p class="keahlian-desc">Pengembangan Perangkat Lunak &amp; Gim</p>
+                </div>
+            </div>
+
+            <div class="keahlian-card reveal reveal-scale reveal-delay-2">
+                <div class="keahlian-card-top">
+                    <span class="keahlian-tag tag-purple">TI</span>
+                    <span class="keahlian-code">TJKT</span>
+                </div>
+                <div class="keahlian-img-box">
+                    <img src="assets/jurusan/tjkt.png" alt="Teknik Jaringan Komputer & Telekomunikasi (TJKT)" class="keahlian-img">
+                </div>
+                <div class="keahlian-card-body">
+                    <h3 class="keahlian-title">TJKT</h3>
+                    <p class="keahlian-desc">Teknik Jaringan Komputer &amp; Telekomunikasi</p>
+                </div>
+            </div>
+
+            <div class="keahlian-card reveal reveal-scale reveal-delay-3">
+                <div class="keahlian-card-top">
+                    <span class="keahlian-tag tag-pink">TI</span>
+                    <span class="keahlian-code">DKV</span>
+                </div>
+                <div class="keahlian-img-box">
+                    <img src="assets/jurusan/dkv.png" alt="Desain Komunikasi Visual (DKV)" class="keahlian-img">
+                </div>
+                <div class="keahlian-card-body">
+                    <h3 class="keahlian-title">DKV</h3>
+                    <p class="keahlian-desc">Desain Komunikasi Visual</p>
+                </div>
+            </div>
+
+            <div class="keahlian-card reveal reveal-scale reveal-delay-4">
+                <div class="keahlian-card-top">
+                    <span class="keahlian-tag tag-green">BISNIS MANAJEMEN</span>
+                    <span class="keahlian-code">MPLB</span>
+                </div>
+                <div class="keahlian-img-box">
+                    <img src="assets/jurusan/mp.png" alt="Manajemen Perkantoran & Layanan Bisnis (MP)" class="keahlian-img">
+                </div>
+                <div class="keahlian-card-body">
+                    <h3 class="keahlian-title">MPLB</h3>
+                    <p class="keahlian-desc">Manajemen Perkantoran &amp; Layanan Bisnis</p>
+                </div>
+            </div>
+
+            <div class="keahlian-card reveal reveal-scale reveal-delay-5">
+                <div class="keahlian-card-top">
+                    <span class="keahlian-tag tag-yellow">BISNIS MANAJEMEN</span>
+                    <span class="keahlian-code">AKL</span>
+                </div>
+                <div class="keahlian-img-box">
+                    <img src="assets/jurusan/ak.png" alt="Akuntansi & Keuangan Lembaga (AK)" class="keahlian-img">
+                </div>
+                <div class="keahlian-card-body">
+                    <h3 class="keahlian-title">AKL</h3>
+                    <p class="keahlian-desc">Akuntansi &amp; Keuangan Lembaga</p>
+                </div>
+            </div>
+
+            <div class="keahlian-card reveal reveal-scale reveal-delay-1">
+                <div class="keahlian-card-top">
+                    <span class="keahlian-tag tag-orange">BISNIS MANAJEMEN</span>
+                    <span class="keahlian-code">BD</span>
+                </div>
+                <div class="keahlian-img-box">
+                    <img src="assets/jurusan/bd.png" alt="Bisnis Digital (BD)" class="keahlian-img">
+                </div>
+                <div class="keahlian-card-body">
+                    <h3 class="keahlian-title">BD</h3>
+                    <p class="keahlian-desc">Pemasaran &amp; E-Commerce</p>
+                </div>
+            </div>
+
+            <div class="keahlian-card reveal reveal-scale reveal-delay-2">
+                <div class="keahlian-card-top">
+                    <span class="keahlian-tag tag-dark">BISNIS MANAJEMEN</span>
+                    <span class="keahlian-code">AB</span>
+                </div>
+                <div class="keahlian-img-box">
+                    <img src="assets/jurusan/ab.png" alt="Teknik Bodi Otomotif (AB)" class="keahlian-img">
+                </div>
+                <div class="keahlian-card-body">
+                    <h3 class="keahlian-title">AB</h3>
+                    <p class="keahlian-desc">Bisnis Pertanian</p>
+                </div>
+            </div>
+
+            <div class="keahlian-card reveal reveal-scale reveal-delay-3">
+                <div class="keahlian-card-top">
+                    <span class="keahlian-tag tag-red">PARAWISATA</span>
+                    <span class="keahlian-code">DPB</span>
+                </div>
+                <div class="keahlian-img-box">
+                    <img src="assets/jurusan/dpb.png" alt="Desain & Produksi Busana (DPB)" class="keahlian-img">
+                </div>
+                <div class="keahlian-card-body">
+                    <h3 class="keahlian-title">DPB</h3>
+                    <p class="keahlian-desc">Desain &amp; Produksi Busana</p>
+                </div>
+            </div>
+
+            <div class="keahlian-card reveal reveal-scale reveal-delay-4">
+                <div class="keahlian-card-top">
+                    <span class="keahlian-tag tag-teal">PARIWISATA</span>
+                    <span class="keahlian-code">KLN</span>
+                </div>
+                <div class="keahlian-img-box">
+                    <img src="assets/jurusan/kln.png" alt="Kuliner (KLN)" class="keahlian-img">
+                </div>
+                <div class="keahlian-card-body">
+                    <h3 class="keahlian-title">Kuliner</h3>
+                    <p class="keahlian-desc">Tata Boga &amp; Seni Kuliner</p>
+                </div>
+            </div>
+
+            <div class="keahlian-card reveal reveal-scale reveal-delay-5">
+                <div class="keahlian-card-top">
+                    <span class="keahlian-tag tag-dark">OTOMOTIF</span>
+                    <span class="keahlian-code">TSM</span>
+                </div>
+                <div class="keahlian-img-box">
+                    <img src="assets/jurusan/tsm.png" alt="Teknik Sepeda Motor (TSM)" class="keahlian-img">
+                </div>
+                <div class="keahlian-card-body">
+                    <h3 class="keahlian-title">TSM</h3>
+                    <p class="keahlian-desc">Teknik Sepeda Motor </p>
                 </div>
             </div>
         </div>

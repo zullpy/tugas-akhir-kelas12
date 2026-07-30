@@ -1,6 +1,7 @@
 <?php
 $base_url = '../';
 $pageTitle = 'profil';
+$subPageTitle = 'profil';
 ?>
 <!DOCTYPE html>
 <html lang="id">

@@ -366,15 +366,16 @@ $current_script_path = $_SERVER['SCRIPT_NAME'] ?? '';
             <!-- navigation links -->
             <ul class="nav-links" id="nav-links">
                 <li class="nav-item">
-                    <a href="<?php echo $base_url; ?>index.php" class="nav-link <?php echo (isset($pageTitle) && $pageTitle === 'beranda') || ($current_page_file === 'index.php' && strpos($current_script_path, '/profil/') === false) ? 'active' : ''; ?>">
+                    <a href="<?php echo $base_url; ?>index.php" class="nav-link <?php echo (isset($pageTitle) && $pageTitle === 'beranda') || ($current_page_file === 'index.php' && strpos($current_script_path, '/profil/') === false && strpos($current_script_path, '/data/') === false && strpos($current_script_path, '/program/') === false) ? 'active' : ''; ?>">
                         Beranda
                     </a>
                 </li>
                 <li class="nav-item has-dropdown">
-                    <a href="<?php echo $base_url; ?>profil/index.php" class="nav-link <?php echo (isset($pageTitle) && $pageTitle === 'profil') || strpos($current_script_path, '/profil/') !== false ? 'active' : ''; ?>">
+                    <a href="#" class="nav-link <?php echo (isset($pageTitle) && $pageTitle === 'profil') || strpos($current_script_path, '/profil/') !== false ? 'active' : ''; ?>">
                         Profil <span class="dropdown-icon">▼</span>
                     </a>
                     <ul class="sub-menu">
+                        <li><a href="<?php echo $base_url; ?>profil/index.php" class="<?php echo (isset($subPageTitle) && ($subPageTitle === 'profil' || $subPageTitle === 'profil-singkat')) || (strpos($current_script_path, '/profil/index.php') !== false) ? 'active' : ''; ?>">Profil Singkat</a></li>
                         <li><a href="<?php echo $base_url; ?>profil/visi-misi.php" class="<?php echo ($current_page_file === 'visi-misi.php' || (isset($subPageTitle) && $subPageTitle === 'visi-misi')) ? 'active' : ''; ?>">Visi Misi</a></li>
                         <li><a href="<?php echo $base_url; ?>profil/struktur-organisasi.php" class="<?php echo ($current_page_file === 'struktur-organisasi.php' || (isset($subPageTitle) && $subPageTitle === 'struktur-organisasi')) ? 'active' : ''; ?>">Struktur Organisasi</a></li>
                         <li><a href="<?php echo $base_url; ?>profil/kontak.php" class="<?php echo ($current_page_file === 'kontak.php' || (isset($subPageTitle) && $subPageTitle === 'kontak')) ? 'active' : ''; ?>">Kontak</a></li>
