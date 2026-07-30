@@ -226,6 +226,15 @@ $data_guru = [
             </div>
         </section>
 
+        <!-- LOAD MORE BUTTON SECTION -->
+        <div class="load-more-container reveal reveal-scale" id="load-more-wrapper">
+            <button type="button" id="load-more-btn" class="load-more-btn" aria-label="Lihat Selengkapnya">
+                <i class="ph-bold ph-caret-down btn-icon"></i>
+                <span class="btn-text">Lihat Selengkapnya</span>
+                <span id="load-more-badge" class="load-more-badge"></span>
+            </button>
+        </div>
+
         <!-- TABLE VIEW (SECONDARY) -->
         <section class="data-table-container" id="table-view" style="display: none;">
             <div class="table-responsive">

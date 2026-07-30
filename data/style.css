@@ -545,12 +545,36 @@ body {
     flex-direction: column;
     gap: 16px;
     position: relative;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    overflow: hidden;
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s ease;
+    will-change: transform, box-shadow;
+}
+
+/* Glass Shine Sweep Overlay */
+.guru-card::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -120%;
+    width: 70%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.45), transparent);
+    transform: skewX(-25deg);
+    pointer-events: none;
 }
 
 .guru-card:hover {
-    transform: translate(-3px, -3px);
-    box-shadow: var(--shadow-lg);
+    transform: translateY(-8px) scale(1.015);
+    box-shadow: 8px 8px 0px var(--nb-black);
+}
+
+.guru-card:hover::after {
+    animation: shineSweep 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes shineSweep {
+    0% { left: -120%; }
+    100% { left: 180%; }
 }
 
 .guru-card-header {
@@ -818,4 +842,342 @@ body {
         transform: none !important;
         transition: none !important;
     }
+}
+
+/* =============================================================
+   SISWA (STUDENT) SPECIFIC STYLES & ENHANCED ANIMATIONS
+   ============================================================= */
+.jurusan-filter-wrapper {
+    display: flex;
+    align-items: center;
+}
+
+.jurusan-select {
+    padding: 8px 16px;
+    font-family: var(--font-body);
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: var(--nb-black);
+    background-color: var(--nb-white);
+    border: var(--border-medium);
+    border-radius: var(--radius-btn);
+    cursor: pointer;
+    outline: none;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 2px 2px 0px var(--nb-black);
+}
+
+.jurusan-select:focus,
+.jurusan-select:hover {
+    background-color: var(--nb-yellow);
+    color: var(--nb-black);
+    transform: translate(-2px, -2px);
+    box-shadow: var(--shadow-sm);
+}
+
+.jurusan-select option {
+    background-color: #FFFFFF !important;
+    color: #000000 !important;
+    padding: 10px;
+    font-weight: 600;
+}
+
+/* GENDER BADGES */
+.gender-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    font-family: var(--font-heading);
+    font-size: 0.78rem;
+    font-weight: 800;
+    border: var(--border-thin);
+    border-radius: 6px;
+    box-shadow: 1.5px 1.5px 0px var(--nb-black);
+    text-transform: uppercase;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.siswa-card:hover .gender-badge {
+    transform: translate(-1px, -1px);
+    box-shadow: 2.5px 2.5px 0px var(--nb-black);
+}
+
+.gender-l {
+    background-color: #DBEAFE;
+    color: #1E40AF;
+}
+
+.gender-p {
+    background-color: #FCE7F3;
+    color: #9D174D;
+}
+
+.avatar-circle.avatar-female,
+.teacher-avatar.avatar-female {
+    background-color: #F472B6;
+    color: var(--nb-white);
+}
+
+/* AVATAR HOVER ANIMATIONS */
+.avatar-circle {
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
+}
+
+.siswa-card:hover .avatar-circle {
+    transform: scale(1.1) rotate(4deg);
+    box-shadow: 4px 4px 0px var(--nb-black);
+}
+
+.teacher-avatar {
+    transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.siswa-row:hover .teacher-avatar {
+    transform: scale(1.15) rotate(-6deg);
+}
+
+/* SISWA CARD META GRID */
+.siswa-meta-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    text-align: left;
+    background-color: var(--nb-bg);
+    border: var(--border-thin);
+    border-radius: 10px;
+    padding: 12px;
+    margin-top: 4px;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.siswa-card:hover .siswa-meta-grid {
+    background-color: #FFFEEA;
+}
+
+.meta-item {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.meta-label {
+    font-size: 0.72rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    color: #64748B;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.meta-val {
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: var(--nb-black);
+}
+
+.meta-val.highlight-val {
+    font-family: var(--font-heading);
+    color: var(--nb-navy-dark);
+}
+
+/* JURUSAN TAGS */
+.jurusan-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 8px;
+    font-family: var(--font-heading);
+    font-size: 0.76rem;
+    font-weight: 800;
+    border: 1.5px solid var(--nb-black);
+    border-radius: 6px;
+    box-shadow: 1.5px 1.5px 0px var(--nb-black);
+    width: fit-content;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.jurusan-tag:hover {
+    transform: translate(-1.5px, -1.5px);
+    box-shadow: 3px 3px 0px var(--nb-black);
+}
+
+.tag-pplg { background-color: #C084FC; color: #000; }
+.tag-tjkt { background-color: #38BDF8; color: #000; }
+.tag-dkv  { background-color: #FACC15; color: #000; }
+.tag-tsm  { background-color: #FB923C; color: #000; }
+.tag-ak   { background-color: #4ADE80; color: #000; }
+.tag-kuliner { background-color: #F472B6; color: #000; }
+.tag-mp   { background-color: #A7F3D0; color: #000; }
+.tag-bd   { background-color: #E9D5FF; color: #000; }
+
+/* STATUS BADGE */
+.status-badge-active {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.78rem;
+    font-weight: 800;
+    color: #065F46;
+    background-color: #D1FAE5;
+    border: 1.5px solid var(--nb-black);
+    border-radius: 6px;
+    padding: 2px 8px;
+    width: fit-content;
+}
+
+.pulse-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background-color: #10B981;
+    display: inline-block;
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+    animation: pulse-dot-anim 1.5s infinite;
+}
+
+@keyframes pulse-dot-anim {
+    0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+    70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+    100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+}
+
+/* TABLE SISWA CUSTOM COLUMNS */
+.nis-wrapper {
+    display: flex;
+    flex-direction: column;
+}
+
+.nis-main {
+    font-family: var(--font-heading);
+    font-weight: 800;
+    font-size: 0.92rem;
+    color: var(--nb-black);
+}
+
+.nisn-sub {
+    font-size: 0.76rem;
+    color: #64748B;
+    font-weight: 600;
+}
+
+.class-badge {
+    display: inline-flex;
+    padding: 4px 10px;
+    font-family: var(--font-heading);
+    font-weight: 800;
+    font-size: 0.82rem;
+    background-color: var(--nb-bg);
+    border: var(--border-thin);
+    border-radius: 6px;
+    box-shadow: 1.5px 1.5px 0px var(--nb-black);
+    transition: transform 0.15s ease;
+}
+
+.siswa-row:hover .class-badge {
+    background-color: var(--nb-yellow);
+    transform: translate(-1px, -1px);
+}
+
+.siswa-row {
+    transition: background-color 0.2s ease, transform 0.15s ease;
+}
+
+.siswa-row:hover {
+    background-color: #FFFEE5 !important;
+}
+
+/* =============================================================
+   LOAD MORE BUTTON STYLING & ENHANCED STAGGER CARD ANIMATIONS
+   ============================================================= */
+.load-more-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 35px 0 15px;
+    width: 100%;
+}
+
+.load-more-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 14px 28px;
+    background-color: var(--nb-yellow);
+    color: var(--nb-black);
+    border: var(--border-thick);
+    border-radius: var(--radius-box);
+    font-family: var(--font-heading);
+    font-size: 1rem;
+    font-weight: 800;
+    cursor: pointer;
+    box-shadow: var(--shadow-md);
+    transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    position: relative;
+    overflow: hidden;
+}
+
+.load-more-btn:hover {
+    background-color: #FFED4A;
+    transform: translate(-3px, -3px) scale(1.02);
+    box-shadow: var(--shadow-lg);
+}
+
+.load-more-btn:active {
+    transform: translate(2px, 2px) scale(0.98);
+    box-shadow: 2px 2px 0px var(--nb-black);
+}
+
+.load-more-btn .btn-icon {
+    font-size: 1.25rem;
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.load-more-btn:hover .btn-icon {
+    transform: translateY(3px) scale(1.15);
+}
+
+.load-more-btn.expanded .btn-icon {
+    transform: rotate(180deg);
+}
+
+.load-more-btn.expanded:hover .btn-icon {
+    transform: rotate(180deg) translateY(3px) scale(1.15);
+}
+
+.load-more-badge {
+    background-color: var(--nb-navy-dark);
+    color: var(--nb-yellow);
+    border: 1.5px solid var(--nb-black);
+    border-radius: 20px;
+    padding: 4px 12px;
+    font-family: var(--font-body);
+    font-size: 0.82rem;
+    font-weight: 700;
+    letter-spacing: 0.2px;
+    box-shadow: 1.5px 1.5px 0px var(--nb-black);
+    margin-left: 4px;
+}
+
+/* CARD POP IN ANIMATION WITH STAGGER */
+@keyframes cardPopIn {
+    0% {
+        opacity: 0;
+        transform: translateY(35px) scale(0.92) rotateX(10deg);
+    }
+    60% {
+        transform: translateY(-5px) scale(1.015) rotateX(0deg);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1) rotateX(0deg);
+    }
+}
+
+.guru-card.revealed,
+.siswa-card.revealed {
+    animation: cardPopIn 0.55s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    animation-delay: calc(var(--card-index, 0) * 0.07s);
 }
