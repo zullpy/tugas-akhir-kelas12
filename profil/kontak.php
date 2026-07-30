@@ -176,30 +176,28 @@ $subPageTitle = 'kontak';
             btn.innerHTML  = '<i class="ph-bold ph-circle-notch" style="animation:spin 0.8s linear infinite"></i> Mengirim...';
 
             try {
-                const res  = await fetch('kirim-pesan.php', {
+                const res = await fetch('kirim-pesan.php', {
                     method: 'POST',
                     body:   new FormData(form)
                 });
 
-                const contentType = res.headers.get('content-type') || '';
                 let data;
-
-                if (contentType.includes('application/json')) {
+                try {
                     data = await res.json();
-                } else {
-                    const rawText = await res.text();
-                    console.error('Server response (non-JSON):', rawText);
+                } catch (jsonErr) {
+                    const rawText = await res.text().catch(() => '');
+                    console.error('Server non-JSON response:', rawText);
                     data = {
                         success: false,
-                        message: `Respon server tidak valid (${res.status} ${res.statusText}).`
+                        message: `Server mengembalikan respon tidak valid (Status ${res.status}).`
                     };
                 }
 
-                showNotif(data.success, data.message || 'Terjadi kesalahan.');
+                showNotif(data.success, data.message || (data.success ? 'Pesan berhasil dikirim!' : 'Gagal mengirim pesan.'));
                 if (data.success) form.reset();
             } catch (err) {
-                console.error('Network/Fetch error:', err);
-                showNotif(false, 'Gagal terhubung ke server. Silakan periksa koneksi internet Anda atau coba beberapa saat lagi.');
+                console.error('Fetch error:', err);
+                showNotif(false, 'Gagal terhubung ke server. Silakan periksa koneksi Anda dan coba beberapa saat lagi.');
             } finally {
                 btn.disabled  = false;
                 btn.innerHTML = '<i class="ph-bold ph-paper-plane-tilt"></i> Kirim Pesan';
