@@ -208,19 +208,29 @@ document.addEventListener('DOMContentLoaded', () => {
     const revealElements = document.querySelectorAll(revealSelectors);
 
     if (revealElements.length > 0) {
+        const checkReveals = () => {
+            revealElements.forEach((el) => {
+                const rect = el.getBoundingClientRect();
+                if (rect.top <= window.innerHeight + 150 && rect.bottom >= -100) {
+                    el.classList.add('revealed');
+                }
+            });
+        };
+
         const revealObserver = new IntersectionObserver((entries) => {
             entries.forEach((entry) => {
                 if (entry.isIntersecting) {
                     entry.target.classList.add('revealed');
-                    // Berhenti observe setelah muncul (animasi cukup sekali)
                     revealObserver.unobserve(entry.target);
                 }
             });
         }, {
-            threshold: 0.1,       // Mulai animasi saat 10% elemen terlihat
-            rootMargin: '0px 0px -60px 0px' // Mulai sedikit sebelum benar-benar masuk
+            threshold: 0,
+            rootMargin: '150px 0px 150px 0px'
         });
 
         revealElements.forEach((el) => revealObserver.observe(el));
+        checkReveals();
+        window.addEventListener('scroll', checkReveals, { passive: true });
     }
 });

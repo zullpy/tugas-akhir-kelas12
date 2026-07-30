@@ -130,47 +130,47 @@ $data_guru = [
 
     <main class="guru-main-container">
         <!-- STATS BAR -->
-        <section class="stats-grid reveal">
-            <div class="stat-card stat-yellow">
+        <section class="stats-grid">
+            <div class="stat-card stat-yellow reveal reveal-scale reveal-delay-1">
                 <div class="stat-icon"><i class="ph-bold ph-users-three"></i></div>
                 <div class="stat-info">
                     <span class="stat-value">88</span>
-                    <span class="stat-label">Total Guru & Staff</span>
+                    <span class="stat-label">Total Guru &amp; Staff</span>
                 </div>
             </div>
-            <div class="stat-card stat-navy">
+            <div class="stat-card stat-navy reveal reveal-scale reveal-delay-2">
                 <div class="stat-icon"><i class="ph-bold ph-chalkboard-teacher"></i></div>
                 <div class="stat-info">
                     <span class="stat-value">69</span>
                     <span class="stat-label">Guru Pengajar</span>
                 </div>
             </div>
-            <div class="stat-card stat-red">
+            <div class="stat-card stat-red reveal reveal-scale reveal-delay-3">
                 <div class="stat-icon"><i class="ph-bold ph-identification-card"></i></div>
                 <div class="stat-info">
                     <span class="stat-value">5</span>
                     <span class="stat-label">Staff Tata Usaha</span>
                 </div>
             </div>
-            <div class="stat-card stat-green">
+            <div class="stat-card stat-green reveal reveal-scale reveal-delay-4">
                 <div class="stat-icon"><i class="ph-bold ph-shield-star"></i></div>
                 <div class="stat-info">
                     <span class="stat-value">14</span>
-                    <span class="stat-label">Pembina & Support</span>
+                    <span class="stat-label">Pembina &amp; Support</span>
                 </div>
             </div>
         </section>
 
         <!-- TITLE & DESCRIPTION SECTION -->
-        <section class="section-intro reveal">
+        <section class="section-intro reveal reveal-scale">
             <div class="intro-header">
-                <h2 class="title">DIREKTORI PENDIDIK & TENAGA KEPENDIDIKAN</h2>
+                <h2 class="title">DIREKTORI PENDIDIK &amp; TENAGA KEPENDIDIKAN</h2>
                 <p class="subtitle">Tenaga pendidik dan kependidikan profesional SMKS Sukapura yang siap membimbing siswa menjadi generasi unggul dan berkarakter.</p>
             </div>
         </section>
 
         <!-- CONTROLS & FILTER SECTION -->
-        <section class="controls-section reveal">
+        <section class="controls-section reveal reveal-scale">
             <div class="search-box">
                 <i class="ph-bold ph-magnifying-glass search-icon"></i>
                 <input type="text" id="teacher-search" placeholder="Cari nama guru, staff, atau mata pelajaran..." autocomplete="off">
@@ -182,18 +182,52 @@ $data_guru = [
                     <button type="button" class="tab-btn active" data-filter="all">Semua (<span id="count-all"><?php echo count($data_guru); ?></span>)</button>
                     <button type="button" class="tab-btn" data-filter="guru">Guru Pengajar</button>
                     <button type="button" class="tab-btn" data-filter="tu">Staff TU</button>
-                    <button type="button" class="tab-btn" data-filter="pembina">Pembina & Support</button>
+                    <button type="button" class="tab-btn" data-filter="pembina">Pembina &amp; Support</button>
                 </div>
 
                 <div class="view-switcher">
-                    <button type="button" id="view-table-btn" class="view-btn active" title="Tampilan Tabel"><i class="ph-bold ph-table"></i> Tabel</button>
-                    <button type="button" id="view-grid-btn" class="view-btn" title="Tampilan Kartu"><i class="ph-bold ph-squares-four"></i> Kartu</button>
+                    <button type="button" id="view-grid-btn" class="view-btn active" title="Tampilan Kartu"><i class="ph-bold ph-squares-four"></i> Kartu</button>
+                    <button type="button" id="view-table-btn" class="view-btn" title="Tampilan Tabel"><i class="ph-bold ph-table"></i> Tabel</button>
                 </div>
             </div>
         </section>
 
-        <!-- TABLE VIEW -->
-        <section class="data-table-container reveal" id="table-view">
+        <!-- GRID VIEW (DEFAULT ACTIVE) -->
+        <section class="data-grid-container reveal reveal-scale" id="grid-view">
+            <div class="guru-card-grid" id="guru-grid-body">
+                <?php foreach ($data_guru as $index => $item): ?>
+                <div class="guru-card reveal reveal-scale reveal-delay-<?php echo ($index % 5) + 1; ?>" data-category="<?php echo $item['kategori']; ?>" data-search="<?php echo strtolower(htmlspecialchars($item['nama'] . ' ' . implode(' ', $item['mapel']) . ' ' . $item['peran'])); ?>">
+                    <div class="guru-card-header">
+                        <span class="card-no">#<?php echo htmlspecialchars($item['no']); ?></span>
+                        <span class="role-badge <?php echo 'role-' . $item['kategori']; ?>">
+                            <?php echo htmlspecialchars($item['peran']); ?>
+                        </span>
+                    </div>
+                    <div class="guru-card-avatar">
+                        <div class="avatar-circle">
+                            <i class="ph-bold ph-user"></i>
+                        </div>
+                    </div>
+                    <div class="guru-card-body">
+                        <h3 class="guru-name"><?php echo htmlspecialchars($item['nama']); ?></h3>
+                        <div class="subjects-group">
+                            <span class="subjects-label"><i class="ph-bold ph-read-cv-logo"></i> Mata Pelajaran / Tugas:</span>
+                            <div class="subjects-list">
+                                <?php foreach ($item['mapel'] as $m): ?>
+                                    <span class="subject-pill">
+                                        <i class="ph-bold ph-check-circle"></i> <?php echo htmlspecialchars($m); ?>
+                                    </span>
+                                <?php endforeach; ?>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <?php endforeach; ?>
+            </div>
+        </section>
+
+        <!-- TABLE VIEW (SECONDARY) -->
+        <section class="data-table-container" id="table-view" style="display: none;">
             <div class="table-responsive">
                 <table class="guru-table">
                     <thead>
@@ -239,40 +273,6 @@ $data_guru = [
             </div>
         </section>
 
-        <!-- GRID VIEW (HIDDEN BY DEFAULT) -->
-        <section class="data-grid-container" id="grid-view" style="display: none;">
-            <div class="guru-card-grid" id="guru-grid-body">
-                <?php foreach ($data_guru as $item): ?>
-                <div class="guru-card reveal" data-category="<?php echo $item['kategori']; ?>" data-search="<?php echo strtolower(htmlspecialchars($item['nama'] . ' ' . implode(' ', $item['mapel']) . ' ' . $item['peran'])); ?>">
-                    <div class="guru-card-header">
-                        <span class="card-no">#<?php echo htmlspecialchars($item['no']); ?></span>
-                        <span class="role-badge <?php echo 'role-' . $item['kategori']; ?>">
-                            <?php echo htmlspecialchars($item['peran']); ?>
-                        </span>
-                    </div>
-                    <div class="guru-card-avatar">
-                        <div class="avatar-circle">
-                            <i class="ph-bold ph-user"></i>
-                        </div>
-                    </div>
-                    <div class="guru-card-body">
-                        <h3 class="guru-name"><?php echo htmlspecialchars($item['nama']); ?></h3>
-                        <div class="subjects-group">
-                            <span class="subjects-label"><i class="ph-bold ph-read-cv-logo"></i> Mata Pelajaran / Tugas:</span>
-                            <div class="subjects-list">
-                                <?php foreach ($item['mapel'] as $m): ?>
-                                    <span class="subject-pill">
-                                        <i class="ph-bold ph-check-circle"></i> <?php echo htmlspecialchars($m); ?>
-                                    </span>
-                                <?php endforeach; ?>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <?php endforeach; ?>
-            </div>
-        </section>
-
         <!-- NO RESULTS MESSAGE -->
         <div id="no-results" class="no-results-box" style="display: none;">
             <div class="no-results-icon"><i class="ph-bold ph-magnifying-glass"></i></div>
@@ -283,6 +283,7 @@ $data_guru = [
     </main>
 
     <?php include '../components/footer.php'; ?>
+    <script src="../script.js"></script>
     <script src="script.js"></script>
 </body>
 </html>

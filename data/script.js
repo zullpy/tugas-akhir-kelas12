@@ -32,7 +32,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (matchesCategory && matchesSearch) {
                 row.style.display = '';
-                visibleCount++;
             } else {
                 row.style.display = 'none';
             }
@@ -48,6 +47,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (matchesCategory && matchesSearch) {
                 card.style.display = 'flex';
+                card.classList.add('revealed');
+                visibleCount++;
             } else {
                 card.style.display = 'none';
             }
@@ -125,6 +126,44 @@ document.addEventListener('DOMContentLoaded', () => {
             viewTableBtn.classList.remove('active');
             gridView.style.display = 'block';
             tableView.style.display = 'none';
+            // Ensure cards reveal smoothly when switching to grid view
+            gridCards.forEach(card => card.classList.add('revealed'));
         });
+    }
+
+    // ============================================
+    // SCROLL REVEAL ANIMATION (PROACTIVE & RELIABLE)
+    // ============================================
+    const revealSelectors = '.reveal, .reveal-left, .reveal-right, .reveal-scale';
+    const revealElements = document.querySelectorAll(revealSelectors);
+
+    if (revealElements.length > 0) {
+        // Immediate fallback check for elements on/near screen
+        const checkReveals = () => {
+            revealElements.forEach((el) => {
+                const rect = el.getBoundingClientRect();
+                if (rect.top <= window.innerHeight + 150 && rect.bottom >= -100) {
+                    el.classList.add('revealed');
+                }
+            });
+        };
+
+        const revealObserver = new IntersectionObserver((entries) => {
+            entries.forEach((entry) => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('revealed');
+                    revealObserver.unobserve(entry.target);
+                }
+            });
+        }, {
+            threshold: 0,
+            rootMargin: '150px 0px 150px 0px'
+        });
+
+        revealElements.forEach((el) => revealObserver.observe(el));
+
+        // Trigger immediate check on load & scroll
+        checkReveals();
+        window.addEventListener('scroll', checkReveals, { passive: true });
     }
 });
