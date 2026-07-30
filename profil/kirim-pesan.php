@@ -1,6 +1,6 @@
 <?php
 // Handler pengiriman pesan dari form kontak
-// Menggunakan PHPMailer + Gmail SMTP (dengan fallback penyimpanan lokal untuk produksi)
+// Menggunakan PHPMailer + Gmail SMTP (Port 465 & 587 Fallback + Auto Local Backup)
 
 error_reporting(0);
 @ini_set('display_errors', '0');
@@ -9,7 +9,7 @@ ob_start();
 date_default_timezone_set('Asia/Jakarta');
 header('Content-Type: application/json; charset=utf-8');
 
-// Function untuk menyimpan pesan ke file JSON sebagai fallback garansi 100% sukses
+// Function untuk menyimpan pesan ke file JSON sebagai jaminan 100% data tersimpan
 function saveMessageLocally($nama, $email, $pesan) {
     $dir = __DIR__ . '/../data';
     if (!is_dir($dir)) {
@@ -31,6 +31,15 @@ function saveMessageLocally($nama, $email, $pesan) {
         'ip'      => $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1'
     ];
     @file_put_contents($file, json_encode($existing, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+}
+
+// Function untuk mencatat log error SMTP untuk kemudahan debugging
+function logSmtpError($errorMsg) {
+    $dir = __DIR__ . '/../data';
+    if (!is_dir($dir)) @mkdir($dir, 0755, true);
+    $logFile = $dir . '/smtp_error.log';
+    $entry = "[" . date('Y-m-d H:i:s') . "] SMTP Error: " . $errorMsg . "\n";
+    @file_put_contents($logFile, $entry, FILE_APPEND);
 }
 
 // Validasi method
@@ -64,40 +73,36 @@ if (strlen($nama) > 100 || strlen($pesan) > 3000) {
     exit;
 }
 
-// Simpan pesan secara lokal terlebih dahulu sebagai cadangan aman
+// Simpan pesan secara lokal terlebih dahulu
 saveMessageLocally($nama, $email, $pesan);
 
-// Jalankan pengiriman email via PHPMailer (bila server mendukung SMTP)
+// Konfigurasi SMTP
+$smtp_user     = getenv('SMTP_USER')     ?: 'mzulfahmi008@gmail.com';
+$smtp_password = getenv('SMTP_PASSWORD') ?: 'bisviqjcrlbqrnsd';
+$to_email      = getenv('TO_EMAIL')      ?: 'mzulfahmi008@gmail.com';
+$smtp_host     = getenv('SMTP_HOST')     ?: 'smtp.gmail.com';
+
 $vendor_dir = __DIR__ . '/../vendor/phpmailer/phpmailer/src/';
 $email_sent = false;
+$last_error = '';
 
 if (file_exists($vendor_dir . 'PHPMailer.php')) {
-    try {
-        require_once $vendor_dir . 'Exception.php';
-        require_once $vendor_dir . 'PHPMailer.php';
-        require_once $vendor_dir . 'SMTP.php';
+    require_once $vendor_dir . 'Exception.php';
+    require_once $vendor_dir . 'PHPMailer.php';
+    require_once $vendor_dir . 'SMTP.php';
 
-        $smtp_user     = getenv('SMTP_USER')     ?: 'mzulfahmi008@gmail.com';
-        $smtp_password = getenv('SMTP_PASSWORD') ?: 'bisviqjcrlbqrnsd';
-        $to_email      = getenv('TO_EMAIL')      ?: 'mzulfahmi008@gmail.com';
-        $smtp_host     = getenv('SMTP_HOST')     ?: 'smtp.gmail.com';
-        $smtp_port     = (int)(getenv('SMTP_PORT') ?: 465);
-
+    // Helper untuk mencoba mengirim via PHPMailer
+    $trySend = function($port, $secureType) use ($smtp_host, $smtp_user, $smtp_password, $to_email, $email, $nama, $pesan) {
         $mail = new PHPMailer\PHPMailer\PHPMailer(true);
         $mail->isSMTP();
         $mail->Host       = $smtp_host;
         $mail->SMTPAuth   = true;
         $mail->Username   = $smtp_user;
         $mail->Password   = $smtp_password;
-        
-        if ($smtp_port === 465) {
-            $mail->SMTPSecure = PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_SMTPS;
-        } else {
-            $mail->SMTPSecure = PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_STARTTLS;
-        }
-        $mail->Port       = $smtp_port;
+        $mail->SMTPSecure = $secureType;
+        $mail->Port       = $port;
         $mail->CharSet    = 'UTF-8';
-        $mail->Timeout    = 5; // Timeout singkat 5 detik agar tidak menggantung server
+        $mail->Timeout    = 5;
 
         $mail->SMTPOptions = [
             'ssl' => [
@@ -143,12 +148,28 @@ if (file_exists($vendor_dir . 'PHPMailer.php')) {
           </div>
         </div>
         ";
-
         $mail->AltBody = "Pesan baru dari {$nama} ({$email}):\n\n{$pesan}\n\nDikirim: " . date('d F Y, H:i') . " WIB";
-        $email_sent = @$mail->send();
-    } catch (\Throwable $e) {
-        $email_sent = false;
+
+        return $mail->send();
+    };
+
+    // Percobaan 1: Port 465 (SSL)
+    try {
+        $email_sent = $trySend(465, PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_SMTPS);
+    } catch (\Throwable $e1) {
+        $last_error = $e1->getMessage();
+        // Percobaan 2: Port 587 (TLS Fallback)
+        try {
+            $email_sent = $trySend(587, PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_STARTTLS);
+        } catch (\Throwable $e2) {
+            $last_error = $e2->getMessage();
+            $email_sent = false;
+        }
     }
+}
+
+if (!$email_sent && !empty($last_error)) {
+    logSmtpError($last_error);
 }
 
 if (ob_get_length()) ob_clean();
@@ -156,7 +177,7 @@ if (ob_get_length()) ob_clean();
 echo json_encode([
     'success' => true,
     'message' => $email_sent 
-        ? 'Pesan Anda telah berhasil dikirim ke admin sekolah! Terima kasih.' 
-        : 'Pesan Anda telah berhasil kami terima dan tersimpan di sistem sekolah. Terima kasih!'
+        ? 'Pesan Anda telah berhasil dikirim ke email admin sekolah! Terima kasih.' 
+        : 'Pesan Anda telah berhasil diterima dan tersimpan di database sekolah. Terima kasih!'
 ]);
 exit;
