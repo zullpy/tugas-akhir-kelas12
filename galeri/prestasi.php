@@ -3,17 +3,19 @@ $base_url = '../';
 $pageTitle = 'galeri';
 $subPageTitle = 'prestasi';
 
-$dirPath = "../assets/galeri/prestasi";
+$dirPaths = ["../assets/prestasi", "../assets/galeri/prestasi"];
 $photos = [];
 
-if (is_dir($dirPath)) {
-    $files = scandir($dirPath);
-    natsort($files);
-    foreach ($files as $file) {
-        if ($file !== '.' && $file !== '..') {
-            $ext = strtolower(pathinfo($file, PATHINFO_EXTENSION));
-            if (in_array($ext, ['jpg', 'jpeg', 'png', 'webp'])) {
-                $photos[] = "../assets/galeri/prestasi/" . $file;
+foreach ($dirPaths as $dirPath) {
+    if (is_dir($dirPath)) {
+        $files = scandir($dirPath);
+        natsort($files);
+        foreach ($files as $file) {
+            if ($file !== '.' && $file !== '..') {
+                $ext = strtolower(pathinfo($file, PATHINFO_EXTENSION));
+                if (in_array($ext, ['jpg', 'jpeg', 'png', 'webp'])) {
+                    $photos[] = $dirPath . "/" . $file;
+                }
             }
         }
     }
