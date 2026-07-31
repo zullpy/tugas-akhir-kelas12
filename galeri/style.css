@@ -358,9 +358,9 @@
 
 .lightbox-content {
     position: relative;
-    max-width: 1000px;
+    max-width: fit-content;
     max-height: 90vh;
-    width: 92%;
+    width: 100%;
     background-color: #000000;
     border: 3.5px solid #FFE600;
     border-radius: 16px;
