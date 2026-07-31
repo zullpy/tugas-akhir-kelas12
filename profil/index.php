@@ -33,7 +33,7 @@ $subPageTitle = 'profil';
 </head>
 <body>
     <?php include '../components/navbar.php'; ?>
-    
+
     <header class="profile-hero">
         <img src="../assets/bawah.webp" alt="Banner Profil">
         <div class="background-overlay"></div>
@@ -106,7 +106,6 @@ $subPageTitle = 'profil';
         </div>
     </main>
 
-    
     <?php include '../components/footer.php'; ?>
     <script src="script.js"></script>
 </body>

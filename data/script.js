@@ -1,6 +1,6 @@
 // Interactive JS for Data Guru & Data Siswa Page - SMKS SUKAPURA
 document.addEventListener('DOMContentLoaded', () => {
-    const searchInput = document.getElementById('teacher-search') || document.getElementById('siswa-search') || document.querySelector('.search-box input');
+    const searchInput = document.getElementById('teacher-search') || document.getElementById('siswa-search') || document.getElementById('kelas-search') || document.querySelector('.search-box input');
     const clearBtn = document.getElementById('clear-search');
     const tabButtons = document.querySelectorAll('.tab-btn');
     const jurusanSelect = document.getElementById('jurusan-select');
@@ -8,8 +8,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const viewGridBtn = document.getElementById('view-grid-btn');
     const tableView = document.getElementById('table-view');
     const gridView = document.getElementById('grid-view');
-    const tableRows = document.querySelectorAll('.guru-row, .siswa-row');
-    const gridCards = document.querySelectorAll('.guru-card, .siswa-card');
+    const tableRows = document.querySelectorAll('.guru-row, .siswa-row, .kelas-row, .ekstra-row');
+    const gridCards = document.querySelectorAll('.guru-card, .siswa-card, .kelas-card, .ekstra-card');
     const noResults = document.getElementById('no-results');
     const queryTerm = document.getElementById('query-term');
     const resetFilterBtn = document.getElementById('reset-filter-btn');
@@ -128,7 +128,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const remaining = totalMatchingCards - shownCount;
                 if (btnText) btnText.textContent = 'Lihat Selengkapnya';
                 if (btnIcon) btnIcon.className = 'ph-bold ph-caret-down btn-icon';
-                if (loadMoreBadge) loadMoreBadge.textContent = `Menampilkan ${shownCount} dari ${totalMatchingCards} (${remaining} lagi)`;
+                if (loadMoreBadge) loadMoreBadge.textContent = `Menampilkan ${shownCount} dari ${totalMatchingCards}`;
                 loadMoreBtn.classList.remove('expanded');
             } else {
                 if (btnText) btnText.textContent = 'Tampilkan Lebih Sedikit';

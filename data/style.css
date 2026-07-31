@@ -850,10 +850,11 @@ body {
 .jurusan-filter-wrapper {
     display: flex;
     align-items: center;
+    position: relative;
 }
 
 .jurusan-select {
-    padding: 8px 16px;
+    padding: 9px 38px 9px 16px;
     font-family: var(--font-body);
     font-weight: 700;
     font-size: 0.9rem;
@@ -864,7 +865,13 @@ body {
     cursor: pointer;
     outline: none;
     transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-    box-shadow: 2px 2px 0px var(--nb-black);
+    box-shadow: 3px 3px 0px var(--nb-black);
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 256 256'%3E%3Cpath fill='%23000000' d='M213.66 101.66l-80 80a8 8 0 0 1-11.32 0l-80-80a8 8 0 0 1 11.32-11.32L128 164.69l73.34-73.35a8 8 0 0 1 11.32 11.32Z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
 }
 
 .jurusan-select:focus,
@@ -872,14 +879,15 @@ body {
     background-color: var(--nb-yellow);
     color: var(--nb-black);
     transform: translate(-2px, -2px);
-    box-shadow: var(--shadow-sm);
+    box-shadow: 5px 5px 0px var(--nb-black);
 }
 
 .jurusan-select option {
-    background-color: #FFFFFF !important;
-    color: #000000 !important;
+    background-color: var(--nb-white) !important;
+    color: var(--nb-black) !important;
     padding: 10px;
-    font-weight: 600;
+    font-weight: 700;
+    font-family: var(--font-body);
 }
 
 /* GENDER BADGES */
@@ -1177,7 +1185,390 @@ body {
 }
 
 .guru-card.revealed,
-.siswa-card.revealed {
+.siswa-card.revealed,
+.kelas-card.revealed,
+.ekstra-card.revealed {
     animation: cardPopIn 0.55s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     animation-delay: calc(var(--card-index, 0) * 0.07s);
+}
+
+/* =============================================================
+   KELAS CARD & TABLE CUSTOM STYLING (NEUBRUTALISM)
+   ================================================------------- */
+.kelas-card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
+    gap: 24px;
+}
+
+.kelas-card {
+    background-color: var(--nb-white);
+    border: var(--border-thick);
+    border-radius: var(--radius-box);
+    box-shadow: var(--shadow-md);
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.kelas-card::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -120%;
+    width: 70%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.45), transparent);
+    transform: skewX(-25deg);
+    pointer-events: none;
+}
+
+.kelas-card:hover {
+    transform: translateY(-8px) scale(1.015);
+    box-shadow: 8px 8px 0px var(--nb-black);
+}
+
+.kelas-card:hover::after {
+    animation: shineSweep 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.kelas-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.kelas-title-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.kelas-name-heading {
+    font-family: var(--font-heading);
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--nb-black);
+    line-height: 1.2;
+}
+
+.tingkat-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 10px;
+    font-family: var(--font-heading);
+    font-size: 0.82rem;
+    font-weight: 800;
+    border: var(--border-medium);
+    border-radius: 8px;
+    box-shadow: 2px 2px 0px var(--nb-black);
+}
+
+.tingkat-x {
+    background-color: var(--nb-yellow);
+    color: var(--nb-black);
+}
+
+.tingkat-xi {
+    background-color: #38BDF8;
+    color: var(--nb-black);
+}
+
+.tingkat-xii {
+    background-color: #F472B6;
+    color: var(--nb-black);
+}
+
+.walikelas-box {
+    background-color: #FFFDF0;
+    border: var(--border-medium);
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow: 3px 3px 0px var(--nb-black);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.walikelas-box-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.walikelas-title-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--font-heading);
+    font-size: 0.82rem;
+    font-weight: 800;
+    color: var(--nb-navy);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.walikelas-code-badge {
+    background-color: var(--nb-navy-dark);
+    color: var(--nb-yellow);
+    border: 1.5px solid var(--nb-black);
+    border-radius: 6px;
+    padding: 2px 8px;
+    font-family: var(--font-heading);
+    font-size: 0.78rem;
+    font-weight: 800;
+    box-shadow: 1.5px 1.5px 0px var(--nb-black);
+}
+
+.walikelas-info {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.walikelas-avatar-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background-color: var(--nb-yellow);
+    border: var(--border-medium);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3rem;
+    color: var(--nb-black);
+    box-shadow: 2px 2px 0px var(--nb-black);
+    flex-shrink: 0;
+}
+
+.walikelas-detail-text {
+    display: flex;
+    flex-direction: column;
+}
+
+.walikelas-fullname {
+    font-family: var(--font-body);
+    font-weight: 800;
+    font-size: 1.02rem;
+    color: var(--nb-black);
+    line-height: 1.3;
+}
+
+.walikelas-subdetail {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: #475569;
+    margin-top: 2px;
+}
+
+.kelas-meta-info {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 2px;
+}
+
+.meta-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background-color: var(--nb-gray);
+    border: var(--border-thin);
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--nb-black);
+}
+
+.meta-item i {
+    font-size: 1.1rem;
+    color: var(--nb-navy);
+}
+
+.kelas-row {
+    transition: background-color 0.2s ease;
+}
+
+.kelas-row:hover {
+    background-color: #FFFEE5 !important;
+}
+
+/* =============================================================
+   EKSTRAKURIKULER CARD & TABLE CUSTOM STYLING (NEUBRUTALISM)
+   ================================================------------- */
+.ekstra-card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 24px;
+}
+
+.ekstra-card {
+    background-color: var(--nb-white);
+    border: var(--border-thick);
+    border-radius: var(--radius-box);
+    box-shadow: var(--shadow-md);
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.ekstra-card::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -120%;
+    width: 70%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.45), transparent);
+    transform: skewX(-25deg);
+    pointer-events: none;
+}
+
+.ekstra-card:hover {
+    transform: translateY(-8px) scale(1.015);
+    box-shadow: 8px 8px 0px var(--nb-black);
+}
+
+.ekstra-card:hover::after {
+    animation: shineSweep 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.ekstra-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.ekstra-icon-badge {
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+    border: var(--border-medium);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.6rem;
+    box-shadow: 2.5px 2.5px 0px var(--nb-black);
+    flex-shrink: 0;
+    transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.ekstra-card:hover .ekstra-icon-badge {
+    transform: scale(1.1) rotate(-5deg);
+}
+
+.icon-olahraga { background-color: #FED7AA; color: #C2410C; }
+.icon-kebangsaan { background-color: #FEF08A; color: #854D0E; }
+.icon-teknologi { background-color: #BAE6FD; color: #0369A1; }
+.icon-bahasa { background-color: #E9D5FF; color: #6B21A8; }
+.icon-seni { background-color: #FBCFE8; color: #BE185D; }
+
+.ekstra-category-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 12px;
+    font-family: var(--font-heading);
+    font-size: 0.78rem;
+    font-weight: 800;
+    border: var(--border-medium);
+    border-radius: 8px;
+    box-shadow: 2px 2px 0px var(--nb-black);
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.cat-olahraga { background-color: #FFEDD5; color: #9A3412; }
+.cat-kebangsaan { background-color: #FEF9C3; color: #713F12; }
+.cat-teknologi { background-color: #E0F2FE; color: #075985; }
+.cat-bahasa { background-color: #F3E8FF; color: #581C87; }
+.cat-seni { background-color: #FCE7F3; color: #831843; }
+
+.ekstra-title {
+    font-family: var(--font-heading);
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: var(--nb-black);
+    line-height: 1.25;
+}
+
+.ekstra-desc {
+    font-size: 0.88rem;
+    color: #475569;
+    font-weight: 500;
+    line-height: 1.5;
+}
+
+.ekstra-info-box {
+    background-color: #FFFDF0;
+    border: var(--border-medium);
+    border-radius: 12px;
+    padding: 14px;
+    box-shadow: 3px 3px 0px var(--nb-black);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    transition: background-color 0.2s ease;
+}
+
+.ekstra-card:hover .ekstra-info-box {
+    background-color: #FFFEEA;
+}
+
+.ekstra-info-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.86rem;
+    font-weight: 700;
+    color: var(--nb-black);
+}
+
+.ekstra-info-item i {
+    font-size: 1.15rem;
+    color: var(--nb-navy-dark);
+    flex-shrink: 0;
+}
+
+.ekstra-meta-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 4px;
+}
+
+.ekstra-meta-card {
+    background-color: var(--nb-gray);
+    border: var(--border-thin);
+    border-radius: 8px;
+    padding: 8px 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--nb-black);
+}
+
+.ekstra-meta-card i {
+    font-size: 1.1rem;
+    color: var(--nb-navy);
+}
+
+.ekstra-row {
+    transition: background-color 0.2s ease;
+}
+
+.ekstra-row:hover {
+    background-color: #FFFEE5 !important;
 }

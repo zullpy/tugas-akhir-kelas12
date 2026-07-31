@@ -366,7 +366,7 @@ $current_script_path = $_SERVER['SCRIPT_NAME'] ?? '';
             <!-- navigation links -->
             <ul class="nav-links" id="nav-links">
                 <li class="nav-item">
-                    <a href="<?php echo $base_url; ?>index.php" class="nav-link <?php echo (isset($pageTitle) && $pageTitle === 'beranda') || ($current_page_file === 'index.php' && strpos($current_script_path, '/profil/') === false && strpos($current_script_path, '/data/') === false && strpos($current_script_path, '/program/') === false) ? 'active' : ''; ?>">
+                    <a href="<?php echo $base_url; ?>index.php" class="nav-link <?php echo (isset($pageTitle) && $pageTitle === 'beranda') || ($current_page_file === 'index.php' && strpos($current_script_path, '/profil/') === false && strpos($current_script_path, '/data/') === false && strpos($current_script_path, '/program/') === false && strpos($current_script_path, '/galeri/') === false) ? 'active' : ''; ?>">
                         Beranda
                     </a>
                 </li>
@@ -401,10 +401,14 @@ $current_script_path = $_SERVER['SCRIPT_NAME'] ?? '';
                         <li><a href="<?php echo $base_url; ?>data/ekstrakurikuler.php" class="<?php echo ($current_page_file === 'ekstrakurikuler.php' || (isset($subPageTitle) && $subPageTitle === 'ekstrakurikuler')) ? 'active' : ''; ?>">Ekstrakurikuler</a></li>
                     </ul>
                 </li>
-                <li class="nav-item">
-                    <a href="<?php echo $base_url; ?>galeri.php" class="nav-link <?php echo (isset($pageTitle) && $pageTitle === 'galeri') || $current_page_file === 'galeri.php' ? 'active' : ''; ?>">
-                        Galeri Sekolah
+                <li class="nav-item has-dropdown">
+                    <a href="#" class="nav-link <?php echo (isset($pageTitle) && $pageTitle === 'galeri') || strpos($current_script_path, '/galeri/') !== false ? 'active' : ''; ?>">
+                        Galeri Sekolah <span class="dropdown-icon">▼</span>
                     </a>
+                    <ul class="sub-menu">
+                        <li><a href="<?php echo $base_url; ?>galeri/index.php" class="<?php echo ($current_page_file === 'index.php' && strpos($current_script_path, '/galeri/') !== false) || (isset($subPageTitle) && $subPageTitle === 'kegiatan') ? 'active' : ''; ?>">Dokumentasi Kegiatan</a></li>
+                        <li><a href="<?php echo $base_url; ?>galeri/prestasi.php" class="<?php echo ($current_page_file === 'prestasi.php' || (isset($subPageTitle) && $subPageTitle === 'prestasi')) ? 'active' : ''; ?>">Dokumentasi Prestasi</a></li>
+                    </ul>
                 </li>
             </ul>
         </div>
