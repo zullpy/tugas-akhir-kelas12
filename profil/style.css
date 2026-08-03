@@ -452,13 +452,37 @@ footer {
     font-weight: 500;
 }
 
+.profile-header .watermark {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-family: var(--font-heading, 'Space Grotesk', sans-serif);
+    font-size: clamp(1.8rem, 5vw, 4.2rem);
+    font-weight: 800;
+    color: rgba(15, 23, 42, 0.07);
+    letter-spacing: 2px;
+    white-space: nowrap;
+    user-select: none;
+    pointer-events: none;
+    text-transform: uppercase;
+}
+
 @media (max-width: 640px) {
     .visi-card {
-        padding: 24px 20px;
+        padding: 24px 18px;
     }
 
     .misi-grid {
         grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+    .profile-main-container,
+    .visi-misi-container,
+    .kontak-main {
+        width: 95%;
+        margin-top: 20px;
     }
 }
 

@@ -383,10 +383,15 @@
 @media (max-width: 900px) {
     .exc-intro-grid {
         grid-template-columns: 1fr;
+        gap: 30px;
+    }
+
+    .exc-photo-wrap {
+        order: -1;
     }
 
     .exc-photo {
-        height: 260px;
+        min-height: 260px;
     }
 
     .exc-photo-badge {
@@ -395,7 +400,8 @@
     }
 
     .exc-features-grid {
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
     }
 
     .exc-syarat-inner {
@@ -408,6 +414,11 @@
 }
 
 @media (max-width: 600px) {
+    .exc-main {
+        width: 95%;
+        margin-bottom: 50px;
+    }
+
     .exc-features-grid {
         grid-template-columns: 1fr;
     }
@@ -416,8 +427,16 @@
         gap: 10px;
     }
 
+    .exc-highlight-item {
+        padding: 12px 8px;
+    }
+
     .hero-title-overlay {
         padding: 20px 4%;
+    }
+
+    .exc-photo {
+        min-height: 220px;
     }
 }
 
@@ -442,4 +461,103 @@
 
 .atlet-cta-btn:hover {
     background-color: #22c55e !important;
+}
+
+/* ── Industri Class — Aksen Warna Orange/Amber ── */
+.industri-overlay {
+    background: linear-gradient(135deg, rgba(120, 53, 15, 0.65) 0%, rgba(194, 65, 12, 0.5) 100%) !important;
+}
+
+.industri-badge {
+    background-color: #FB923C !important;
+    color: #431407 !important;
+}
+
+.industri-photo-badge {
+    background-color: #FB923C !important;
+    color: #431407 !important;
+}
+
+.industri-cta-card {
+    background: linear-gradient(135deg, #431407, #7c2d12) !important;
+}
+
+.industri-cta-btn {
+    background-color: #FB923C !important;
+    color: #431407 !important;
+}
+
+.industri-cta-btn:hover {
+    background-color: #f97316 !important;
+}
+
+/* ── Mitra Industri Section ── */
+.exc-mitra-section {
+    padding: 60px 0;
+    border-top: 3px dashed #CBD5E1;
+    text-align: center;
+}
+
+.exc-mitra-section .exc-section-badge {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.exc-mitra-section .exc-sub {
+    margin: 0 auto 36px;
+}
+
+.exc-mitra-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    text-align: center;
+}
+
+.exc-mitra-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    padding: 28px 20px;
+    background: #fff;
+    border: 3px solid #000;
+    border-radius: 14px;
+    box-shadow: 5px 5px 0 #000;
+    font-family: var(--font-heading, 'Space Grotesk', sans-serif);
+    font-weight: 700;
+    font-size: 0.92rem;
+    color: #1E293B;
+    transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.exc-mitra-card:hover {
+    transform: translate(-3px, -3px);
+    box-shadow: 8px 8px 0 #000;
+}
+
+.exc-mitra-icon {
+    font-size: 2rem;
+    color: #FB923C;
+    background: #FFF7ED;
+    border: 2px solid #000;
+    border-radius: 10px;
+    width: 56px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+}
+
+@media (max-width: 900px) {
+    .exc-mitra-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 600px) {
+    .exc-mitra-grid {
+        grid-template-columns: 1fr;
+    }
 }

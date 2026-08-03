@@ -310,10 +310,14 @@ $current_script_path = $_SERVER['SCRIPT_NAME'] ?? '';
         flex-direction: column;
         align-items: stretch;
         gap: 10px;
-        margin-top: 16px;
-        padding-top: 16px;
+        margin-top: 14px;
+        padding-top: 14px;
+        padding-bottom: 12px;
         border-top: var(--border-thin);
         width: 100%;
+        max-height: calc(85vh - 70px);
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
     }
 
     .nav-links.show-links {
@@ -324,6 +328,8 @@ $current_script_path = $_SERVER['SCRIPT_NAME'] ?? '';
         width: 100%;
         justify-content: space-between;
         padding: 12px 16px;
+        min-height: 44px;
+        touch-action: manipulation;
     }
 
     .sub-menu {
@@ -335,12 +341,61 @@ $current_script_path = $_SERVER['SCRIPT_NAME'] ?? '';
         border: var(--border-thin);
         background-color: var(--nb-bg);
         margin-top: 6px;
-        margin-left: 12px;
+        margin-left: 8px;
         display: none;
+        padding: 6px;
+    }
+
+    .sub-menu a {
+        padding: 11px 14px;
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+        touch-action: manipulation;
     }
 
     .nav-item.open .sub-menu {
         display: block;
+    }
+}
+
+@media (max-width: 576px) {
+    .navbar {
+        width: 94%;
+        padding: 10px 0;
+    }
+
+    .nav-logo {
+        gap: 8px;
+    }
+
+    .logo-badge {
+        font-size: 0.95rem;
+        padding: 5px 10px;
+    }
+
+    .logo-img {
+        height: 32px;
+    }
+}
+
+@media (max-width: 400px) {
+    .logo-badge {
+        font-size: 0.85rem;
+        padding: 4px 8px;
+        letter-spacing: 0;
+    }
+    
+    .logo-img-wrapper {
+        padding: 3px 6px;
+    }
+    
+    .logo-img {
+        height: 28px;
+    }
+
+    .nav-toggle {
+        padding: 6px 8px;
     }
 }
 </style>
@@ -366,8 +421,13 @@ $current_script_path = $_SERVER['SCRIPT_NAME'] ?? '';
             <!-- navigation links -->
             <ul class="nav-links" id="nav-links">
                 <li class="nav-item">
-                    <a href="<?php echo $base_url; ?>index.php" class="nav-link <?php echo (isset($pageTitle) && $pageTitle === 'beranda') || ($current_page_file === 'index.php' && strpos($current_script_path, '/profil/') === false && strpos($current_script_path, '/data/') === false && strpos($current_script_path, '/program/') === false && strpos($current_script_path, '/galeri/') === false) ? 'active' : ''; ?>">
+                    <a href="<?php echo $base_url; ?>index.php" class="nav-link <?php echo (isset($pageTitle) && $pageTitle === 'beranda') || ($current_page_file === 'index.php' && strpos($current_script_path, '/profil/') === false && strpos($current_script_path, '/data/') === false && strpos($current_script_path, '/program/') === false && strpos($current_script_path, '/galeri/') === false && strpos($current_script_path, '/berita/') === false) ? 'active' : ''; ?>">
                         Beranda
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="<?php echo $base_url; ?>berita/index.php" class="nav-link <?php echo (isset($pageTitle) && $pageTitle === 'berita') || strpos($current_script_path, '/berita/') !== false ? 'active' : ''; ?>">
+                        Berita
                     </a>
                 </li>
                 <li class="nav-item has-dropdown">
@@ -388,6 +448,7 @@ $current_script_path = $_SERVER['SCRIPT_NAME'] ?? '';
                     <ul class="sub-menu">
                         <li><a href="<?php echo $base_url; ?>program/excellent-class.php" class="<?php echo ($current_page_file === 'excellent-class.php' || (isset($subPageTitle) && $subPageTitle === 'excellent-class')) ? 'active' : ''; ?>">Excellent Class</a></li>
                         <li><a href="<?php echo $base_url; ?>program/atlet-class.php" class="<?php echo ($current_page_file === 'atlet-class.php' || (isset($subPageTitle) && $subPageTitle === 'atlet-class')) ? 'active' : ''; ?>">Atlet Class</a></li>
+                        <li><a href="<?php echo $base_url; ?>program/industri-class.php" class="<?php echo ($current_page_file === 'industri-class.php' || (isset($subPageTitle) && $subPageTitle === 'industri-class')) ? 'active' : ''; ?>">Industri Class</a></li>
                     </ul>
                 </li>
                 <li class="nav-item has-dropdown">
@@ -410,6 +471,7 @@ $current_script_path = $_SERVER['SCRIPT_NAME'] ?? '';
                         <li><a href="<?php echo $base_url; ?>galeri/prestasi.php" class="<?php echo ($current_page_file === 'prestasi.php' || (isset($subPageTitle) && $subPageTitle === 'prestasi')) ? 'active' : ''; ?>">Dokumentasi Prestasi</a></li>
                     </ul>
                 </li>
+                
             </ul>
         </div>
     </nav>

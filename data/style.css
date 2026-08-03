@@ -696,6 +696,45 @@ body {
 }
 
 /* ==========================================
+   TABLE RESPONSIVE CONTAINER & TOUCH SCROLL
+   ========================================== */
+.table-wrapper, .table-responsive {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border-radius: var(--radius-box);
+    border: var(--border-thick);
+    box-shadow: var(--shadow-md);
+    margin-bottom: 30px;
+    background-color: var(--nb-white);
+}
+
+.table-wrapper .guru-table,
+.table-responsive table {
+    margin-bottom: 0;
+    border: none;
+    box-shadow: none;
+}
+
+/* Custom horizontal scrollbar for tables */
+.table-wrapper::-webkit-scrollbar,
+.table-responsive::-webkit-scrollbar {
+    height: 8px;
+}
+
+.table-wrapper::-webkit-scrollbar-track,
+.table-responsive::-webkit-scrollbar-track {
+    background: #F1F5F9;
+    border-radius: 4px;
+}
+
+.table-wrapper::-webkit-scrollbar-thumb,
+.table-responsive::-webkit-scrollbar-thumb {
+    background: var(--nb-navy);
+    border-radius: 4px;
+}
+
+/* ==========================================
    RESPONSIVE DESIGN
    ========================================== */
 @media (max-width: 992px) {
@@ -707,6 +746,11 @@ body {
         padding: 25px 4%;
     }
 
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+    }
+
     .filter-controls {
         flex-direction: column;
         align-items: stretch;
@@ -714,22 +758,30 @@ body {
 
     .filter-tabs {
         justify-content: flex-start;
+        overflow-x: auto;
+        padding-bottom: 4px;
+        -webkit-overflow-scrolling: touch;
     }
 
     .view-switcher {
         align-self: flex-end;
+    }
+
+    .guru-card-grid, .ekstra-card-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 18px;
     }
 }
 
 @media (max-width: 768px) {
     .guru-main-container {
         width: 94%;
-        margin-top: 30px;
+        margin-top: 25px;
     }
 
     .guru-table th.col-peran,
     .guru-table td.col-peran {
-        display: none;
+        display: table-cell; /* preserved inside table-wrapper scroll */
     }
 
     .stat-card {
@@ -745,15 +797,25 @@ body {
     .stat-value {
         font-size: 1.5rem;
     }
+
+    .guru-card-grid, .ekstra-card-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
 }
 
 @media (max-width: 576px) {
     .profile-hero {
-        height: 240px;
+        height: 220px;
     }
 
     .hero-heading {
-        font-size: 1.6rem;
+        font-size: 1.5rem;
+    }
+
+    .stats-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
     }
 
     .search-box input {
@@ -764,10 +826,14 @@ body {
     .tab-btn {
         font-size: 0.82rem;
         padding: 6px 12px;
+        white-space: nowrap;
     }
 
     .guru-table th, .guru-table td {
-        padding: 12px 14px;
+        padding: 10px 12px;
+        font-size: 0.85rem;
+    }
+}
     }
 
     .teacher-avatar {
