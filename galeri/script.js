@@ -1,9 +1,11 @@
-document.addEventListener('DOMContentLoaded', () => {
+// Galeri Interactive Logic
+const initGaleriScript = () => {
     // "Lihat Selengkapnya" Expand / Collapse Logic per Section
     const seeMoreBtns = document.querySelectorAll('.btn-see-more');
 
     seeMoreBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
+        btn.addEventListener('click', (e) => {
+            e.preventDefault();
             const section = btn.closest('.gallery-category-section');
             if (!section) return;
 
@@ -28,7 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Lightbox Modal Logic (Pure Full Preview, No Caption Text)
+    // Lightbox Modal Logic (Pure Full Preview)
     const modal = document.getElementById('lightbox-modal');
     if (!modal) return;
 
@@ -110,4 +112,10 @@ document.addEventListener('DOMContentLoaded', () => {
         if (e.key === 'ArrowLeft') showImage(currentIndex - 1);
         if (e.key === 'ArrowRight') showImage(currentIndex + 1);
     });
-});
+};
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initGaleriScript);
+} else {
+    initGaleriScript();
+}

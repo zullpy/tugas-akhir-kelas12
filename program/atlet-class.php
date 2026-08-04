@@ -144,6 +144,6 @@ $subPageTitle = 'atlet-class';
     </main>
 
     <?php include '../components/footer.php'; ?>
-    <script src="script.js"></script>
+    <script src="<?php echo $base_url; ?>script.js"></script>
 </body>
 </html>

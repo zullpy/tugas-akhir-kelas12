@@ -1,7 +1,21 @@
 <!-- components/footer.php -->
 <?php
-if (!isset($base_url)) {
-    $base_url = '';
+// Dynamic calculation of $base_url based on script directory depth relative to project root
+$root_dir = str_replace('\\', '/', realpath(__DIR__ . '/..'));
+$script_dir = str_replace('\\', '/', realpath(dirname($_SERVER['SCRIPT_FILENAME'] ?? '')));
+
+if ($root_dir && $script_dir && strpos($script_dir, $root_dir) === 0) {
+    $relative_path = trim(substr($script_dir, strlen($root_dir)), '/');
+    if ($relative_path === '') {
+        $base_url = '';
+    } else {
+        $depth = count(explode('/', $relative_path));
+        $base_url = str_repeat('../', $depth);
+    }
+} else {
+    if (!isset($base_url)) {
+        $base_url = '';
+    }
 }
 ?>
 <style>

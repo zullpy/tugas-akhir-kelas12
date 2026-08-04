@@ -3,19 +3,26 @@
 
 :root {
     /* Color Palette matching SMKS SUKAPURA Logo */
-    --nb-yellow: #FFE600;      /* Logo Vibrant Yellow */
-    --nb-navy: #0A4D68;        /* Logo Deep Teal/Navy Blue */
-    --nb-navy-dark: #053B50;   /* Logo Darker Teal/Navy */
-    --nb-red: #FF4B4B;         /* Logo Accent Red */
-    --nb-bg: #FFFDF0;          /* Warm Cream Background for Neubrutalism */
-    --nb-black: #000000;       /* Bold Neubrutalism Outline & Hard Shadows */
-    --nb-white: #FFFFFF;       /* Crisp White Accent */
+    --nb-yellow: #FFE600;
+    /* Logo Vibrant Yellow */
+    --nb-navy: #0A4D68;
+    /* Logo Deep Teal/Navy Blue */
+    --nb-navy-dark: #053B50;
+    /* Logo Darker Teal/Navy */
+    --nb-red: #FF4B4B;
+    /* Logo Accent Red */
+    --nb-bg: #FFFDF0;
+    /* Warm Cream Background for Neubrutalism */
+    --nb-black: #000000;
+    /* Bold Neubrutalism Outline & Hard Shadows */
+    --nb-white: #FFFFFF;
+    /* Crisp White Accent */
     --nb-gray: #F3F4F6;
-    
+
     /* Typography */
     --font-heading: 'Space Grotesk', sans-serif;
     --font-body: 'Plus Jakarta Sans', sans-serif;
-    
+
     /* Neubrutalism Shadows & Borders */
     --border-thick: 3.5px solid var(--nb-black);
     --border-medium: 2.5px solid var(--nb-black);
@@ -29,7 +36,9 @@
 }
 
 /* Global Reset & Base Styles */
-*, *::before, *::after {
+*,
+*::before,
+*::after {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
@@ -355,7 +364,7 @@ body {
     .carousel {
         height: clamp(540px, 80vh, 640px);
     }
-    
+
     .carousel-caption {
         bottom: 140px;
         left: 16px;
@@ -363,11 +372,11 @@ body {
         max-width: none;
         padding: 16px;
     }
-    
+
     .carousel-caption h2 {
         font-size: 1.35rem;
     }
-    
+
     .carousel-caption p {
         font-size: 0.85rem;
         margin-bottom: 12px;
@@ -534,7 +543,7 @@ body {
     max-height: 320px;
     width: auto;
     object-fit: contain;
-    filter: drop-shadow(0px 8px 12px rgba(0,0,0,0.15));
+    filter: drop-shadow(0px 8px 12px rgba(0, 0, 0, 0.15));
     transition: transform 0.3s ease;
 }
 
@@ -773,15 +782,50 @@ body {
     box-shadow: 1.5px 1.5px 0px var(--nb-black);
 }
 
-.tag-blue { background-color: #3B82F6; color: #FFFFFF; }
-.tag-purple { background-color: #8B5CF6; color: #FFFFFF; }
-.tag-pink { background-color: #EC4899; color: #FFFFFF; }
-.tag-green { background-color: #10B981; color: #FFFFFF; }
-.tag-yellow { background-color: #FFE600; color: #000000; }
-.tag-orange { background-color: #F97316; color: #FFFFFF; }
-.tag-red { background-color: #EF4444; color: #FFFFFF; }
-.tag-teal { background-color: #14B8A6; color: #FFFFFF; }
-.tag-dark { background-color: #334155; color: #FFFFFF; }
+.tag-blue {
+    background-color: #3B82F6;
+    color: #FFFFFF;
+}
+
+.tag-purple {
+    background-color: #8B5CF6;
+    color: #FFFFFF;
+}
+
+.tag-pink {
+    background-color: #EC4899;
+    color: #FFFFFF;
+}
+
+.tag-green {
+    background-color: #10B981;
+    color: #FFFFFF;
+}
+
+.tag-yellow {
+    background-color: #FFE600;
+    color: #000000;
+}
+
+.tag-orange {
+    background-color: #F97316;
+    color: #FFFFFF;
+}
+
+.tag-red {
+    background-color: #EF4444;
+    color: #FFFFFF;
+}
+
+.tag-teal {
+    background-color: #14B8A6;
+    color: #FFFFFF;
+}
+
+.tag-dark {
+    background-color: #334155;
+    color: #FFFFFF;
+}
 
 .keahlian-code {
     font-family: var(--font-heading);
@@ -817,7 +861,7 @@ body {
     width: auto;
     height: auto;
     object-fit: contain;
-    filter: drop-shadow(2px 3px 0px rgba(0,0,0,0.12));
+    filter: drop-shadow(2px 3px 0px rgba(0, 0, 0, 0.12));
     transition: transform 0.25s ease;
 }
 
@@ -1157,6 +1201,10 @@ body {
     .prestasi-img-wrapper {
         height: 200px;
     }
+
+    .carousel-caption {
+        display: none !important;
+    }
 }
 
 /* Large monitors: 1440p (2560x1440) dan ke atas */
@@ -1182,7 +1230,7 @@ body {
     opacity: 0;
     transform: translateY(40px);
     transition: opacity 0.65s cubic-bezier(0.22, 1, 0.36, 1),
-                transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+        transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
     will-change: opacity, transform;
 }
 
@@ -1191,7 +1239,7 @@ body {
     opacity: 0;
     transform: translateX(-50px);
     transition: opacity 0.65s cubic-bezier(0.22, 1, 0.36, 1),
-                transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+        transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
     will-change: opacity, transform;
 }
 
@@ -1200,7 +1248,7 @@ body {
     opacity: 0;
     transform: translateX(50px);
     transition: opacity 0.65s cubic-bezier(0.22, 1, 0.36, 1),
-                transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+        transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
     will-change: opacity, transform;
 }
 
@@ -1209,7 +1257,7 @@ body {
     opacity: 0;
     transform: scale(0.88) translateY(20px);
     transition: opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1),
-                transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+        transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
     will-change: opacity, transform;
 }
 
@@ -1223,16 +1271,37 @@ body {
 }
 
 /* Delay stagger untuk grid items */
-.reveal-delay-1 { transition-delay: 0.08s; }
-.reveal-delay-2 { transition-delay: 0.16s; }
-.reveal-delay-3 { transition-delay: 0.24s; }
-.reveal-delay-4 { transition-delay: 0.32s; }
-.reveal-delay-5 { transition-delay: 0.40s; }
-.reveal-delay-6 { transition-delay: 0.48s; }
+.reveal-delay-1 {
+    transition-delay: 0.08s;
+}
+
+.reveal-delay-2 {
+    transition-delay: 0.16s;
+}
+
+.reveal-delay-3 {
+    transition-delay: 0.24s;
+}
+
+.reveal-delay-4 {
+    transition-delay: 0.32s;
+}
+
+.reveal-delay-5 {
+    transition-delay: 0.40s;
+}
+
+.reveal-delay-6 {
+    transition-delay: 0.48s;
+}
 
 /* Nonaktifkan animasi jika user prefer reduced motion */
 @media (prefers-reduced-motion: reduce) {
-    .reveal, .reveal-left, .reveal-right, .reveal-scale {
+
+    .reveal,
+    .reveal-left,
+    .reveal-right,
+    .reveal-scale {
         opacity: 1 !important;
         transform: none !important;
         transition: none !important;
@@ -1262,7 +1331,10 @@ body {
 }
 
 @media (max-width: 768px) {
-    main { width: 95% !important; margin: 20px auto !important; }
+    main {
+        width: 95% !important;
+        margin: 20px auto !important;
+    }
 
     .keahlian-grid {
         grid-template-columns: repeat(2, 1fr);
@@ -1288,66 +1360,239 @@ body {
 }
 
 @media (max-width: 576px) {
+
     /* Hero Carousel */
-    .carousel { height: clamp(420px, 65vh, 520px); }
-    .carousel-caption { bottom: 85px; padding: 14px; left: 10px; right: 10px; }
-    .carousel-caption h2 { font-size: 1.15rem; }
-    .carousel-caption p { font-size: 0.78rem; margin-bottom: 8px; line-height: 1.4; }
-    .hero-stats-wrapper { bottom: 10px; width: 96%; }
-    .hero-stats-container { flex-wrap: wrap; gap: 4px; padding: 4px;}
-    .stat-item { flex: 1 1 30%; padding: 4px; }
-    .stat-value { font-size: 1.1rem; }
-    .stat-label { font-size: 0.65rem; }
-    .carousel-control { width: 34px; height: 34px; font-size: 0.95rem; }
-    .carousel-indicators { top: 12px; right: 12px; padding: 3px 6px; }
-    .indicator { width: 10px; height: 10px; }
-    .indicator.active { width: 20px; }
-    
+    .carousel {
+        height: clamp(420px, 65vh, 520px);
+    }
+
+    .carousel-caption {
+        bottom: 85px;
+        padding: 14px;
+        left: 10px;
+        right: 10px;
+    }
+
+    .carousel-caption h2 {
+        font-size: 1.15rem;
+    }
+
+    .carousel-caption p {
+        font-size: 0.78rem;
+        margin-bottom: 8px;
+        line-height: 1.4;
+    }
+
+    .hero-stats-wrapper {
+        bottom: 10px;
+        width: 96%;
+    }
+
+    .hero-stats-container {
+        flex-wrap: wrap;
+        gap: 4px;
+        padding: 4px;
+    }
+
+    .stat-item {
+        flex: 1 1 30%;
+        padding: 4px;
+    }
+
+    .stat-value {
+        font-size: 1.1rem;
+    }
+
+    .stat-label {
+        font-size: 0.65rem;
+    }
+
+    .carousel-control {
+        width: 34px;
+        height: 34px;
+        font-size: 0.95rem;
+    }
+
+    .carousel-indicators {
+        top: 12px;
+        right: 12px;
+        padding: 3px 6px;
+    }
+
+    .indicator {
+        width: 10px;
+        height: 10px;
+    }
+
+    .indicator.active {
+        width: 20px;
+    }
+
     /* Sambutan */
-    .sambutan-section { margin: 40px 0; }
-    .section-title { font-size: 1.45rem; }
-    .section-subtitle { font-size: 0.9rem; }
-    .kepala-card { width: 100%; max-width: 100%; }
-    .kepala-img-wrapper { min-height: 200px; padding: 16px 16px 0 16px; }
-    .kepala-img { max-height: 200px; }
-    .kepala-name { font-size: 1rem; }
-    .sambutan-content { padding: 18px 14px; }
-    .greeting-opening { font-size: 1.1rem; }
-    .sambutan-body { font-size: 0.88rem; line-height: 1.6; }
-    .quote-icon { font-size: 3.5rem; top: 5px; right: 10px; }
-    .sambutan-footer-note { padding: 8px 12px; }
+    .sambutan-section {
+        margin: 80px 0;
+    }
+
+    .section-title {
+        font-size: 1.45rem;
+    }
+
+    .section-subtitle {
+        font-size: 0.9rem;
+    }
+
+    .kepala-card {
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .kepala-img-wrapper {
+        min-height: 200px;
+        padding: 16px 16px 0 16px;
+    }
+
+    .kepala-img {
+        max-height: 200px;
+    }
+
+    .kepala-name {
+        font-size: 1rem;
+    }
+
+    .sambutan-content {
+        padding: 18px 14px;
+    }
+
+    .greeting-opening {
+        font-size: 1.1rem;
+    }
+
+    .sambutan-body {
+        font-size: 0.88rem;
+        line-height: 1.6;
+    }
+
+    .quote-icon {
+        font-size: 3.5rem;
+        top: 5px;
+        right: 10px;
+    }
+
+    .sambutan-footer-note {
+        padding: 8px 12px;
+    }
 
     /* Keahlian Grid */
-    .keahlian-section { margin: 35px 0 25px 0; }
-    .keahlian-grid { grid-template-columns: 1fr; gap: 14px; margin-top: 20px; }
-    .keahlian-card { padding: 16px 12px; }
-    .keahlian-img-box { height: 140px; }
-    .keahlian-title { font-size: 1.05rem; }
-    .keahlian-desc { font-size: 0.8rem; }
+    .keahlian-section {
+        margin: 35px 0 25px 0;
+    }
+
+    .keahlian-grid {
+        grid-template-columns: 1fr;
+        gap: 14px;
+        margin-top: 20px;
+    }
+
+    .keahlian-card {
+        padding: 16px 12px;
+    }
+
+    .keahlian-img-box {
+        height: 140px;
+    }
+
+    .keahlian-title {
+        font-size: 1.05rem;
+    }
+
+    .keahlian-desc {
+        font-size: 0.8rem;
+    }
 
     /* Prestasi Grid */
-    .prestasi-section { margin: 35px 0; }
-    .prestasi-grid { grid-template-columns: 1fr; gap: 16px; margin-top: 20px; }
-    .prestasi-img-wrapper { height: 180px; }
-    .prestasi-category { font-size: 0.65rem; padding: 3px 8px; }
-    .prestasi-rank { font-size: 0.7rem; padding: 3px 8px; }
-    .prestasi-title { font-size: 1rem; }
-    .prestasi-caption { font-size: 0.82rem; }
-    .prestasi-content { padding: 14px; }
-    
+    .prestasi-section {
+        margin: 35px 0;
+    }
+
+    .prestasi-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+        margin-top: 20px;
+    }
+
+    .prestasi-img-wrapper {
+        height: 180px;
+    }
+
+    .prestasi-category {
+        font-size: 0.65rem;
+        padding: 3px 8px;
+    }
+
+    .prestasi-rank {
+        font-size: 0.7rem;
+        padding: 3px 8px;
+    }
+
+    .prestasi-title {
+        font-size: 1rem;
+    }
+
+    .prestasi-caption {
+        font-size: 0.82rem;
+    }
+
+    .prestasi-content {
+        padding: 14px;
+    }
+
     /* Mitra */
-    .mitra-section { margin: 35px 0 20px 0; }
-    .mitra-carousel-track-container { padding: 10px; }
-    .mitra-card { height: 65px; padding: 8px; min-width: 90px; }
+    .mitra-section {
+        margin: 35px 0 20px 0;
+    }
+
+    .mitra-carousel-track-container {
+        padding: 10px;
+    }
+
+    .mitra-card {
+        height: 65px;
+        padding: 8px;
+        min-width: 90px;
+    }
 }
 
 @media (max-width: 400px) {
-    .stat-value { font-size: 0.95rem; }
-    .stat-label { font-size: 0.55rem; }
-    .btn-cta-hero { font-size: 0.75rem; padding: 6px 10px; }
-    .section-title { font-size: 1.25rem; }
-    .carousel-caption h2 { font-size: 1.05rem; }
-    .carousel-caption p { font-size: 0.7rem; }
-    .kepala-img-wrapper { min-height: 160px; }
-    .kepala-img { max-height: 160px; }
+    .stat-value {
+        font-size: 0.95rem;
+    }
+
+    .stat-label {
+        font-size: 0.55rem;
+    }
+
+    .btn-cta-hero {
+        font-size: 0.75rem;
+        padding: 6px 10px;
+    }
+
+    .section-title {
+        font-size: 1.25rem;
+    }
+
+    .carousel-caption h2 {
+        font-size: 1.05rem;
+    }
+
+    .carousel-caption p {
+        font-size: 0.7rem;
+    }
+
+    .kepala-img-wrapper {
+        min-height: 160px;
+    }
+
+    .kepala-img {
+        max-height: 160px;
+    }
 }

@@ -292,7 +292,7 @@ $data_guru = [
     </main>
 
     <?php include '../components/footer.php'; ?>
-    <script src="../script.js"></script>
+    <script src="<?php echo $base_url; ?>script.js"></script>
     <script src="script.js"></script>
 </body>
 </html>

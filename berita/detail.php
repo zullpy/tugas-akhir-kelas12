@@ -123,5 +123,6 @@ $bg  = $kategori_warna[$kat] ?? '#FFE600';
     </main>
 
     <?php include '../components/footer.php'; ?>
+    <script src="<?php echo $base_url; ?>script.js"></script>
 </body>
 </html>
