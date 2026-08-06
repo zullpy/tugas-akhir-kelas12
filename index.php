@@ -268,7 +268,7 @@ $pageTitle = "beranda";
         </div>
     </section>
 
-    <section class="keahlian-section">
+    <section class="keahlian-section" id="keahlian">
         <div class="section-header center reveal">
             <span class="section-badge badge-yellow"><i class="ph-bold ph-graduation-cap"></i> PROGRAM KEAHLIAN</span>
             <h2 class="section-title">Konsentrasi Keahlian Unggulan</h2>
