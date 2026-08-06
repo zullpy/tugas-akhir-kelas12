@@ -19,12 +19,12 @@ if ($root_dir && $script_dir && strpos($script_dir, $root_dir) === 0) {
 }
 ?>
 <style>
-/* Footer Styles */
+/* Footer Styles - Dark Navy Theme */
 .site-footer {
     width: 100%;
-    background-color: #F8FAFC;
-    color: #0F172A;
-    border-top: 1px solid #E2E8F0;
+    background-color: var(--nb-navy-dark, #053B50);
+    color: var(--nb-white, #FFFFFF);
+    border-top: var(--border-thick, 3.5px solid #000000);
     padding: 44px 0 36px 0;
     font-family: var(--font-body, 'Plus Jakarta Sans', sans-serif);
     margin-top: 60px;
@@ -58,6 +58,11 @@ if ($root_dir && $script_dir && strpos($script_dir, $root_dir) === 0) {
     height: 52px;
     width: auto;
     object-fit: contain;
+    background: #FFFFFF;
+    padding: 4px 8px;
+    border: var(--border-thin, 2px solid #000000);
+    border-radius: var(--radius-btn, 10px);
+    box-shadow: 2px 2px 0px #000000;
 }
 
 .footer-brand-info {
@@ -70,7 +75,7 @@ if ($root_dir && $script_dir && strpos($script_dir, $root_dir) === 0) {
     font-family: var(--font-heading, 'Space Grotesk', sans-serif);
     font-size: 1.15rem;
     font-weight: 800;
-    color: #0A4D68;
+    color: #FFFFFF;
     line-height: 1.2;
     margin: 0;
     text-transform: uppercase;
@@ -81,7 +86,7 @@ if ($root_dir && $script_dir && strpos($script_dir, $root_dir) === 0) {
     font-family: var(--font-heading, 'Space Grotesk', sans-serif);
     font-size: 1.15rem;
     font-weight: 800;
-    color: #0A4D68;
+    color: #FFFFFF;
     line-height: 1.2;
     margin: 0 0 8px 0;
     text-transform: uppercase;
@@ -99,14 +104,14 @@ if ($root_dir && $script_dir && strpos($script_dir, $root_dir) === 0) {
     padding: 4px 14px;
     border-radius: 50px;
     text-transform: uppercase;
-    box-shadow: 0 2px 4px rgba(243, 112, 35, 0.2);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
 }
 
 .footer-description {
     font-size: 0.84rem;
     font-weight: 500;
     line-height: 1.6;
-    color: #475569;
+    color: #E2E8F0;
     margin-bottom: 24px;
     text-align: justify;
 }
@@ -122,41 +127,37 @@ if ($root_dir && $script_dir && strpos($script_dir, $root_dir) === 0) {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 38px;
-    height: 38px;
-    background-color: #FFFFFF;
-    color: #475569;
-    border: 1.5px solid #CBD5E1;
-    border-radius: 8px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    width: 40px;
+    height: 40px;
+    background-color: var(--nb-yellow, #FFE600);
+    color: #000000;
+    border: var(--border-medium, 2.5px solid #000000);
+    border-radius: var(--radius-btn, 10px);
+    box-shadow: var(--shadow-sm, 3px 3px 0px #000000);
     transition: all 0.2s ease;
     text-decoration: none;
 }
 
 .footer-social-links a.social-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    transform: translate(-2px, -2px);
+    box-shadow: 4px 4px 0px #000000;
     color: #FFFFFF;
 }
 
 .footer-social-links a.social-youtube:hover {
     background-color: #FF0000;
-    border-color: #FF0000;
 }
 
 .footer-social-links a.social-facebook:hover {
     background-color: #1877F2;
-    border-color: #1877F2;
 }
 
 .footer-social-links a.social-instagram:hover {
     background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
-    border-color: #dc2743;
 }
 
 .footer-social-links a.social-tiktok:hover {
     background-color: #000000;
-    border-color: #000000;
 }
 
 /* Right Section - Kompetensi Keahlian */
@@ -168,7 +169,7 @@ if ($root_dir && $script_dir && strpos($script_dir, $root_dir) === 0) {
 .footer-section-header {
     margin-bottom: 16px;
     padding-bottom: 8px;
-    border-bottom: 2.5px solid #0EA5E9;
+    border-bottom: 2.5px solid #38BDF8;
     display: block;
     width: 100%;
 }
@@ -177,7 +178,7 @@ if ($root_dir && $script_dir && strpos($script_dir, $root_dir) === 0) {
     font-family: var(--font-heading, 'Space Grotesk', sans-serif);
     font-size: 1.1rem;
     font-weight: 800;
-    color: #0A4D68;
+    color: #FFFFFF;
     text-transform: uppercase;
     letter-spacing: 0.03em;
     margin: 0;
@@ -192,7 +193,7 @@ if ($root_dir && $script_dir && strpos($script_dir, $root_dir) === 0) {
 .keahlian-item {
     font-size: 0.85rem;
     font-weight: 600;
-    color: #0EA5E9;
+    color: #38BDF8;
     text-decoration: none;
     line-height: 1.45;
     transition: color 0.15s ease, transform 0.15s ease;
@@ -200,7 +201,7 @@ if ($root_dir && $script_dir && strpos($script_dir, $root_dir) === 0) {
 }
 
 .keahlian-item:hover {
-    color: #0284C7;
+    color: var(--nb-yellow, #FFE600);
     text-decoration: underline;
 }
 
