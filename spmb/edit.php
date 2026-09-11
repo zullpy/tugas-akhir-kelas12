@@ -150,7 +150,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                         `asal_sekolah` = ?, `jurusan_1` = ?, `jurusan_2` = ?, `jalur` = ?,
                         `nama_ayah` = ?, `nama_ibu` = ?, `pekerjaan_ortu` = ?, `no_hp_ortu` = ?, `penghasilan_ortu` = ?,
                         `foto` = ?, `berkas_kk` = ?, `berkas_akta` = ?, `berkas_ijazah` = ?, `berkas_ktp_ortu` = ?,
-                        `berkas_kip` = ?, `berkas_prestasi` = ?, `status` = ?, `catatan_admin` = ?
+                        `berkas_kip` = ?, `berkas_prestasi` = ?, `status` = ?, `catatan_admin` = ?,
+                        `tenggat_perbaikan` = NULL
                         WHERE `id` = ?";
 
                     $updStmt = $pdo->prepare($updateSql);
@@ -295,8 +296,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                                 <?php echo htmlspecialchars($p['catatan_admin'] ?: 'Harap periksa kembali isian identitas atau unggah ulang dokumen yang kurang jelas.'); ?>
                             </div>
                             <div style="font-size:0.85rem; color:#92400E; margin-top:10px;">
-                                <i class="ph-bold ph-info"></i> Silakan sesuaikan kolom isian atau unggah file dokumen baru di bawah ini, lalu klik <strong>"Simpan &amp; Ajukan Perbaikan"</strong>.
+                                <i class="ph-bold ph-info"></i> Silakan sesuaikan kolom isian atau ganti pilihan jurusan di bawah ini, lalu klik <strong>"Simpan &amp; Ajukan Perbaikan"</strong>.
                             </div>
+
+                            <?php if (!empty($p['tenggat_perbaikan'])): ?>
+                                <div style="background:#FFF1F2; border:2px solid #E11D48; border-radius:10px; padding:14px 18px; margin-top:14px; display:flex; gap:12px; align-items:center;">
+                                    <i class="ph-bold ph-alarm" style="font-size:2.2rem; color:#E11D48; flex-shrink:0;"></i>
+                                    <div>
+                                        <div style="font-weight:800; color:#9F1239; font-size:0.95rem;">TENGGAT WAKTU KONFIRMASI GANTI JURUSAN:</div>
+                                        <div style="font-size:0.88rem; color:#BE123C; margin-top:3px; line-height:1.4;">
+                                            Harap pilih jurusan lain dan simpan formulir perbaikan Anda sebelum <strong><?php echo date('d F Y', strtotime($p['tenggat_perbaikan'])) . ', pukul ' . date('H:i', strtotime($p['tenggat_perbaikan'])); ?> WIB</strong> (Batas Waktu: 1 Minggu). Jika melewati batas waktu tersebut tanpa pergantian jurusan, sistem akan otomatis menetapkan status pendaftaran menjadi <strong>DITOLAK</strong>.
+                                        </div>
+                                    </div>
+                                </div>
+                            <?php endif; ?>
                         </div>
                     </div>
                 <?php endif; ?>
@@ -335,9 +348,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                             <div class="spmb-form-group">
                                 <label class="spmb-label" for="jurusan_1">Jurusan Pilihan 1 (Utama) <span class="required">*</span></label>
                                 <select name="jurusan_1" id="jurusan_1" class="spmb-select" required>
-                                    <?php foreach ($DAFTAR_JURUSAN as $kode => $j): ?>
-                                        <option value="<?php echo $kode; ?>" <?php echo ($p['jurusan_1'] === $kode) ? 'selected' : ''; ?>>
-                                            <?php echo $kode; ?> - <?php echo $j['nama']; ?>
+                                    <?php foreach ($DAFTAR_JURUSAN as $kode => $j): 
+                                        $infoK = get_jurusan_info_kuota($pdo, $kode, $p['id']);
+                                        $isPenuh = $infoK['penuh'];
+                                        $selected = ($p['jurusan_1'] === $kode) ? 'selected' : '';
+                                    ?>
+                                        <option value="<?php echo $kode; ?>" <?php echo $selected; ?>>
+                                            <?php echo $kode; ?> - <?php echo $j['nama']; ?> <?php echo $isPenuh ? ' [⚠️ KUOTA PENUH]' : ' (Sisa: ' . $infoK['sisa'] . ')'; ?>
                                         </option>
                                     <?php endforeach; ?>
                                 </select>
@@ -346,13 +363,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                                 <label class="spmb-label" for="jurusan_2">Jurusan Pilihan 2 (Cadangan)</label>
                                 <select name="jurusan_2" id="jurusan_2" class="spmb-select">
                                     <option value="">-- Tidak Memilih Pilihan 2 --</option>
-                                    <?php foreach ($DAFTAR_JURUSAN as $kode => $j): ?>
-                                        <option value="<?php echo $kode; ?>" <?php echo ($p['jurusan_2'] === $kode) ? 'selected' : ''; ?>>
-                                            <?php echo $kode; ?> - <?php echo $j['nama']; ?>
+                                    <?php foreach ($DAFTAR_JURUSAN as $kode => $j): 
+                                        $infoK = get_jurusan_info_kuota($pdo, $kode, $p['id']);
+                                        $isPenuh = $infoK['penuh'];
+                                        $selected = ($p['jurusan_2'] === $kode) ? 'selected' : '';
+                                    ?>
+                                        <option value="<?php echo $kode; ?>" <?php echo $selected; ?>>
+                                            <?php echo $kode; ?> - <?php echo $j['nama']; ?> <?php echo $isPenuh ? ' [⚠️ KUOTA PENUH]' : ' (Sisa: ' . $infoK['sisa'] . ')'; ?>
                                         </option>
                                     <?php endforeach; ?>
                                 </select>
-                                <div class="spmb-input-helper">Akan diprioritaskan jika kuota Pilihan 1 penuh.</div>
+                                <div class="spmb-input-helper">Pilihlah jurusan yang masih memiliki sisa kuota.</div>
                             </div>
                         </div>
                     </div>

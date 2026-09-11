@@ -515,17 +515,20 @@ function evaluasi_kuota_pendaftar($pdo, $id_pendaftar, $jurusan_1, $jurusan_2 = 
     }
 
     // Pilihan 1 penuh dan Pilihan 2 juga penuh (atau tidak memilih pilihan 2)
+    // Sesuai alur baru: Calon siswa TIDAK langsung ditolak, melainkan dialihkan ke status Perlu Perbaikan
+    // dengan batas waktu 1 minggu (7 hari) untuk memilih jurusan lain yang masih memiliki sisa kuota.
     $infoP2 = !empty($jurusan_2) ? get_jurusan_info_kuota($pdo, $jurusan_2, $id_pendaftar) : null;
-    $pesanDitolak = 'Mohon maaf, kuota penerimaan untuk Jurusan Pilihan 1 (' . $jurusan_1 . ')' . 
-                    (!empty($jurusan_2) ? ' dan Pilihan 2 (' . $jurusan_2 . ')' : '') . 
-                    ' telah terpenuhi seluruhnya.';
+    $pesanGantiJurusan = 'Mohon maaf, kuota penerimaan untuk jurusan pilihan 1 dan pilihan 2 Anda telah penuh. Silakan login ke menu Perbaiki Formulir dan ganti pilihan jurusan Anda ke kompetensi keahlian yang masih tersedia kuota.';
+    $tenggatPerbaikan = date('Y-m-d H:i:s', strtotime('+7 days'));
 
     return [
-        'status' => 'Ditolak',
+        'status' => 'Perlu Perbaikan',
         'jurusan_diterima' => null,
         'dialihkan' => false,
         'kuota_habis' => true,
-        'alasan' => $pesanDitolak,
+        'kuota_semua_penuh' => true,
+        'tenggat_perbaikan' => $tenggatPerbaikan,
+        'alasan' => $pesanGantiJurusan,
         'info_p1' => $infoP1,
         'info_p2' => $infoP2
     ];
@@ -688,4 +691,15 @@ function get_spmb_status_info($settings = null) {
     ];
 }
 
-
+// Load Modul WhatsApp Fonnte & Auto Expire Helper
+if (file_exists(__DIR__ . '/fonnte.php')) {
+    require_once __DIR__ . '/fonnte.php';
+    // Otomatisasi pemeriksaan tenggat waktu 1 minggu jika pdo tersedia
+    if (isset($pdo) && $pdo instanceof PDO) {
+        try {
+            cek_auto_tolak_tenggat_perbaikan($pdo);
+        } catch (Exception $e) {
+            // Abaikan error background auto-expire
+        }
+    }
+}

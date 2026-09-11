@@ -150,9 +150,15 @@ if (!empty($keyword)) {
                                             <div style="background:#FFFFFF; border:1.5px solid #F59E0B; border-radius:8px; padding:10px 14px; margin-top:8px; font-weight:600; color:#B45309; white-space:pre-line;">
                                                 <?php echo htmlspecialchars($pendaftar['catatan_admin'] ?: 'Mohon periksa kembali kesesuaian data identitas atau kejelasan foto berkas yang diunggah.'); ?>
                                             </div>
+                                            <?php if (!empty($pendaftar['tenggat_perbaikan'])): ?>
+                                                <div style="background:#FFF1F2; border:1.5px solid #E11D48; border-radius:8px; padding:10px 14px; margin-top:10px; font-weight:700; color:#9F1239; font-size:0.85rem; display:flex; align-items:center; gap:8px;">
+                                                    <i class="ph-bold ph-alarm" style="font-size:1.4rem; color:#E11D48; flex-shrink:0;"></i>
+                                                    <span>Batas Waktu Ganti Jurusan: <strong><?php echo date('d F Y', strtotime($pendaftar['tenggat_perbaikan'])) . ', pukul ' . date('H:i', strtotime($pendaftar['tenggat_perbaikan'])); ?> WIB</strong> (Maksimal 1 Minggu). Lewat dari batas waktu tanpa konfirmasi, sistem akan otomatis menetapkan status Ditolak.</span>
+                                                </div>
+                                            <?php endif; ?>
                                         </div>
                                         <a href="edit.php?no=<?php echo urlencode($pendaftar['no_pendaftaran']); ?>&nisn=<?php echo urlencode($pendaftar['nisn']); ?>" class="spmb-btn" style="background:#F59E0B; color:#0F172A; font-weight:800; border:2px solid #000; box-shadow:2px 2px 0 #000; padding:10px 20px; display:inline-flex; align-items:center; gap:8px;">
-                                            <i class="ph-bold ph-pencil-simple-line" style="font-size:1.2rem;"></i> Perbaiki Data &amp; Unggah Ulang Berkas Sekarang
+                                            <i class="ph-bold ph-pencil-simple-line" style="font-size:1.2rem;"></i> Perbaiki Data / Ganti Jurusan Sekarang
                                         </a>
                                     </div>
                                 </div>
@@ -170,6 +176,10 @@ if (!empty($keyword)) {
                                     <div>
                                         <strong style="font-size:1.05rem;">Mohon Maaf, Berkas Belum Memenuhi Syarat</strong><br>
                                         <?php echo nl2br(htmlspecialchars($pendaftar['catatan_admin'] ?? 'Berkas pendaftaran tidak memenuhi kualifikasi seleksi atau kuota jurusan pilihan telah terpenuhi seluruhnya.')); ?>
+                                        <div style="background:#FFFFFF; border:1.5px solid #FCA5A5; border-radius:8px; padding:12px 14px; margin-top:12px; color:#7F1D1D; font-size:0.88rem; line-height:1.5;">
+                                            <strong>✨ Pesan Semangat &amp; Motivasi:</strong><br>
+                                            <em>"Kegagalan hari ini bukanlah akhir dari segalanya, melainkan awal dari kesempatan baru yang menantimu di depan. Percayalah bahwa setiap orang memiliki jalan dan waktu terbaiknya masing-masing untuk sukses. Tetaplah bersemangat, teruslah belajar, dan kejarlah impianmu setinggi langit!"</em>
+                                        </div>
                                     </div>
                                 </div>
                             <?php else: ?>

@@ -48,6 +48,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         $success = "Kapasitas kuota siswa per jurusan berhasil diperbarui!";
         $settings = get_all_settings(); // refresh & sync
+    } elseif ($action === 'fonnte') {
+        $token = trim($_POST['fonnte_token'] ?? '');
+        $status = isset($_POST['fonnte_status']) ? '1' : '0';
+        $baseUrl = trim($_POST['base_url'] ?? '');
+
+        $ins = $pdo->prepare("INSERT INTO `spmb_pengaturan` (`kunci`, `nilai`) VALUES (?, ?) ON DUPLICATE KEY UPDATE `nilai` = VALUES(`nilai`)");
+        $ins->execute(['fonnte_token', $token]);
+        $ins->execute(['fonnte_status', $status]);
+        $ins->execute(['base_url', $baseUrl]);
+
+        $success = "Pengaturan integrasi WhatsApp Gateway (Fonnte) berhasil disimpan!";
+        $settings = get_all_settings();
+    } elseif ($action === 'test_wa') {
+        $noTes = trim($_POST['no_test'] ?? '');
+        if (empty($noTes)) {
+            $error = "Nomor WhatsApp untuk uji coba wajib diisi.";
+        } else {
+            $pesanTes = "🔔 *UJI COBA WHATSAPP GATEWAY (FONNTE)*\n\n"
+                      . "Halo Administrator SMKS Sukapura,\n"
+                      . "Ini adalah pesan verifikasi koneksi API Fonnte dari Portal SPMB SMKS Sukapura.\n\n"
+                      . "✅ *Status: KONEKSI BERHASIL!*\n"
+                      . "Waktu Kirim: " . date('d/m/Y H:i:s') . " WIB\n\n"
+                      . "Sistem notifikasi otomatis SPMB siap digunakan.";
+            
+            $res = kirim_wa_fonnte($noTes, $pesanTes);
+            if ($res['success']) {
+                $success = "Uji coba kirim pesan WhatsApp ke nomor <strong>" . htmlspecialchars($noTes) . "</strong> BERHASIL!";
+            } else {
+                $error = "Uji coba WhatsApp GAGAL: " . htmlspecialchars($res['error'] ?? 'Terjadi kesalahan saat menghubungi API Fonnte');
+            }
+        }
     } elseif ($action === 'password') {
         $lama = $_POST['pass_lama'] ?? '';
         $baru = $_POST['pass_baru'] ?? '';
@@ -270,8 +301,79 @@ $statusInfo = get_spmb_status_info($settings);
         </div>
     </div>
 
-    <!-- GANTI PASSWORD ADMIN -->
+    <!-- KOLOM KANAN: INTEGRASI WHATSAPP & KEAMANAN -->
     <div>
+        <!-- INTEGRASI WHATSAPP GATEWAY (FONNTE) -->
+        <div class="adm-card" style="margin-bottom:24px;">
+            <div class="adm-card-header">
+                <h3 class="adm-card-title">
+                    <i class="ph-bold ph-whatsapp-logo" style="color:#22C55E;"></i> Integrasi WhatsApp Gateway (Fonnte)
+                </h3>
+                <?php 
+                $isFonnteAktif = (!empty($settings['fonnte_token']) && ($settings['fonnte_status'] ?? '1') === '1');
+                ?>
+                <span class="spmb-badge" style="background:<?php echo $isFonnteAktif ? '#DCFCE7' : '#FEE2E2'; ?>; color:<?php echo $isFonnteAktif ? '#166534' : '#991B1B'; ?>; font-weight:800; font-size:0.75rem; border:1px solid currentColor;">
+                    <i class="ph-bold <?php echo $isFonnteAktif ? 'ph-check-circle' : 'ph-x-circle'; ?>"></i>
+                    <?php echo $isFonnteAktif ? 'TERHUBUNG' : 'BELUM AKTIF'; ?>
+                </span>
+            </div>
+            <div class="adm-card-body">
+                <p style="font-size:0.83rem; color:#64748B; margin-bottom:14px; line-height:1.5;">
+                    Notifikasi otomatis akan dikirimkan langsung ke nomor WhatsApp calon siswa saat status pendaftaran diperbarui (Diterima + PDF Kartu, Cadangan, Perlu Perbaikan + Link Edit, &amp; Ditolak + Pesan Motivasi).
+                </p>
+
+                <form action="pengaturan.php" method="POST" style="margin-bottom:18px;">
+                    <input type="hidden" name="action" value="fonnte">
+
+                    <div class="spmb-form-group">
+                        <label class="spmb-label">
+                            Token API Fonnte <span class="required">*</span>
+                        </label>
+                        <input type="text" name="fonnte_token" class="spmb-input" placeholder="Masukkan token API akun Fonnte Anda" value="<?php echo htmlspecialchars($settings['fonnte_token'] ?? ''); ?>" required style="font-family:monospace; font-size:0.9rem;">
+                        <span style="font-size:0.75rem; color:#64748B; margin-top:4px; display:block;">
+                            Dapatkan token API pada dashboard <a href="https://fonnte.com" target="_blank" style="color:#2563EB; font-weight:700; text-decoration:underline;">Fonnte.com</a>.
+                        </span>
+                    </div>
+
+                    <div class="spmb-form-group">
+                        <label class="spmb-label">Base URL Web SPMB</label>
+                        <?php 
+                        $defaultBase = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' ? 'https' : 'http') . '://' . ($_SERVER['HTTP_HOST'] ?? 'localhost:8000');
+                        ?>
+                        <input type="url" name="base_url" class="spmb-input" placeholder="<?php echo $defaultBase; ?>" value="<?php echo htmlspecialchars($settings['base_url'] ?? $defaultBase); ?>" required>
+                        <span style="font-size:0.75rem; color:#64748B; margin-top:4px; display:block;">
+                            Digunakan untuk menyusun tautan unduh Kartu Peserta dan link Perbaikan Formulir pada pesan WhatsApp.
+                        </span>
+                    </div>
+
+                    <div class="spmb-form-group">
+                        <label style="display:flex; align-items:center; gap:10px; cursor:pointer; font-size:0.88rem; font-weight:700; color:#1E293B;">
+                            <input type="checkbox" name="fonnte_status" value="1" <?php echo (($settings['fonnte_status'] ?? '1') === '1') ? 'checked' : ''; ?> style="width:18px; height:18px; accent-color:#16A34A;">
+                            <span>Aktifkan Pengiriman WhatsApp Otomatis</span>
+                        </label>
+                    </div>
+
+                    <button type="submit" class="adm-btn adm-btn-primary" style="width:100%; padding:10px;">
+                        <i class="ph-bold ph-floppy-disk"></i> Simpan Pengaturan Fonnte
+                    </button>
+                </form>
+
+                <!-- FORM UJI COBA PESAN -->
+                <div style="background:#F8FAFC; border:1px dashed #CBD5E1; border-radius:8px; padding:12px 14px;">
+                    <div style="font-weight:800; font-size:0.85rem; color:#1E293B; margin-bottom:8px; display:flex; align-items:center; gap:6px;">
+                        <i class="ph-bold ph-paper-plane-tilt" style="color:#0284C7;"></i> Uji Coba Pengiriman Pesan WA
+                    </div>
+                    <form action="pengaturan.php" method="POST" style="display:flex; gap:8px;">
+                        <input type="hidden" name="action" value="test_wa">
+                        <input type="text" name="no_test" class="spmb-input" placeholder="08xxxxxxxxxx" required style="padding:8px 10px; font-size:0.85rem;" value="<?php echo htmlspecialchars($settings['hotline_wa'] ?? ''); ?>">
+                        <button type="submit" class="adm-btn adm-btn-success" style="padding:8px 14px; font-size:0.85rem; white-space:nowrap;">
+                            <i class="ph-bold ph-paper-plane-right"></i> Tes WA
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
         <div class="adm-card">
             <div class="adm-card-header">
                 <h3 class="adm-card-title">

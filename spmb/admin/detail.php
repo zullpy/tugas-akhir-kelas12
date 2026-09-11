@@ -42,6 +42,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error = "Untuk status <strong>Perlu Perbaikan</strong>, Anda wajib menuliskan Catatan Panitia agar calon siswa mengetahui data atau berkas mana yang harus diperbaiki.";
     } else {
         // Logika Otomatisasi Kuota saat memilih Diterima
+        $tenggatPerbaikan = null;
+        $isKuotaPenuh = false;
+
         if ($statusBaru === 'Diterima') {
             // Karena input catatan tidak ditampilkan saat Diterima, kosongkan catatan revisi
             $catatanAdmin = '';
@@ -57,28 +60,50 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $infoAlert = "<strong>Perhatian Alokasi Kuota:</strong> Kuota Pilihan 1 (" . $p['jurusan_1'] . ") sudah penuh. Calon siswa otomatis dialihkan dan <strong>DITERIMA di Pilihan 2 (" . $jurusanDiterima . ")</strong>.";
                     }
                 } else {
-                    // Pilihan 1 & 2 sama-sama penuh -> Auto ditolak
-                    $statusBaru = 'Ditolak';
+                    // Pilihan 1 & 2 sama-sama penuh -> Alihkan ke status Perlu Perbaikan (Tenggat 1 Minggu)
+                    $statusBaru = 'Perlu Perbaikan';
                     $jurusanDiterima = null;
-                    $catatanAdmin = "[Sistem: Otomatis Ditolak karena kuota Pilihan 1 (" . $p['jurusan_1'] . ")" . (!empty($p['jurusan_2']) ? " dan Pilihan 2 (" . $p['jurusan_2'] . ")" : "") . " telah terpenuhi seluruhnya]";
-                    $infoAlert = "<strong>Peringatan Kuota Penuh:</strong> Kuota penerimaan untuk Pilihan 1 (" . $p['jurusan_1'] . ")" . (!empty($p['jurusan_2']) ? " dan Pilihan 2 (" . $p['jurusan_2'] . ")" : "") . " sudah PENUH. Status calon siswa otomatis ditetapkan menjadi <strong>Ditolak</strong>.";
+                    $isKuotaPenuh = true;
+                    $tenggatPerbaikan = $eval['tenggat_perbaikan'] ?? date('Y-m-d H:i:s', strtotime('+7 days'));
+                    $catatanAdmin = $eval['alasan'];
+                    $tenggatFormat = date('d F Y', strtotime($tenggatPerbaikan)) . ', pukul ' . date('H:i', strtotime($tenggatPerbaikan)) . ' WIB';
+                    $infoAlert = "<strong>Perhatian Kuota Penuh:</strong> Kuota Pilihan 1 (" . $p['jurusan_1'] . ")" . (!empty($p['jurusan_2']) ? " dan Pilihan 2 (" . $p['jurusan_2'] . ")" : "") . " telah terpenuhi seluruhnya. Calon siswa dialihkan ke status <strong>Perlu Perbaikan</strong> dengan tenggat waktu 1 minggu (hingga <strong>{$tenggatFormat}</strong>) agar dapat mengganti pilihan jurusan yang masih tersedia kuota.";
                 }
             }
         } else {
             // Jika bukan Diterima, jurusan_diterima diset null
             $jurusanDiterima = null;
+            if ($statusBaru !== 'Perlu Perbaikan') {
+                $tenggatPerbaikan = null;
+            } else {
+                $tenggatPerbaikan = $p['tenggat_perbaikan'] ?? null;
+            }
         }
 
         $upd = $pdo->prepare("UPDATE `spmb_pendaftar` SET 
             `status` = ?, 
             `jurusan_diterima` = ?,
             `catatan_admin` = ?, 
+            `tenggat_perbaikan` = ?,
             `jadwal_tes` = ?, 
             `ruang_tes` = ? 
             WHERE `id` = ?");
-        $upd->execute([$statusBaru, $jurusanDiterima, $catatanAdmin, $jadwalTes, $ruangTes, $id]);
+        $upd->execute([$statusBaru, $jurusanDiterima, $catatanAdmin, $tenggatPerbaikan, $jadwalTes, $ruangTes, $id]);
 
-        $success = "Status verifikasi dan data pendaftar berhasil diperbarui!";
+        // Kirim Notifikasi WhatsApp Otomatis via Fonnte
+        $waRes = kirim_notifikasi_status_spmb($pdo, $id, $statusBaru, [
+            'catatan_admin'     => $catatanAdmin,
+            'is_kuota_penuh'    => $isKuotaPenuh,
+            'tenggat_perbaikan' => $tenggatPerbaikan
+        ]);
+
+        if (!empty($waRes['success'])) {
+            $success = "Status verifikasi berhasil diperbarui & Pesan WhatsApp terkirim ke calon siswa (" . htmlspecialchars($p['no_hp']) . ")!";
+        } elseif (!empty($waRes['skipped'])) {
+            $success = "Status verifikasi berhasil diperbarui! <br><small style='color:#475569;'><i class='ph-bold ph-info'></i> Notifikasi WhatsApp dilewati: " . htmlspecialchars($waRes['error']) . "</small>";
+        } else {
+            $success = "Status verifikasi berhasil diperbarui! <br><small style='color:#DC2626;'><i class='ph-bold ph-warning'></i> Pengiriman WhatsApp gagal: " . htmlspecialchars($waRes['error'] ?? 'Terjadi kendala koneksi API') . "</small>";
+        }
         
         // Refresh data pendaftar & kuota
         $stmt->execute([$id]);
@@ -133,8 +158,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <h3 class="adm-card-title">
                     <i class="ph-bold ph-user-circle"></i> Biodata Calon Peserta Didik
                 </h3>
-                <div>
+                <div style="display:flex; flex-direction:column; align-items:flex-end; gap:4px;">
                     <?php echo get_status_badge_html($p['status']); ?>
+                    <?php if ($p['status'] === 'Perlu Perbaikan' && !empty($p['tenggat_perbaikan'])): ?>
+                        <span style="font-size:0.75rem; color:#DC2626; font-weight:800; background:#FEE2E2; padding:2px 8px; border-radius:4px; border:1px solid #FCA5A5;">
+                            <i class="ph-bold ph-hourglass-medium"></i> Batas: <?php echo date('d/m/Y H:i', strtotime($p['tenggat_perbaikan'])); ?> WIB
+                        </span>
+                    <?php endif; ?>
                 </div>
             </div>
             <div class="adm-card-body">
@@ -415,7 +445,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <?php endif; ?>
                     </div>
                     <div style="font-size:0.75rem; color:#64748B; margin-top:8px; line-height:1.4;">
-                        <i class="ph-bold ph-info"></i> Bila diset <strong>Diterima</strong>, sistem otomatis mengalihkan ke P2 jika P1 penuh, dan otomatis <strong>Ditolak</strong> jika keduanya penuh.
+                        <i class="ph-bold ph-info"></i> Bila diset <strong>Diterima</strong>, sistem otomatis mengalihkan ke P2 jika P1 penuh. Jika keduanya penuh, dialihkan ke <strong>Perlu Perbaikan</strong> (tenggat 1 minggu ganti jurusan) agar calon siswa dapat memilih jurusan lain yang masih tersedia.
                     </div>
                 </div>
 
@@ -427,7 +457,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <option value="Menunggu Verifikasi" <?php echo ($p['status'] === 'Menunggu Verifikasi') ? 'selected' : ''; ?>>Menunggu Verifikasi</option>
                             <option value="Diterima" <?php echo ($p['status'] === 'Diterima') ? 'selected' : ''; ?>>Diterima (Lulus Seleksi)</option>
                             <option value="Cadangan" <?php echo ($p['status'] === 'Cadangan') ? 'selected' : ''; ?>>Cadangan (Daftar Tunggu)</option>
-                            <option value="Perlu Perbaikan" <?php echo ($p['status'] === 'Perlu Perbaikan') ? 'selected' : ''; ?>>Perlu Perbaikan (Data/Dokumen Kurang)</option>
+                            <option value="Perlu Perbaikan" <?php echo ($p['status'] === 'Perlu Perbaikan') ? 'selected' : ''; ?>>Perlu Perbaikan (Data/Dokumen Kurang / Ganti Jurusan)</option>
                             <option value="Ditolak" <?php echo ($p['status'] === 'Ditolak') ? 'selected' : ''; ?>>Ditolak / Tidak Memenuhi Syarat</option>
                         </select>
                     </div>
@@ -470,6 +500,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <!-- Tombol Template Cepat Catatan Revisi (Hanya tampil saat Perlu Perbaikan) -->
                         <div id="template_catatan_box" style="margin-bottom:8px; display:<?php echo ($p['status'] === 'Perlu Perbaikan') ? 'flex' : 'none'; ?>; flex-wrap:wrap; gap:6px;">
                             <span style="font-size:0.75rem; font-weight:700; color:#555; align-self:center; margin-right:2px;">Template Catatan:</span>
+                            <button type="button" class="adm-badge-btn" style="background:#FEF3C7; color:#B45309; border-color:#F59E0B;" onclick="addCatatan('Mohon maaf, kuota penerimaan untuk jurusan pilihan 1 dan pilihan 2 Anda telah penuh. Silakan login ke menu Perbaiki Formulir dan ganti pilihan jurusan Anda ke kompetensi keahlian yang masih tersedia kuota.')">⚠️ Kuota P1 &amp; P2 Penuh (Ganti Jurusan)</button>
                             <button type="button" class="adm-badge-btn" onclick="addCatatan('NIK pada formulir berbeda dengan foto Kartu Keluarga (KK). Mohon dicek dan diperbaiki.')">+ NIK beda dgn KK</button>
                             <button type="button" class="adm-badge-btn" onclick="addCatatan('Nomor NISN belum valid atau tidak sesuai dengan data Dapodik. Mohon perbaiki 10 digit NISN Anda.')">+ NISN tidak sesuai</button>
                             <button type="button" class="adm-badge-btn" onclick="addCatatan('Foto/scan dokumen Kartu Keluarga buram atau tidak terbaca. Harap unggah ulang foto yang lebih jelas dan terang.')">+ KK buram</button>
