@@ -33,9 +33,17 @@ $infoP2 = !empty($p['jurusan_2']) ? get_jurusan_info_kuota($pdo, $p['jurusan_2']
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $statusBaru       = sanitize_input($_POST['status'] ?? $p['status']);
     $catatanAdmin     = sanitize_input($_POST['catatan_admin'] ?? '');
-    $jadwalTes        = sanitize_input($_POST['jadwal_tes'] ?? '');
     $ruangTes         = sanitize_input($_POST['ruang_tes'] ?? '');
     $jurusanDiterima  = sanitize_input($_POST['jurusan_diterima'] ?? ($p['jurusan_diterima'] ?? ''));
+
+    // Rakit Jadwal Ujian dari input date & time picker
+    $tglTesInput      = sanitize_input($_POST['jadwal_tes_tanggal'] ?? '');
+    $jamTesInput      = sanitize_input($_POST['jadwal_tes_jam'] ?? '');
+    if (!empty($tglTesInput)) {
+        $jadwalTes = format_jadwal_tes($tglTesInput, $jamTesInput);
+    } else {
+        $jadwalTes = sanitize_input($_POST['jadwal_tes'] ?? '');
+    }
 
     // Validasi status Perlu Perbaikan wajib ada catatan
     if ($statusBaru === 'Perlu Perbaikan' && empty(trim($catatanAdmin))) {
@@ -482,10 +490,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <div class="spmb-input-helper">Pilih 'Otomatis' agar sistem memprioritaskan Pilihan 1 jika masih ada slot.</div>
                     </div>
 
+                    <?php list($parsedTglTes, $parsedJamTes) = parse_jadwal_tes($p['jadwal_tes'] ?? ''); ?>
                     <div class="spmb-form-group">
-                        <label class="spmb-label" for="jadwal_tes">Jadwal Ujian / Tes Minat Bakat</label>
-                        <input type="text" name="jadwal_tes" id="jadwal_tes" class="spmb-input" placeholder="Contoh: 15 Mei 2026, 08.00 WIB" value="<?php echo htmlspecialchars($p['jadwal_tes'] ?? ''); ?>">
-                        <div class="spmb-input-helper">Akan tampil di kartu peserta dan halaman tracking siswa.</div>
+                        <label class="spmb-label">Jadwal Ujian / Tes Minat Bakat</label>
+                        <div style="display:grid; grid-template-columns:1.4fr 1fr; gap:10px;">
+                            <div>
+                                <span class="spmb-input-helper" style="display:block; margin-bottom:4px; font-weight:700; color:var(--adm-navy-dark);">
+                                    <i class="ph-bold ph-calendar"></i> Tanggal Ujian
+                                </span>
+                                <input type="date" name="jadwal_tes_tanggal" id="jadwal_tes_tanggal" class="spmb-input" value="<?php echo htmlspecialchars($parsedTglTes); ?>">
+                            </div>
+                            <div>
+                                <span class="spmb-input-helper" style="display:block; margin-bottom:4px; font-weight:700; color:var(--adm-navy-dark);">
+                                    <i class="ph-bold ph-clock"></i> Jam / Waktu
+                                </span>
+                                <input type="time" name="jadwal_tes_jam" id="jadwal_tes_jam" class="spmb-input" value="<?php echo htmlspecialchars($parsedJamTes); ?>">
+                            </div>
+                        </div>
+                        <div class="spmb-input-helper" style="margin-top:6px;">
+                            Pilih tanggal dan jam ujian melalui pemilih waktu di atas (tidak perlu diketik manual). Otomatis tampil rapi di kartu peserta dan halaman tracking siswa (misal: <em>17 Mei 2027, 07:00 WIB</em>).
+                        </div>
                     </div>
 
                     <div class="spmb-form-group">

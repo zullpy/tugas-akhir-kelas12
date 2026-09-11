@@ -699,6 +699,75 @@ function get_spmb_status_info($settings = null) {
     ];
 }
 
+/**
+ * Parse string jadwal tes ke format input tanggal (YYYY-MM-DD) dan jam (HH:mm)
+ */
+function parse_jadwal_tes($raw) {
+    $tgl = '';
+    $jam = '';
+    if (empty($raw)) return [$tgl, $jam];
+
+    $bulanMap = [
+        'januari' => '01', 'jan' => '01',
+        'februari' => '02', 'feb' => '02',
+        'maret' => '03', 'mar' => '03',
+        'april' => '04', 'apr' => '04',
+        'mei' => '05',
+        'juni' => '06', 'jun' => '06',
+        'juli' => '07', 'jul' => '07',
+        'agustus' => '08', 'agu' => '08', 'agt' => '08',
+        'september' => '09', 'sep' => '09',
+        'oktober' => '10', 'okt' => '10',
+        'november' => '11', 'nov' => '11',
+        'desember' => '12', 'des' => '12'
+    ];
+
+    // Ekstrak jam (misal 07:00, 08.00, 09:30)
+    if (preg_match('/(\d{1,2})[:.](\d{2})/', $raw, $mJam)) {
+        $jam = sprintf('%02d:%02d', (int)$mJam[1], (int)$mJam[2]);
+    }
+
+    // Ekstrak tanggal (format YYYY-MM-DD atau D Bulan YYYY)
+    if (preg_match('/(\d{4})-(\d{2})-(\d{2})/', $raw, $mTglIso)) {
+        $tgl = "{$mTglIso[1]}-{$mTglIso[2]}-{$mTglIso[3]}";
+    } elseif (preg_match('/(\d{1,2})\s+([a-zA-Z]+)\s+(\d{4})/', $raw, $mTglIndo)) {
+        $hari = sprintf('%02d', (int)$mTglIndo[1]);
+        $bStr = strtolower($mTglIndo[2]);
+        $tahun = $mTglIndo[3];
+        if (isset($bulanMap[$bStr])) {
+            $tgl = "{$tahun}-{$bulanMap[$bStr]}-{$hari}";
+        }
+    }
+
+    return [$tgl, $jam];
+}
+
+/**
+ * Format tanggal YYYY-MM-DD dan jam HH:mm menjadi string jadwal rapi
+ */
+function format_jadwal_tes($tanggal, $jam = '') {
+    if (empty($tanggal)) return '';
+    $ts = strtotime($tanggal);
+    if (!$ts) return $tanggal;
+
+    $bulanIndo = [
+        1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
+        5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
+        9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'
+    ];
+
+    $d = date('j', $ts);
+    $m = (int)date('n', $ts);
+    $y = date('Y', $ts);
+    $namaBulan = $bulanIndo[$m] ?? date('F', $ts);
+
+    $hasil = "{$d} {$namaBulan} {$y}";
+    if (!empty($jam)) {
+        $hasil .= ", " . trim($jam) . " WIB";
+    }
+    return $hasil;
+}
+
 // Load Modul WhatsApp Fonnte & Auto Expire Helper
 if (file_exists(__DIR__ . '/fonnte.php')) {
     require_once __DIR__ . '/fonnte.php';
