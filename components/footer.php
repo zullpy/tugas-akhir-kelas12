@@ -295,6 +295,27 @@ if ($root_dir && $script_dir && strpos($script_dir, $root_dir) === 0) {
                 <a href="<?php echo $base_url; ?>index.php#keahlian" class="keahlian-item">Desain Produksi Busana (DPB)</a>
                 <a href="<?php echo $base_url; ?>index.php#keahlian" class="keahlian-item">Agribisnis (AB)</a>
             </div>
+
+            <div style="margin-top: 24px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.15); display: flex; gap: 16px; flex-wrap: wrap; align-items: center;">
+                <?php
+                $footerSpmbYear = $spmbTahun ?? '';
+                if (empty($footerSpmbYear) && file_exists(__DIR__ . '/../spmb/config.php')) {
+                    require_once __DIR__ . '/../spmb/config.php';
+                    if (function_exists('get_all_settings')) {
+                        try {
+                            $fSettings = get_all_settings();
+                            $footerSpmbYear = $fSettings['tahun_ajaran'] ?? '';
+                        } catch (Exception $e) {}
+                    }
+                }
+                ?>
+                <a href="<?php echo $base_url; ?>spmb/index.php" style="background:var(--nb-yellow, #FFE600); color:#000; padding:6px 14px; border-radius:6px; font-weight:800; text-decoration:none; font-size:0.85rem; display:inline-flex; align-items:center; gap:6px;">
+                    SPMB <?php echo htmlspecialchars(!empty($footerSpmbYear) ? $footerSpmbYear : 'Online'); ?>
+                </a>
+                <a href="<?php echo $base_url; ?>spmb/cek-status.php" style="color:#FFF; font-weight:600; font-size:0.85rem; text-decoration:underline;">
+                    Cek Status Pendaftaran
+                </a>
+            </div>
         </div>
     </div>
 </footer>

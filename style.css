@@ -44,12 +44,19 @@
     padding: 0;
 }
 
+html {
+    overflow-x: hidden;
+    max-width: 100%;
+}
+
 body {
     font-family: var(--font-body);
     background-color: var(--nb-bg);
     color: var(--nb-black);
     line-height: 1.6;
     min-height: 100vh;
+    overflow-x: hidden;
+    max-width: 100%;
 }
 
 /* Hero Section Wrapper */

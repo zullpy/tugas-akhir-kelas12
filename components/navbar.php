@@ -47,6 +47,7 @@ $current_script_path = $_SERVER['SCRIPT_NAME'] ?? '';
 /* Container for Header & Navbar (Full Width) */
 .header-wrapper {
     width: 100%;
+    max-width: 100%;
     margin: 0;
     background-color: var(--nb-yellow);
     border-bottom: var(--border-thick);
@@ -140,7 +141,7 @@ $current_script_path = $_SERVER['SCRIPT_NAME'] ?? '';
 .nav-links {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 5px;
     list-style: none;
 }
 
@@ -152,19 +153,20 @@ $current_script_path = $_SERVER['SCRIPT_NAME'] ?? '';
 .nav-link {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    padding: 9px 16px;
+    gap: 5px;
+    padding: 7px 11px;
     font-family: var(--font-body);
     font-weight: 700;
-    font-size: 0.95rem;
+    font-size: 0.88rem;
     color: var(--nb-black);
     text-decoration: none;
     background-color: transparent;
-    border: 2.5px solid transparent;
+    border: 2px solid transparent;
     border-radius: var(--radius-btn);
     transition: all 0.15s ease;
     cursor: pointer;
     user-select: none;
+    white-space: nowrap;
 }
 
 .nav-link:hover {
@@ -217,7 +219,14 @@ $current_script_path = $_SERVER['SCRIPT_NAME'] ?? '';
     z-index: 1100;
 }
 
-@media (min-width: 993px) {
+/* Align right for items on the right side of the navbar so dropdowns never cut off */
+@media (min-width: 1081px) {
+    .nav-item:last-child .sub-menu,
+    .nav-item:nth-last-child(2) .sub-menu {
+        left: auto;
+        right: 0;
+    }
+
     .nav-item:hover .sub-menu,
     .nav-item.open .sub-menu {
         opacity: 1;
@@ -245,6 +254,7 @@ $current_script_path = $_SERVER['SCRIPT_NAME'] ?? '';
     border: 2px solid transparent;
     border-radius: 8px;
     transition: all 0.15s ease;
+    white-space: nowrap;
 }
 
 .sub-menu a:hover,
@@ -305,7 +315,7 @@ $current_script_path = $_SERVER['SCRIPT_NAME'] ?? '';
 }
 
 /* Responsive Styles */
-@media (max-width: 992px) {
+@media (max-width: 1080px) {
     .nav-toggle {
         display: flex;
     }
@@ -435,7 +445,7 @@ $current_script_path = $_SERVER['SCRIPT_NAME'] ?? '';
             <!-- navigation links -->
             <ul class="nav-links" id="nav-links">
                 <li class="nav-item">
-                    <a href="<?php echo $base_url; ?>index.php" class="nav-link <?php echo (isset($pageTitle) && $pageTitle === 'beranda') || ($current_page_file === 'index.php' && strpos($current_script_path, '/profil/') === false && strpos($current_script_path, '/data/') === false && strpos($current_script_path, '/program/') === false && strpos($current_script_path, '/galeri/') === false && strpos($current_script_path, '/berita/') === false) ? 'active' : ''; ?>">
+                    <a href="<?php echo $base_url; ?>index.php" class="nav-link <?php echo (isset($pageTitle) && $pageTitle === 'beranda') || ($current_page_file === 'index.php' && strpos($current_script_path, '/profil/') === false && strpos($current_script_path, '/data/') === false && strpos($current_script_path, '/program/') === false && strpos($current_script_path, '/galeri/') === false && strpos($current_script_path, '/berita/') === false && strpos($current_script_path, '/spmb/') === false && strpos($current_script_path, '/dpmb/') === false) ? 'active' : ''; ?>">
                         Beranda
                     </a>
                 </li>
@@ -485,7 +495,19 @@ $current_script_path = $_SERVER['SCRIPT_NAME'] ?? '';
                         <li><a href="<?php echo $base_url; ?>galeri/prestasi.php" class="<?php echo ($current_page_file === 'prestasi.php' || (isset($subPageTitle) && $subPageTitle === 'prestasi')) ? 'active' : ''; ?>">Dokumentasi Prestasi</a></li>
                     </ul>
                 </li>
-                
+                <li class="nav-item has-dropdown">
+                    <?php 
+                    $isSpmbActive = (isset($pageTitle) && ($pageTitle === 'spmb' || $pageTitle === 'dpmb')) || strpos($current_script_path, '/spmb/') !== false || strpos($current_script_path, '/dpmb/') !== false;
+                    ?>
+                    <a href="<?php echo $base_url; ?>spmb/index.php" class="nav-link <?php echo $isSpmbActive ? 'active' : ''; ?>" style="<?php echo $isSpmbActive ? '' : 'background-color:var(--nb-yellow); color:var(--nb-black); border:var(--border-thin); box-shadow:var(--shadow-sm);'; ?>">
+                        <i class="ph-bold ph-sparkle" style="<?php echo $isSpmbActive ? 'color:var(--nb-yellow);' : 'color:var(--nb-red);'; ?>"></i> SPMB <span class="dropdown-icon">▼</span>
+                    </a>
+                    <ul class="sub-menu">
+                        <li><a href="<?php echo $base_url; ?>spmb/index.php" class="<?php echo ($current_page_file === 'index.php' && strpos($current_script_path, '/spmb/') !== false) ? 'active' : ''; ?>">Beranda SPMB</a></li>
+                        <li><a href="<?php echo $base_url; ?>spmb/daftar.php" class="<?php echo ($current_page_file === 'daftar.php') ? 'active' : ''; ?>">Formulir Pendaftaran</a></li>
+                        <li><a href="<?php echo $base_url; ?>spmb/cek-status.php" class="<?php echo ($current_page_file === 'cek-status.php') ? 'active' : ''; ?>">Cek Status Pendaftaran</a></li>
+                    </ul>
+                </li>
             </ul>
         </div>
     </nav>

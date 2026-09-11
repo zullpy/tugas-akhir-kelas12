@@ -1,5 +1,30 @@
 <?php
 $pageTitle = "beranda";
+
+// Ambil info SPMB terkini dari sistem database SPMB
+$spmbSettings = [];
+if (file_exists(__DIR__ . '/spmb/config.php')) {
+    require_once __DIR__ . '/spmb/config.php';
+    if (function_exists('get_all_settings')) {
+        try {
+            $spmbSettings = get_all_settings();
+        } catch (Exception $e) {
+            // fallback
+        }
+    }
+}
+
+$statusInfo = function_exists('get_spmb_status_info') ? get_spmb_status_info($spmbSettings) : [
+    'isOpen' => true,
+    'label' => 'Sedang Dibuka',
+    'badgeColor' => '#16A34A',
+    'note' => ''
+];
+$isSpmbBuka = $statusInfo['isOpen'];
+$spmbTahun = $spmbSettings['tahun_ajaran'] ?? '2027-2028';
+$spmbGelombang = $spmbSettings['gelombang'] ?? 'Gelombang 1';
+$spmbPeriode = $spmbSettings['periode_gelombang'] ?? '';
+$spmbJudul = !empty($spmbSettings['pengumuman_header']) ? $spmbSettings['pengumuman_header'] : 'Pendaftaran Peserta Didik Baru (SPMB)';
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -98,7 +123,51 @@ $pageTitle = "beranda";
     </div>
 </div>
 
-<main style="width: 92%; max-width: 1200px; margin: 50px auto 60px; min-height: 400px;">
+<main style="width: 92%; max-width: 1200px; margin: 75px auto 50px; min-height: 400px;">
+    <!-- SPMB BANNER ANNOUNCEMENT (DYNAMIC FROM ADMIN) -->
+    <div style="margin-top: 15px; margin-bottom: 35px; background: #FFE600; border: 2.5px solid #000; border-radius: 14px; box-shadow: 4px 4px 0px #000; padding: 14px 22px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
+        <div style="display: flex; align-items: center; gap: 14px;">
+            <div style="width: 44px; height: 44px; background: #0A4D68; color: #FFE600; border: 2px solid #000; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.45rem; box-shadow: 2px 2px 0px #000; flex-shrink: 0;">
+                <i class="ph-bold ph-megaphone"></i>
+            </div>
+            <div>
+                <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 3px;">
+                    <span style="font-size: 0.75rem; font-weight: 800; background: #FFF; border: 1.5px solid #000; padding: 2px 8px; border-radius: 999px; text-transform: uppercase;">
+                        TA <?php echo htmlspecialchars($spmbTahun); ?> &bull; <?php echo htmlspecialchars($spmbGelombang); ?>
+                    </span>
+                    <span style="font-size: 0.72rem; font-weight: 800; background: <?php echo $statusInfo['badgeColor']; ?>; color: #FFF; border: 1.5px solid #000; padding: 2px 7px; border-radius: 999px; text-transform: uppercase;">
+                        <?php echo htmlspecialchars($statusInfo['label']); ?>
+                    </span>
+                </div>
+                <h3 style="font-family: 'Space Grotesk', sans-serif; font-size: 1.15rem; font-weight: 800; color: #000; margin: 0; line-height: 1.2;">
+                    <?php echo htmlspecialchars($spmbJudul); ?>
+                </h3>
+                <?php if (!empty($spmbPeriode)): ?>
+                    <div style="font-size: 0.8rem; font-weight: 700; color: #334155; margin-top: 3px; display: flex; align-items: center; gap: 5px;">
+                        <i class="ph-bold ph-calendar"></i> Periode: <?php echo htmlspecialchars($spmbPeriode); ?>
+                    </div>
+                <?php endif; ?>
+            </div>
+        </div>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <?php if ($isSpmbBuka): ?>
+                <a href="spmb/daftar.php" style="background: #0A4D68; color: #FFF; font-family: 'Space Grotesk', sans-serif; font-weight: 800; font-size: 0.88rem; padding: 9px 18px; border: 2px solid #000; border-radius: 8px; box-shadow: 2.5px 2.5px 0px #000; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
+                    <i class="ph-bold ph-pencil-simple"></i> Daftar Sekarang
+                </a>
+                <a href="spmb/index.php" style="background: #FFF; color: #000; font-family: 'Space Grotesk', sans-serif; font-weight: 800; font-size: 0.88rem; padding: 9px 18px; border: 2px solid #000; border-radius: 8px; box-shadow: 2.5px 2.5px 0px #000; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
+                    Info Lengkap <i class="ph-bold ph-arrow-right"></i>
+                </a>
+            <?php else: ?>
+                <a href="spmb/index.php" style="background: #0A4D68; color: #FFF; font-family: 'Space Grotesk', sans-serif; font-weight: 800; font-size: 0.88rem; padding: 9px 18px; border: 2px solid #000; border-radius: 8px; box-shadow: 2.5px 2.5px 0px #000; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
+                    <i class="ph-bold ph-info"></i> Info &amp; Alur SPMB
+                </a>
+                <a href="spmb/cek-status.php" style="background: #FFF; color: #000; font-family: 'Space Grotesk', sans-serif; font-weight: 800; font-size: 0.88rem; padding: 9px 18px; border: 2px solid #000; border-radius: 8px; box-shadow: 2.5px 2.5px 0px #000; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
+                    <i class="ph-bold ph-magnifying-glass"></i> Cek Status
+                </a>
+            <?php endif; ?>
+        </div>
+    </div>
+
     <section class="sambutan-section">
         <div class="section-header reveal">
             <h2 class="section-title">Sambutan Kepala Sekolah</h2>
