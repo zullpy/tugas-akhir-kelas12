@@ -249,7 +249,7 @@ function init_spmb_tables(PDO $pdo) {
     if ($stmtPendaftar->fetchColumn() == 0) {
         $seedApplicants = [
             [
-                'no' => 'REG-2026-0001',
+                'no' => 'REG-SKPR-74792',
                 'nisn' => '0071234561',
                 'nik' => '3206010101080001',
                 'nama' => 'Ahmad Fauzi Ridwan',
@@ -274,7 +274,7 @@ function init_spmb_tables(PDO $pdo) {
                 'jadwal' => '15 Mei 2026, Pukul 08.00 WIB'
             ],
             [
-                'no' => 'REG-2026-0002',
+                'no' => 'REG-SKPR-16544',
                 'nisn' => '0071234562',
                 'nik' => '3206010202080002',
                 'nama' => 'Nabila Putri Azzahra',
@@ -299,7 +299,7 @@ function init_spmb_tables(PDO $pdo) {
                 'jadwal' => '15 Mei 2026, Pukul 09.30 WIB'
             ],
             [
-                'no' => 'REG-2026-0003',
+                'no' => 'REG-SKPR-72010',
                 'nisn' => '0071234563',
                 'nik' => '3206010303080003',
                 'nama' => 'Muhammad Rizky Pratama',
@@ -375,16 +375,15 @@ function get_all_settings() {
 
 /**
  * Generate Nomor Pendaftaran baru yang unik & acak (tidak berurutan)
- * Format: REG-YYYY-XXXXX (Contoh: REG-2026-78421)
+ * Format: REG-SKPR-XXXXX (Contoh: REG-SKPR-78421)
  */
 function generate_no_pendaftaran($pdo) {
-    $year = date('Y');
     $stmt = $pdo->prepare("SELECT COUNT(*) FROM `spmb_pendaftar` WHERE `no_pendaftaran` = ?");
     
     do {
         // 5 digit angka acak (10000 - 99999) agar unik, tidak berurutan, dan ramah diketik di smartphone
         $randomCode = mt_rand(10000, 99999);
-        $no = 'REG-' . $year . '-' . $randomCode;
+        $no = 'REG-SKPR-' . $randomCode;
         
         $stmt->execute([$no]);
         $exists = (int)$stmt->fetchColumn() > 0;

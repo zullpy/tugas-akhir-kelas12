@@ -254,7 +254,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                     <form action="edit.php" method="GET" style="max-width:440px; margin:0 auto; text-align:left;">
                         <div class="spmb-form-group">
                             <label class="spmb-label" for="input_no">Nomor Registrasi SPMB <span class="required">*</span></label>
-                            <input type="text" name="no" id="input_no" class="spmb-input" placeholder="Contoh: REG-2026-74928" value="<?php echo htmlspecialchars($noPendaftaran); ?>" required>
+                            <input type="text" name="no" id="input_no" class="spmb-input" placeholder="Contoh: REG-SKPR-XXXXX" value="<?php echo htmlspecialchars($noPendaftaran); ?>" required>
                         </div>
                         <div class="spmb-form-group">
                             <label class="spmb-label" for="input_nisn">10 Digit NISN <span class="required">*</span></label>
