@@ -32,23 +32,10 @@ if ($from === 'admin' || $from === 'pendaftar') {
 } elseif ($from === 'sukses') {
     $backUrl = 'sukses.php?no=' . urlencode($p['no_pendaftaran']);
     $backLabel = 'Kembali';
-} elseif ($from === 'cek-status') {
+} else {
+    // Default untuk calon siswa / link WhatsApp / publik
     $backUrl = 'cek-status.php?no=' . urlencode($p['no_pendaftaran']);
     $backLabel = 'Kembali ke Cek Status';
-} else {
-    // Fallback: deteksi referer atau session login admin
-    if (!empty($_SESSION['spmb_admin_id']) || strpos($referer, '/admin/') !== false) {
-        if (strpos($referer, 'detail.php') !== false) {
-            $backUrl = 'admin/detail.php?id=' . (int)($p['id'] ?? 0);
-            $backLabel = 'Kembali ke Detail Siswa';
-        } else {
-            $backUrl = 'admin/pendaftar.php';
-            $backLabel = 'Kembali ke Panel Admin';
-        }
-    } else {
-        $backUrl = 'cek-status.php?no=' . urlencode($p['no_pendaftaran']);
-        $backLabel = 'Kembali ke Cek Status';
-    }
 }
 ?>
 <!DOCTYPE html>
@@ -196,7 +183,7 @@ if ($from === 'admin' || $from === 'pendaftar') {
         <!-- JADWAL & RUANG TES -->
         <div style="margin-top:20px; border:2px solid #000; padding:12px 16px; background:#FFFDF0; font-size:0.9rem;">
             <div style="font-weight:800; text-transform:uppercase; margin-bottom:4px; font-size:0.95rem;">
-                <i class="ph-bold ph-info"></i> Petunjuk &amp; Jadwal Seleksi Peminatan:
+                <i class="ph-bold ph-info"></i> Petunjuk &amp; Jadwal Ujian:
             </div>
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:6px;">
                 <div>Jadwal Pelaksanaan: <strong><?php echo htmlspecialchars($p['jadwal_tes'] ?: 'Menunggu Jadwal Panitia'); ?></strong></div>

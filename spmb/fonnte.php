@@ -237,22 +237,22 @@ function kirim_notifikasi_status_spmb($pdo, $pendaftar_id, $statusBaru, $opsi = 
 
         $infoTes = '';
         if (!empty($p['jadwal_tes'])) {
-            $infoTes .= "\n📅 *Jadwal Tes / Wawancara:* " . $p['jadwal_tes'];
+            $infoTes .= "\n *Jadwal Tes:* " . $p['jadwal_tes'];
         }
         if (!empty($p['ruang_tes'])) {
-            $infoTes .= "\n📍 *Ruang Tes:* " . $p['ruang_tes'];
+            $infoTes .= "\n *Ruang Tes:* " . $p['ruang_tes'];
         }
 
-        $message = "🎓 *PENGUMUMAN HASIL SELEKSI SPMB SMKS SUKAPURA*\n\n"
+        $message = "📢 *PENGUMUMAN HASIL SELEKSI SPMB SMKS SUKAPURA*\n\n"
                  . "Halo Sdr/i *{$nama}*,\n"
                  . "Nomor Pendaftaran: *{$noPendaftaran}*\n\n"
-                 . "🎉 *SELAMAT! ANDA DINYATAKAN DITERIMA* di SMKS SUKAPURA pada Kompetensi Keahlian:\n"
-                 . "👉 *{$namaJurusan}*\n"
+                 . "*SELAMAT! ANDA DINYATAKAN DITERIMA* di SMKS SUKAPURA pada Kompetensi Keahlian:\n"
+                 . "*{$namaJurusan}*\n"
                  . $infoTes . "\n\n"
-                 . "📄 *Kartu Tanda Peserta / Bukti Kelulusan:*\n"
+                 . "*Kartu Tanda Peserta / Bukti Kelulusan:*\n"
                  . "Dokumen resmi kartu peserta Anda terlampir dalam bentuk file PDF bersama pesan ini. Anda juga dapat mengunduh atau mencetaknya secara langsung kapan saja melalui tautan:\n"
-                 . "🔗 {$linkCetak}\n\n"
-                 . "📌 *Petunjuk Daftar Ulang:*\n"
+                 . "{$linkCetak}\n\n"
+                 . "*Petunjuk Daftar Ulang:*\n"
                  . "1. Cetak Kartu Peserta dalam ukuran kertas A4/F4.\n"
                  . "2. Hadir ke sekretariat SPMB SMKS Sukapura sesuai jadwal dengan membawa kartu peserta dan berkas fisik asli untuk verifikasi akhir.\n\n"
                  . "Selamat bergabung dengan keluarga besar SMKS Sukapura!\n\n"
@@ -275,11 +275,11 @@ function kirim_notifikasi_status_spmb($pdo, $pendaftar_id, $statusBaru, $opsi = 
                  . "Halo Sdr/i *{$nama}*,\n"
                  . "Nomor Pendaftaran: *{$noPendaftaran}*\n\n"
                  . "Mohon maaf, kuota penerimaan untuk jurusan pilihan 1 dan pilihan 2 Anda telah penuh. Silakan login ke menu Perbaiki Formulir dan ganti pilihan jurusan Anda ke kompetensi keahlian yang masih tersedia kuota.\n\n"
-                 . "⏳ *Batas Waktu Penggantian Jurusan:* \n"
+                 . "*Batas Waktu Penggantian Jurusan:* \n"
                  . "Maksimal 1 Minggu (Sebelum: *{$tenggatTeks}*)\n"
                  . "_PENTING: Jika sampai batas waktu 1 minggu tersebut Anda tidak melakukan konfirmasi ganti jurusan, pendaftaran Anda akan OTOMATIS DITOLAK oleh sistem._\n\n"
                  . "Silakan klik link berikut untuk login dan memilih jurusan lain yang masih memiliki sisa kuota:\n"
-                 . "🔗 {$linkEdit}\n\n"
+                 . "{$linkEdit}\n\n"
                  . "Terima kasih atas perhatian dan kerja samanya.\n\n"
                  . "*Panitia SPMB SMKS SUKAPURA*";
 
@@ -289,10 +289,10 @@ function kirim_notifikasi_status_spmb($pdo, $pendaftar_id, $statusBaru, $opsi = 
                  . "Halo Sdr/i *{$nama}*,\n"
                  . "Nomor Pendaftaran: *{$noPendaftaran}*\n\n"
                  . "Berdasarkan hasil verifikasi panitia, terdapat berkas atau data pendaftaran Anda yang *memerlukan perbaikan/koreksi*.\n\n"
-                 . "📝 *Catatan Panitia:*\n"
+                 . "*Catatan Panitia:*\n"
                  . "\"" . ($catatanAdmin ?: 'Mohon periksa dan lengkapi kembali data atau berkas yang belum sesuai.') . "\"\n\n"
                  . "Silakan lakukan perbaikan secara mandiri melalui tautan formulir koreksi berikut:\n"
-                 . "🔗 {$linkEdit}\n\n"
+                 . "{$linkEdit}\n\n"
                  . "Mohon segera diperbaiki agar berkas Anda dapat diverifikasi kembali oleh panitia.\n\n"
                  . "Terima kasih,\n*Panitia SPMB SMKS SUKAPURA*";
 
@@ -301,10 +301,10 @@ function kirim_notifikasi_status_spmb($pdo, $pendaftar_id, $statusBaru, $opsi = 
                  . "Halo Sdr/i *{$nama}*,\n"
                  . "Nomor Pendaftaran: *{$noPendaftaran}*\n\n"
                  . "Terima kasih telah mendaftar di SMKS SUKAPURA. Berdasarkan proses verifikasi berkas dan kapasitas kuota saat ini, status pendaftaran Anda ditetapkan sebagai:\n"
-                 . "👉 *CADANGAN*\n\n"
+                 . "*CADANGAN*\n\n"
                  . "Calon siswa berstatus Cadangan akan diprioritaskan untuk diterima apabila terdapat kuota yang terbuka dari calon peserta didik utama yang mengundurkan diri atau tidak melakukan daftar ulang.\n\n"
                  . "Anda dapat memantau perkembangan status kelulusan Anda secara berkala di:\n"
-                 . "🔗 {$linkStatus}\n\n"
+                 . "{$linkStatus}\n\n"
                  . "Terima kasih,\n*Panitia SPMB SMKS SUKAPURA*";
 
     } elseif ($statusBaru === 'Ditolak') {
@@ -313,7 +313,6 @@ function kirim_notifikasi_status_spmb($pdo, $pendaftar_id, $statusBaru, $opsi = 
                  . "Nomor Pendaftaran: *{$noPendaftaran}*\n\n"
                  . "Terima kasih banyak atas antusiasme dan partisipasi Anda dalam mengikuti seleksi SPMB SMKS SUKAPURA Tahun Ajaran ini.\n\n"
                  . "Setelah melalui proses evaluasi berkas dan ketersediaan daya tampung yang sangat terbatas, kami dengan berat hati menginformasikan bahwa pendaftaran Anda *belum dapat diterima* di SMKS SUKAPURA pada periode ini.\n\n"
-                 . "✨ *Kata-kata Semangat & Motivasi untuk Anda:*\n"
                  . "\"Kegagalan hari ini bukanlah akhir dari perjalananmu, melainkan awal dari kesempatan baru yang menantimu di depan. Percayalah bahwa setiap orang memiliki jalan dan waktu terbaiknya masing-masing untuk sukses. Tetaplah bersemangat, jangan pernah berhenti belajar, dan teruslah berkarya mengejar impianmu!\"\n\n"
                  . "Kami mendoakan kesuksesan yang luar biasa untuk perjalanan pendidikan dan masa depan Anda berikutnya.\n\n"
                  . "Salam hangat dan rasa bangga,\n*Keluarga Besar SMKS SUKAPURA*";

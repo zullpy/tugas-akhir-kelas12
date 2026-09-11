@@ -118,9 +118,12 @@ $statusInfo = get_spmb_status_info($settings);
                                 </div>
                             </li>
                         </ul>
-                        <a href="daftar.php" class="spmb-btn spmb-btn-primary" style="width:100%;">
-                            <i class="ph-bold ph-arrow-right"></i> Masuk Formulir Registrasi
+                        <a href="daftar.php" class="spmb-btn spmb-btn-primary" style="width:100%; margin-bottom:10px;">
+                            <i class="ph-bold ph-pencil-simple"></i> Masuk Formulir Registrasi Baru
                         </a>
+                            <a href="cek-status.php" class="spmb-btn spmb-btn-secondary" style="width:100%;">
+                                <i class="ph-bold ph-magnifying-glass"></i> Cek Status
+                            </a>
                     </div>
                 </div>
             </div>

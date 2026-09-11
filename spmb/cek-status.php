@@ -79,6 +79,12 @@ if (!empty($keyword)) {
                         <i class="ph-bold ph-magnifying-glass"></i> Cari Data
                     </button>
                 </form>
+                <div style="margin-top:16px; padding-top:14px; border-top:1.5px dashed #CBD5E1; font-size:0.88rem; color:#475569; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;">
+                    <span><i class="ph-bold ph-info" style="color:var(--nb-navy); font-size:1rem;"></i> Perlu memperbaiki isian berkas atau mengganti jurusan?</span>
+                    <a href="edit.php<?php echo (!empty($keyword)) ? '?no=' . urlencode($keyword) : ''; ?>" style="color:var(--nb-navy-dark); font-weight:800; text-decoration:none; display:inline-flex; align-items:center; gap:5px; background:#FEF3C7; border:1.5px solid #000; padding:6px 14px; border-radius:6px; box-shadow:2px 2px 0 #000;">
+                        <i class="ph-bold ph-pencil-simple-line" style="color:#D97706;"></i> Buka Menu Perbaiki Formulir ➔
+                    </a>
+                </div>
             </div>
 
             <!-- RESULT: NOT FOUND -->
@@ -303,7 +309,7 @@ if (!empty($keyword)) {
                                 <a href="edit.php?no=<?php echo urlencode($pendaftar['no_pendaftaran']); ?>&nisn=<?php echo urlencode($pendaftar['nisn']); ?>" class="spmb-btn" style="background:#F59E0B; color:#0F172A; font-weight:800; border:2px solid #000; box-shadow:2px 2px 0 #000;">
                                     <i class="ph-bold ph-pencil-simple-line"></i> Perbaiki Formulir &amp; Berkas
                                 </a>
-                            <?php elseif ($pendaftar['status'] === 'Menunggu Verifikasi'): ?>
+                            <?php elseif ($pendaftar['status'] !== 'Diterima' && $pendaftar['status'] !== 'Ditolak'): ?>
                                 <a href="edit.php?no=<?php echo urlencode($pendaftar['no_pendaftaran']); ?>&nisn=<?php echo urlencode($pendaftar['nisn']); ?>" class="spmb-btn spmb-btn-secondary">
                                     <i class="ph-bold ph-pencil-simple"></i> Edit Data Pendaftaran
                                 </a>

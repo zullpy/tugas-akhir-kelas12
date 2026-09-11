@@ -25,9 +25,9 @@ $error = '';
 $success = '';
 $infoAlert = '';
 
-// Ambil info kuota pilihan jurusan
-$infoP1 = get_jurusan_info_kuota($pdo, $p['jurusan_1'], $p['id']);
-$infoP2 = !empty($p['jurusan_2']) ? get_jurusan_info_kuota($pdo, $p['jurusan_2'], $p['id']) : null;
+// Ambil info kuota pilihan jurusan (kuota riil jurusan)
+$infoP1 = get_jurusan_info_kuota($pdo, $p['jurusan_1']);
+$infoP2 = !empty($p['jurusan_2']) ? get_jurusan_info_kuota($pdo, $p['jurusan_2']) : null;
 
 // Update Verifikasi Status
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -36,9 +36,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $ruangTes         = sanitize_input($_POST['ruang_tes'] ?? '');
     $jurusanDiterima  = sanitize_input($_POST['jurusan_diterima'] ?? ($p['jurusan_diterima'] ?? ''));
 
-    // Rakit Jadwal Ujian dari input date & time picker
+    // Rakit Jadwal Ujian dari input date & dropdown 24 jam (tanpa AM/PM)
     $tglTesInput      = sanitize_input($_POST['jadwal_tes_tanggal'] ?? '');
-    $jamTesInput      = sanitize_input($_POST['jadwal_tes_jam'] ?? '');
+    $jamHhInput       = sanitize_input($_POST['jadwal_tes_jam_hh'] ?? '');
+    $jamMmInput       = sanitize_input($_POST['jadwal_tes_jam_mm'] ?? '00');
+
+    $jamTesInput = '';
+    if ($jamHhInput !== '') {
+        $jamTesInput = sprintf('%02d:%02d', (int)$jamHhInput, (int)$jamMmInput);
+    } elseif (!empty($_POST['jadwal_tes_jam'])) {
+        $jamTesInput = sanitize_input($_POST['jadwal_tes_jam']);
+    }
+
     if (!empty($tglTesInput)) {
         $jadwalTes = format_jadwal_tes($tglTesInput, $jamTesInput);
     } else {
@@ -116,8 +125,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Refresh data pendaftar & kuota
         $stmt->execute([$id]);
         $p = $stmt->fetch();
-        $infoP1 = get_jurusan_info_kuota($pdo, $p['jurusan_1'], $p['id']);
-        $infoP2 = !empty($p['jurusan_2']) ? get_jurusan_info_kuota($pdo, $p['jurusan_2'], $p['id']) : null;
+        $infoP1 = get_jurusan_info_kuota($pdo, $p['jurusan_1']);
+        $infoP2 = !empty($p['jurusan_2']) ? get_jurusan_info_kuota($pdo, $p['jurusan_2']) : null;
     }
 }
 ?>
@@ -490,25 +499,64 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <div class="spmb-input-helper">Pilih 'Otomatis' agar sistem memprioritaskan Pilihan 1 jika masih ada slot.</div>
                     </div>
 
-                    <?php list($parsedTglTes, $parsedJamTes) = parse_jadwal_tes($p['jadwal_tes'] ?? ''); ?>
+                    <?php 
+                    list($parsedTglTes, $parsedJamTes) = parse_jadwal_tes($p['jadwal_tes'] ?? ''); 
+                    $currentHH = '';
+                    $currentMM = '00';
+                    if (!empty($parsedJamTes) && strpos($parsedJamTes, ':') !== false) {
+                        list($currentHH, $currentMM) = explode(':', $parsedJamTes);
+                        $currentHH = sprintf('%02d', (int)$currentHH);
+                        $currentMM = sprintf('%02d', (int)$currentMM);
+                    }
+                    ?>
                     <div class="spmb-form-group">
                         <label class="spmb-label">Jadwal Ujian / Tes Minat Bakat</label>
-                        <div style="display:grid; grid-template-columns:1.4fr 1fr; gap:10px;">
+                        <div style="display:grid; grid-template-columns:1.2fr 1.3fr; gap:12px; align-items:flex-end;">
                             <div>
-                                <span class="spmb-input-helper" style="display:block; margin-bottom:4px; font-weight:700; color:var(--adm-navy-dark);">
+                                <span class="spmb-input-helper" style="display:block; margin-bottom:6px; font-weight:700; color:var(--adm-navy-dark);">
                                     <i class="ph-bold ph-calendar"></i> Tanggal Ujian
                                 </span>
                                 <input type="date" name="jadwal_tes_tanggal" id="jadwal_tes_tanggal" class="spmb-input" value="<?php echo htmlspecialchars($parsedTglTes); ?>">
                             </div>
                             <div>
-                                <span class="spmb-input-helper" style="display:block; margin-bottom:4px; font-weight:700; color:var(--adm-navy-dark);">
-                                    <i class="ph-bold ph-clock"></i> Jam / Waktu
+                                <span class="spmb-input-helper" style="display:block; margin-bottom:6px; font-weight:700; color:var(--adm-navy-dark);">
+                                    <i class="ph-bold ph-clock"></i> Jam / Waktu (24 Jam)
                                 </span>
-                                <input type="time" name="jadwal_tes_jam" id="jadwal_tes_jam" class="spmb-input" value="<?php echo htmlspecialchars($parsedJamTes); ?>">
+                                <div style="display:flex; gap:6px; align-items:center;">
+                                    <select name="jadwal_tes_jam_hh" id="jadwal_tes_jam_hh" class="spmb-select" style="font-weight:700; padding:10px 6px; text-align:center;">
+                                        <option value="">-- Jam --</option>
+                                        <?php 
+                                        $jamList = [];
+                                        for ($i = 6; $i <= 14; $i++) {
+                                            $jamList[] = sprintf('%02d', $i);
+                                        }
+                                        if (!empty($currentHH) && !in_array($currentHH, $jamList)) {
+                                            $jamList[] = $currentHH;
+                                            sort($jamList);
+                                        }
+                                        foreach ($jamList as $hh): ?>
+                                            <option value="<?php echo $hh; ?>" <?php echo ($currentHH === $hh) ? 'selected' : ''; ?>>
+                                                <?php echo $hh; ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                    <span style="font-weight:800; font-size:1.2rem; color:var(--adm-navy-dark);">:</span>
+                                    <select name="jadwal_tes_jam_mm" id="jadwal_tes_jam_mm" class="spmb-select" style="font-weight:700; padding:10px 6px; text-align:center;">
+                                        <?php 
+                                        $menitList = ['00', '05', '10', '15', '20', '25', '30', '35', '40', '45', '50', '55'];
+                                        if (!empty($currentMM) && !in_array($currentMM, $menitList)) {
+                                            $menitList[] = $currentMM;
+                                            sort($menitList);
+                                        }
+                                        foreach ($menitList as $mm): ?>
+                                            <option value="<?php echo $mm; ?>" <?php echo ($currentMM === $mm) ? 'selected' : ''; ?>>
+                                                <?php echo $mm; ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                    <span style="font-weight:800; font-size:0.82rem; color:#475569; background:#E2E8F0; border:var(--border-thin); border-radius:6px; padding:7px 8px; flex-shrink:0;">WIB</span>
+                                </div>
                             </div>
-                        </div>
-                        <div class="spmb-input-helper" style="margin-top:6px;">
-                            Pilih tanggal dan jam ujian melalui pemilih waktu di atas (tidak perlu diketik manual). Otomatis tampil rapi di kartu peserta dan halaman tracking siswa (misal: <em>17 Mei 2027, 07:00 WIB</em>).
                         </div>
                     </div>
 
@@ -592,23 +640,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     txt.focus();
                 }
                 </script>
-            </div>
-        </div>
-
-        <!-- QUICK INFO CARD -->
-        <div class="adm-card">
-            <div class="adm-card-header">
-                <h3 class="adm-card-title">
-                    <i class="ph-bold ph-info"></i> Tindakan Lainnya
-                </h3>
-            </div>
-            <div class="adm-card-body" style="display:flex; flex-direction:column; gap:10px;">
-                <a href="../cetak.php?no=<?php echo urlencode($p['no_pendaftaran']); ?>&from=detail" class="adm-btn adm-btn-secondary" style="width:100%; justify-content:center;">
-                    <i class="ph-bold ph-printer"></i> Cetak Kartu Bukti Pendaftaran
-                </a>
-                <a href="hapus.php?id=<?php echo $p['id']; ?>" class="adm-btn adm-btn-danger" style="width:100%; justify-content:center;" onclick="return konfirmasiHapus(event, this.href, '<?php echo htmlspecialchars(addslashes($p['nama_lengkap'])); ?>');">
-                    <i class="ph-bold ph-trash"></i> Hapus Calon Siswa Ini
-                </a>
             </div>
         </div>
     </div>
