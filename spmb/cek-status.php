@@ -183,11 +183,21 @@ if (!empty($keyword)) {
                                     </div>
                                 </div>
                             <?php else: ?>
-                                <div class="spmb-alert spmb-alert-info">
-                                    <i class="ph-bold ph-hourglass-high" style="font-size:1.6rem;"></i>
-                                    <div>
-                                        <strong style="font-size:1.05rem;">Menunggu Verifikasi Berkas Administrasi</strong><br>
-                                        <?php echo nl2br(htmlspecialchars($pendaftar['catatan_admin'] ?? 'Data pendaftaran Anda telah tercatat dan sedang dalam antrean verifikasi tim panitia SPMB. Harap cek kembali secara berkala.')); ?>
+                                <div class="spmb-alert spmb-alert-info" style="display:flex; flex-direction:column; gap:12px;">
+                                    <div style="display:flex; gap:12px; align-items:flex-start;">
+                                        <i class="ph-bold ph-hourglass-high" style="font-size:1.8rem; flex-shrink:0;"></i>
+                                        <div>
+                                            <strong style="font-size:1.05rem;">Menunggu Verifikasi Berkas Administrasi</strong><br>
+                                            <?php echo nl2br(htmlspecialchars($pendaftar['catatan_admin'] ?? 'Data pendaftaran Anda telah tercatat dan sedang dalam antrean verifikasi tim panitia SPMB. Harap cek kembali secara berkala.')); ?>
+                                        </div>
+                                    </div>
+                                    <div style="border-top:1px dashed #93C5FD; padding-top:10px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+                                        <span style="font-size:0.82rem; color:#1E3A8A; font-weight:600;">
+                                            <i class="ph-bold ph-info"></i> Terdapat kesalahan data atau ingin mengganti pilihan jurusan?
+                                        </span>
+                                        <a href="edit.php?no=<?php echo urlencode($pendaftar['no_pendaftaran']); ?>&nisn=<?php echo urlencode($pendaftar['nisn']); ?>" class="spmb-btn spmb-btn-secondary" style="padding:6px 14px; font-size:0.82rem; border-width:1.5px;">
+                                            <i class="ph-bold ph-pencil-simple"></i> Edit Formulir Sekarang
+                                        </a>
                                     </div>
                                 </div>
                             <?php endif; ?>

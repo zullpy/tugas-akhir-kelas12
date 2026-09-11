@@ -139,7 +139,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <a href="pendaftar.php" class="adm-btn adm-btn-secondary">
         <i class="ph-bold ph-arrow-left"></i> Kembali ke Daftar
     </a>
-    <div style="display:flex; gap:10px;">
+    <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        <a href="edit.php?id=<?php echo $p['id']; ?>" class="adm-btn adm-btn-secondary">
+            <i class="ph-bold ph-pencil-simple"></i> Edit Data Siswa
+        </a>
         <a href="../cetak.php?no=<?php echo urlencode($p['no_pendaftaran']); ?>&from=detail" class="adm-btn adm-btn-primary">
             <i class="ph-bold ph-printer"></i> Cetak Kartu Peserta
         </a>

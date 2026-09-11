@@ -261,16 +261,27 @@ $msg = sanitize_input($_GET['msg'] ?? '');
                                     <?php echo get_status_badge_html($row['status']); ?>
                                 </td>
                                 <td>
-                                    <div style="display:flex; gap:6px; justify-content:center;">
+                                    <div style="display:flex; gap:6px; justify-content:center; align-items:center;">
                                         <a href="detail.php?id=<?php echo $row['id']; ?>" class="adm-btn adm-btn-sm adm-btn-primary" title="Detail &amp; Verifikasi">
                                             <i class="ph-bold ph-pencil-simple"></i> Detail
                                         </a>
-                                        <a href="../cetak.php?no=<?php echo urlencode($row['no_pendaftaran']); ?>&from=admin" class="adm-btn adm-btn-sm adm-btn-secondary" title="Cetak Bukti">
-                                            <i class="ph-bold ph-printer"></i>
-                                        </a>
-                                        <a href="hapus.php?id=<?php echo $row['id']; ?>" class="adm-btn adm-btn-sm adm-btn-danger" title="Hapus" onclick="return confirm('Apakah Anda yakin ingin menghapus calon siswa <?php echo addslashes($row['nama_lengkap']); ?>? Data tidak dapat dikembalikan.');">
-                                            <i class="ph-bold ph-trash"></i>
-                                        </a>
+                                        <div class="adm-dropdown">
+                                            <button type="button" class="adm-btn adm-btn-sm adm-btn-secondary adm-dots-btn" onclick="toggleDropdownMenu(event, <?php echo $row['id']; ?>)" title="Menu Aksi Tambahan">
+                                                <i class="ph-bold ph-dots-three-vertical"></i>
+                                            </button>
+                                            <div class="adm-dropdown-menu" id="adm-menu-<?php echo $row['id']; ?>">
+                                                <a href="edit.php?id=<?php echo $row['id']; ?>" class="adm-dropdown-item">
+                                                    <i class="ph-bold ph-pencil" style="color:#0284C7;"></i> Edit Data
+                                                </a>
+                                                <a href="../cetak.php?no=<?php echo urlencode($row['no_pendaftaran']); ?>&from=admin" class="adm-dropdown-item">
+                                                    <i class="ph-bold ph-printer" style="color:#16A34A;"></i> Cetak Kartu
+                                                </a>
+                                                <div class="adm-dropdown-divider"></div>
+                                                <a href="hapus.php?id=<?php echo $row['id']; ?>" class="adm-dropdown-item danger" onclick="return confirm('Apakah Anda yakin ingin menghapus calon siswa <?php echo addslashes($row['nama_lengkap']); ?>? Data tidak dapat dikembalikan.');">
+                                                    <i class="ph-bold ph-trash"></i> Hapus Data
+                                                </a>
+                                            </div>
+                                        </div>
                                     </div>
                                 </td>
                             </tr>
@@ -281,5 +292,89 @@ $msg = sanitize_input($_GET['msg'] ?? '');
         </div>
     </div>
 </div>
+
+<style>
+.adm-dropdown {
+    position: relative;
+    display: inline-block;
+}
+.adm-dots-btn {
+    padding: 6px 8px;
+    font-size: 1.15rem;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+.adm-dropdown-menu {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: calc(100% + 4px);
+    background: #FFFFFF;
+    min-width: 165px;
+    border: 2px solid #000000;
+    border-radius: 8px;
+    box-shadow: 4px 4px 0 #000000;
+    z-index: 1000;
+    padding: 6px 0;
+    text-align: left;
+}
+.adm-dropdown-menu.show {
+    display: block;
+}
+.adm-dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    color: #0F172A;
+    text-decoration: none;
+    font-size: 0.84rem;
+    font-weight: 700;
+    transition: background 0.1s ease;
+}
+.adm-dropdown-item:hover {
+    background: #F1F5F9;
+}
+.adm-dropdown-item.danger {
+    color: #DC2626;
+}
+.adm-dropdown-item.danger:hover {
+    background: #FEE2E2;
+}
+.adm-dropdown-divider {
+    height: 1px;
+    background: #E2E8F0;
+    margin: 4px 0;
+}
+</style>
+
+<script>
+function toggleDropdownMenu(e, id) {
+    e.stopPropagation();
+    const allMenus = document.querySelectorAll('.adm-dropdown-menu');
+    const target = document.getElementById('adm-menu-' + id);
+    const isOpen = target.classList.contains('show');
+
+    allMenus.forEach(m => m.classList.remove('show'));
+    if (!isOpen) {
+        target.classList.add('show');
+    }
+}
+
+document.addEventListener('click', function(e) {
+    if (!e.target.closest('.adm-dropdown')) {
+        document.querySelectorAll('.adm-dropdown-menu').forEach(m => m.classList.remove('show'));
+    }
+});
+
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        document.querySelectorAll('.adm-dropdown-menu').forEach(m => m.classList.remove('show'));
+    }
+});
+</script>
 
 <?php require_once __DIR__ . '/footer.php'; ?>
