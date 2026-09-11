@@ -374,14 +374,23 @@ function get_all_settings() {
 }
 
 /**
- * Generate Nomor Pendaftaran baru (Format: REG-2026-0001)
+ * Generate Nomor Pendaftaran baru yang unik & acak (tidak berurutan)
+ * Format: REG-YYYY-XXXXX (Contoh: REG-2026-78421)
  */
 function generate_no_pendaftaran($pdo) {
     $year = date('Y');
-    $stmt = $pdo->query("SELECT MAX(id) as max_id FROM `spmb_pendaftar`");
-    $row = $stmt->fetch();
-    $nextId = ($row['max_id'] ?? 0) + 1;
-    return 'REG-' . $year . '-' . str_pad($nextId, 4, '0', STR_PAD_LEFT);
+    $stmt = $pdo->prepare("SELECT COUNT(*) FROM `spmb_pendaftar` WHERE `no_pendaftaran` = ?");
+    
+    do {
+        // 5 digit angka acak (10000 - 99999) agar unik, tidak berurutan, dan ramah diketik di smartphone
+        $randomCode = mt_rand(10000, 99999);
+        $no = 'REG-' . $year . '-' . $randomCode;
+        
+        $stmt->execute([$no]);
+        $exists = (int)$stmt->fetchColumn() > 0;
+    } while ($exists);
+    
+    return $no;
 }
 
 /**
