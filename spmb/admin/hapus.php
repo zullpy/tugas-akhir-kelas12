@@ -8,15 +8,21 @@ $id = (int)($_GET['id'] ?? 0);
 if ($id > 0) {
     $pdo = get_db_connection();
     
-    // Ambil info foto untuk dihapus jika ada
-    $stmt = $pdo->prepare("SELECT `foto` FROM `spmb_pendaftar` WHERE `id` = ?");
+    // Ambil info foto dan seluruh berkas untuk dihapus dari server
+    $stmt = $pdo->prepare("SELECT `foto`, `berkas_kk`, `berkas_akta`, `berkas_ijazah`, `berkas_ktp_ortu`, `berkas_kip`, `berkas_prestasi` FROM `spmb_pendaftar` WHERE `id` = ?");
     $stmt->execute([$id]);
     $row = $stmt->fetch();
 
-    if ($row && !empty($row['foto'])) {
-        $fotoFile = __DIR__ . '/../uploads/' . $row['foto'];
-        if (file_exists($fotoFile)) {
-            @unlink($fotoFile);
+    if ($row) {
+        $fileKeys = ['foto', 'berkas_kk', 'berkas_akta', 'berkas_ijazah', 'berkas_ktp_ortu', 'berkas_kip', 'berkas_prestasi'];
+        $uploadDir = __DIR__ . '/../uploads/';
+        foreach ($fileKeys as $k) {
+            if (!empty($row[$k])) {
+                $filePath = $uploadDir . $row[$k];
+                if (file_exists($filePath)) {
+                    @unlink($filePath);
+                }
+            }
         }
     }
 

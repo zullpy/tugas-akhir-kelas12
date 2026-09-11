@@ -582,7 +582,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <a href="../cetak.php?no=<?php echo urlencode($p['no_pendaftaran']); ?>&from=detail" class="adm-btn adm-btn-secondary" style="width:100%; justify-content:center;">
                     <i class="ph-bold ph-printer"></i> Cetak Kartu Bukti Pendaftaran
                 </a>
-                <a href="hapus.php?id=<?php echo $p['id']; ?>" class="adm-btn adm-btn-danger" style="width:100%; justify-content:center;" onclick="return confirm('Peringatan: Menghapus data pendaftar ini bersifat permanen!');">
+                <a href="hapus.php?id=<?php echo $p['id']; ?>" class="adm-btn adm-btn-danger" style="width:100%; justify-content:center;" onclick="return konfirmasiHapus(event, this.href, '<?php echo htmlspecialchars(addslashes($p['nama_lengkap'])); ?>');">
                     <i class="ph-bold ph-trash"></i> Hapus Calon Siswa Ini
                 </a>
             </div>

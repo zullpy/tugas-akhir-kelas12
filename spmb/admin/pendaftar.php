@@ -277,7 +277,7 @@ $msg = sanitize_input($_GET['msg'] ?? '');
                                                     <i class="ph-bold ph-printer" style="color:#16A34A;"></i> Cetak Kartu
                                                 </a>
                                                 <div class="adm-dropdown-divider"></div>
-                                                <a href="hapus.php?id=<?php echo $row['id']; ?>" class="adm-dropdown-item danger" onclick="return confirm('Apakah Anda yakin ingin menghapus calon siswa <?php echo addslashes($row['nama_lengkap']); ?>? Data tidak dapat dikembalikan.');">
+                                                <a href="hapus.php?id=<?php echo $row['id']; ?>" class="adm-dropdown-item danger" onclick="return konfirmasiHapus(event, this.href, '<?php echo htmlspecialchars(addslashes($row['nama_lengkap'])); ?>');">
                                                     <i class="ph-bold ph-trash"></i> Hapus Data
                                                 </a>
                                             </div>

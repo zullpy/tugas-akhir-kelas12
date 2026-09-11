@@ -91,6 +91,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                 }
                 $newFileName = $prefix . '_' . time() . '_' . rand(1000, 9999) . '.' . $ext;
                 if (move_uploaded_file($fileTmp, $uploadDir . $newFileName)) {
+                    // Hapus file lama jika ada dan file fisik ada di server
+                    if (!empty($oldFile) && $oldFile !== $newFileName && file_exists($uploadDir . $oldFile)) {
+                        @unlink($uploadDir . $oldFile);
+                    }
                     return $newFileName;
                 }
                 return $oldFile;
@@ -167,7 +171,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     </div>
 <?php endif; ?>
 
-<form action="edit.php?id=<?php echo $p['id']; ?>" method="POST" enctype="multipart/form-data">
+<form id="form-admin-edit" action="edit.php?id=<?php echo $p['id']; ?>" method="POST" enctype="multipart/form-data">
     <input type="hidden" name="action" value="admin_edit">
 
     <div style="display:grid; grid-template-columns:1.5fr 1fr; gap:24px;">
@@ -444,12 +448,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                 </div>
             </div>
 
-            <button type="submit" class="adm-btn adm-btn-primary" style="width:100%; padding:14px; font-size:1.05rem;">
+            <button type="button" class="adm-btn adm-btn-primary" style="width:100%; padding:14px; font-size:1.05rem;" onclick="konfirmasiAdminEdit()">
                 <i class="ph-bold ph-floppy-disk"></i> Simpan Perubahan Data
             </button>
         </div>
 
     </div>
 </form>
+
+<script>
+function konfirmasiAdminEdit() {
+    const form = document.getElementById('form-admin-edit');
+    if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
+    }
+
+    Swal.fire({
+        title: 'Simpan Perubahan Data?',
+        text: 'Perubahan data calon siswa akan langsung diperbarui dalam sistem.',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#0A4D68',
+        cancelButtonColor: '#64748B',
+        confirmButtonText: '<i class="ph-bold ph-check"></i> Ya, Simpan',
+        cancelButtonText: 'Batal',
+        reverseButtons: true
+    }).then((result) => {
+        if (result.isConfirmed) {
+            form.submit();
+        }
+    });
+}
+</script>
 
 <?php require_once __DIR__ . '/footer.php'; ?>

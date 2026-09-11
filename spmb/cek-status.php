@@ -39,6 +39,7 @@ if (!empty($keyword)) {
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/fill/style.css"/>
     <link rel="stylesheet" href="spmb.css">
     <link rel="shortcut icon" href="<?php echo $base_url; ?>assets/favicon.ico" type="image/x-icon">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
     <?php include '../components/navbar.php'; ?>
@@ -324,5 +325,19 @@ if (!empty($keyword)) {
     </main>
 
     <?php include '../components/footer.php'; ?>
+
+    <?php if (isset($_GET['msg']) && $_GET['msg'] === 'edited'): ?>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        Swal.fire({
+            icon: 'success',
+            title: 'Perbaikan Berhasil Disimpan!',
+            text: 'Data dan berkas pendaftaran Anda telah berhasil diperbarui dan diajukan ulang ke panitia SPMB. Status pendaftaran saat ini kembali Menunggu Verifikasi.',
+            confirmButtonColor: '#0A4D68',
+            confirmButtonText: 'Baik, Mengerti'
+        });
+    });
+    </script>
+    <?php endif; ?>
 </body>
 </html>

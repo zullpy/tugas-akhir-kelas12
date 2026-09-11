@@ -116,6 +116,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                     $newFileName = $prefix . '_' . time() . '_' . rand(1000, 9999) . '.' . $ext;
                     $destination = __DIR__ . '/uploads/' . $newFileName;
                     if (move_uploaded_file($fileTmp, $destination)) {
+                        // Hapus file lama jika ada dan file fisik ada di server
+                        if (!empty($oldFile) && $oldFile !== $newFileName && file_exists(__DIR__ . '/uploads/' . $oldFile)) {
+                            @unlink(__DIR__ . '/uploads/' . $oldFile);
+                        }
                         return $newFileName;
                     } else {
                         $error = "Gagal menyimpan berkas $fieldKey ke server.";
@@ -183,6 +187,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     <link rel="stylesheet" href="../css/style.css">
     <link rel="stylesheet" href="spmb.css">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         .edit-sec-card {
             background: #FFFFFF;
@@ -322,7 +327,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                 <?php endif; ?>
 
                 <!-- FORM EDIT SISWA -->
-                <form action="edit.php?no=<?php echo urlencode($p['no_pendaftaran']); ?>&nisn=<?php echo urlencode($p['nisn']); ?>" method="POST" enctype="multipart/form-data">
+                <form id="form-edit-spmb" action="edit.php?no=<?php echo urlencode($p['no_pendaftaran']); ?>&nisn=<?php echo urlencode($p['nisn']); ?>" method="POST" enctype="multipart/form-data">
                     <input type="hidden" name="action" value="save_edit">
                     <input type="hidden" name="no_pendaftaran" value="<?php echo htmlspecialchars($p['no_pendaftaran']); ?>">
                     <input type="hidden" name="nisn_auth" value="<?php echo htmlspecialchars($p['nisn']); ?>">
@@ -610,7 +615,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                         <a href="cek-status.php?no=<?php echo urlencode($p['no_pendaftaran']); ?>" class="spmb-btn spmb-btn-secondary">
                             <i class="ph-bold ph-arrow-left"></i> Batal &amp; Kembali
                         </a>
-                        <button type="submit" class="spmb-btn spmb-btn-primary" style="padding:14px 28px; font-size:1.05rem; background:#F59E0B; color:#0F172A;" onclick="return confirm('Pastikan data dan berkas perbaikan sudah benar sebelum diajukan kembali ke panitia. Lanjutkan?');">
+                        <button type="button" class="spmb-btn spmb-btn-primary" style="padding:14px 28px; font-size:1.05rem; background:#F59E0B; color:#0F172A;" onclick="konfirmasiSimpanPerbaikan()">
                             <i class="ph-bold ph-floppy-disk"></i> Simpan &amp; Ajukan Ulang Verifikasi
                         </button>
                     </div>
@@ -618,6 +623,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                 </form>
 
                 <script>
+                function konfirmasiSimpanPerbaikan() {
+                    const form = document.getElementById('form-edit-spmb');
+                    if (!form.checkValidity()) {
+                        form.reportValidity();
+                        return;
+                    }
+
+                    Swal.fire({
+                        title: 'Ajukan Perbaikan Data?',
+                        text: 'Pastikan seluruh data dan berkas perbaikan sudah benar sebelum diajukan kembali ke panitia SPMB.',
+                        icon: 'question',
+                        showCancelButton: true,
+                        confirmButtonColor: '#F59E0B',
+                        cancelButtonColor: '#64748B',
+                        confirmButtonText: '<i class="ph-bold ph-check"></i> Ya, Simpan & Ajukan',
+                        cancelButtonText: 'Periksa Kembali',
+                        reverseButtons: true
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            form.submit();
+                        }
+                    });
+                }
+
                 function togglePekerjaanLain(val) {
                     const div = document.getElementById('div_pekerjaan_lain');
                     if (div) {

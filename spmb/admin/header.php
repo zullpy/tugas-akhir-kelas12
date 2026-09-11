@@ -27,6 +27,8 @@ $pendingCount = $pdo->query("SELECT COUNT(*) FROM `spmb_pendaftar` WHERE `status
     <link rel="shortcut icon" href="../../assets/favicon.ico" type="image/x-icon">
     <!-- Chart.js for Admin Analytics -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
 
@@ -109,7 +111,7 @@ $pendingCount = $pdo->query("SELECT COUNT(*) FROM `spmb_pendaftar` WHERE `status
                         <div style="font-size:0.75rem; color:#555;">@<?php echo htmlspecialchars($_SESSION['spmb_admin_user'] ?? 'admin'); ?></div>
                     </div>
                 </div>
-                <a href="logout.php" title="Keluar" onclick="return confirm('Apakah Anda yakin ingin keluar dari panel admin?');" style="color:var(--adm-red); font-size:1.3rem; padding:4px; display:flex; align-items:center;">
+                <a href="logout.php" title="Keluar" onclick="konfirmasiLogout(event, this.href);" style="color:var(--adm-red); font-size:1.3rem; padding:4px; display:flex; align-items:center;">
                     <i class="ph-bold ph-sign-out"></i>
                 </a>
             </div>
@@ -130,7 +132,7 @@ $pendingCount = $pdo->query("SELECT COUNT(*) FROM `spmb_pendaftar` WHERE `status
                 <span class="spmb-badge" style="background:#fff; font-size:0.8rem;">
                     <?php echo htmlspecialchars($settings['gelombang'] ?? 'Gelombang 1'); ?>
                 </span>
-                <a href="logout.php" class="adm-btn adm-btn-sm adm-btn-danger" onclick="return confirm('Yakin ingin logout?');">
+                <a href="logout.php" class="adm-btn adm-btn-sm adm-btn-danger" onclick="konfirmasiLogout(event, this.href);">
                     <i class="ph-bold ph-sign-out"></i> Logout
                 </a>
             </div>

@@ -179,7 +179,7 @@ function generate_kartu_peserta_pdf($pdo, $no_pendaftaran) {
     // URL halaman cetak (akses lokal port 8000)
     $urlCetak = 'http://localhost:8000/spmb/cetak.php?no=' . urlencode($no_pendaftaran);
 
-    $cmd = escapeshellcmd($chromeBin) . 
+    $cmd = 'timeout 10s ' . escapeshellcmd($chromeBin) . 
            ' --headless --disable-gpu --no-sandbox --disable-dev-shm-usage' . 
            ' --print-to-pdf=' . escapeshellarg($pdfPath) . 
            ' ' . escapeshellarg($urlCetak) . ' 2>&1';
