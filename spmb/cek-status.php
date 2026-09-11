@@ -50,7 +50,7 @@ if (!empty($keyword)) {
                 Cek Status Pendaftaran
             </h1>
             <p class="spmb-hero-subtitle" style="margin:0 auto;">
-                Masukkan Nomor Registrasi (contoh: <code>REG-2026-0001</code>) atau 10 digit NISN calon siswa.
+                Masukkan Nomor Registrasi (contoh: <code>REG-2026-74928</code>) atau 10 digit NISN calon siswa.
             </p>
         </div>
     </div>
@@ -86,7 +86,7 @@ if (!empty($keyword)) {
                     <i class="ph-bold ph-warning-circle" style="font-size:1.8rem;"></i>
                     <div>
                         <strong style="font-size:1.1rem;">Data Tidak Ditemukan!</strong><br>
-                        Tidak ada pendaftar dengan kata kunci <strong>"<?php echo htmlspecialchars($keyword); ?>"</strong>. Pastikan Anda memasukkan Nomor Pendaftaran (misal <code>REG-2026-0001</code>) atau 10 digit NISN yang terdaftar saat mengisi formulir.
+                        Tidak ada pendaftar dengan kata kunci <strong>"<?php echo htmlspecialchars($keyword); ?>"</strong>. Pastikan Anda memasukkan Nomor Pendaftaran (misal <code>REG-2026-74928</code>) atau 10 digit NISN yang terdaftar saat mengisi formulir.
                         <div style="margin-top:12px;">
                             <a href="daftar.php" class="spmb-btn spmb-btn-sm spmb-btn-primary">
                                 <i class="ph-bold ph-pencil-simple"></i> Buat Pendaftaran Baru
