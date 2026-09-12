@@ -21,6 +21,7 @@ jobs:
           password: ${{ secrets.hostinger_PASSWORD }}
           port: ${{ secrets.hostinger_PORT || 65002 }}
           script: |
+            set -e
             TARGET_DIR="${{ secrets.hostinger_TARGET_DIR || '/home/u673037475/domains/zoel.my.id/public_html/web-sekolah' }}"
             REPO_URL="https://github.com/zullpy/tugas-akhir-kelas12.git"
 
@@ -34,12 +35,17 @@ jobs:
             # Hindari error safe directory
             git config --global --add safe.directory "$TARGET_DIR" 2>/dev/null || true
 
-            # Inisialisasi git jika folder belum pernah di-clone
+            # Inisialisasi git jika folder belum pernah di-clone (bisa untuk folder yang sudah ada isinya)
             if [ ! -d ".git" ]; then
-              echo "📦 Folder belum ada repository Git, melakukan git clone awal..."
-              git clone "$REPO_URL" .
+              echo "📦 Inisialisasi git repository di folder target..."
+              git init
+              git remote add origin "$REPO_URL" 2>/dev/null || git remote set-url origin "$REPO_URL"
+              git fetch origin main
+              git checkout -B main origin/main
+              git reset --hard origin/main
             else
               echo "📥 Mengambil kode terbaru dari GitHub..."
+              git remote set-url origin "$REPO_URL" 2>/dev/null || true
               git fetch origin main
               git reset --hard origin/main
             fi
