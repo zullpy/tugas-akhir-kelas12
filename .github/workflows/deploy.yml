@@ -1,4 +1,4 @@
-name: Deploy to VPS
+name: Deploy to Hostinger
 
 on:
   push:
@@ -8,7 +8,7 @@ on:
 
 jobs:
   deploy:
-    name: Deploy to VPS Server
+    name: Deploy to Hostinger Server
     runs-on: ubuntu-latest
 
     steps:
@@ -17,11 +17,11 @@ jobs:
         env:
           TARGET_DIR: ${{ secrets.VPS_TARGET_DIR || '/var/www/html' }}
         with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_KEY }}
-          password: ${{ secrets.SSH_PASSWORD }}
-          port: ${{ secrets.SSH_PORT || 22 }}
+          host: ${{ secrets.hostinger_HOST }}
+          username: ${{ secrets.hostinger_USER }}
+          key: ${{ secrets.hostinger_SSH }}
+          password: ${{ secrets.hostinger_PASSWORD }}
+          port: ${{ secrets.hostinger_PORT || 22 }}
           envs: TARGET_DIR
           script: |
             TARGET_DIR="${{ secrets.VPS_TARGET_DIR || '/var/www/html' }}"
