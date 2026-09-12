@@ -8,43 +8,45 @@ on:
 
 jobs:
   deploy:
-    name: Deploy to Hostinger Server
+    name: Deploy to Hostinger Shared Hosting
     runs-on: ubuntu-latest
 
     steps:
       - name: Executing remote SSH commands
         uses: appleboy/ssh-action@v1.0.3
-        env:
-          TARGET_DIR: ${{ secrets.VPS_TARGET_DIR || '/var/www/html' }}
         with:
           host: ${{ secrets.hostinger_HOST }}
           username: ${{ secrets.hostinger_USER }}
           key: ${{ secrets.hostinger_SSH }}
           password: ${{ secrets.hostinger_PASSWORD }}
-          port: ${{ secrets.hostinger_PORT || 22 }}
-          envs: TARGET_DIR
+          port: ${{ secrets.hostinger_PORT || 65002 }}
           script: |
-            TARGET_DIR="${{ secrets.VPS_TARGET_DIR || '/var/www/html' }}"
-            echo "🚀 Memulai proses deployment ke VPS..."
+            TARGET_DIR="${{ secrets.hostinger_TARGET_DIR || '/home/u673037475/domains/zoel.my.id/public_html/web-sekolah' }}"
+            REPO_URL="https://github.com/zullpy/tugas-akhir-kelas12.git"
+
+            echo "🚀 Memulai proses deployment ke Hostinger..."
             echo "📁 Direktori target: $TARGET_DIR"
 
-            if [ ! -d "$TARGET_DIR" ]; then
-              echo "❌ Error: Direktori $TARGET_DIR tidak ditemukan di VPS!"
-              exit 1
-            fi
-
+            # Buat direktori jika belum ada
+            mkdir -p "$TARGET_DIR"
             cd "$TARGET_DIR" || exit 1
 
-            # Hindari error fatal git 'dubious ownership' di VPS
+            # Hindari error safe directory
             git config --global --add safe.directory "$TARGET_DIR" 2>/dev/null || true
 
-            echo "📥 Mengambil kode terbaru dari GitHub..."
-            git fetch origin main
-            git reset --hard origin/main
+            # Inisialisasi git jika folder belum pernah di-clone
+            if [ ! -d ".git" ]; then
+              echo "📦 Folder belum ada repository Git, melakukan git clone awal..."
+              git clone "$REPO_URL" .
+            else
+              echo "📥 Mengambil kode terbaru dari GitHub..."
+              git fetch origin main
+              git reset --hard origin/main
+            fi
 
-            # Siapkan file .env untuk Production jika belum ada
+            # Siapkan file .env jika belum ada
             if [ ! -f ".env" ]; then
-              echo "⚙️ Menyiapkan file .env production dari .env.example..."
+              echo "⚙️ Menyiapkan file .env dari .env.example..."
               if [ -f ".env.example" ]; then
                 cp .env.example .env
                 sed -i 's/APP_ENV=local/APP_ENV=production/g' .env
@@ -53,17 +55,6 @@ jobs:
 
             echo "🔧 Memastikan folder upload & perizinan file..."
             mkdir -p spmb/uploads/temp_pdf
-            chmod -R 775 spmb/uploads
-
-            # Set kepemilikan ke web server user jika dijalankan sebagai root (otomatis deteksi www-data / http / nginx)
-            if [ "$(id -u)" -eq 0 ]; then
-              if id "www-data" &>/dev/null; then
-                chown -R www-data:www-data "$TARGET_DIR"
-              elif id "http" &>/dev/null; then
-                chown -R http:http "$TARGET_DIR"
-              elif id "nginx" &>/dev/null; then
-                chown -R nginx:nginx "$TARGET_DIR"
-              fi
-            fi
+            chmod -R 755 spmb/uploads
 
             echo "✅ Deployment selesai dengan sukses!"
