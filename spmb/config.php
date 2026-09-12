@@ -6,11 +6,90 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// Konfigurasi Database MySQL
-define('DB_HOST', 'localhost');
-define('DB_USER', 'root');
-define('DB_PASS', '');
-define('DB_NAME', 'db_sekolah');
+/**
+ * Fungsi pembaca file .env sederhana (mendukung root project maupun folder spmb)
+ */
+if (!function_exists('load_env_file')) {
+    function load_env_file($filePath) {
+        if (!file_exists($filePath) || !is_readable($filePath)) {
+            return false;
+        }
+        $lines = file($filePath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+        foreach ($lines as $line) {
+            $line = trim($line);
+            if (empty($line) || strpos($line, '#') === 0) {
+                continue;
+            }
+            if (strpos($line, '=') !== false) {
+                list($name, $value) = explode('=', $line, 2);
+                $name = trim($name);
+                $value = trim($value, " \t\n\r\0\x0B\"'");
+                if (!array_key_exists($name, $_SERVER) && !array_key_exists($name, $_ENV)) {
+                    putenv("$name=$value");
+                    $_ENV[$name] = $value;
+                    $_SERVER[$name] = $value;
+                }
+            }
+        }
+        return true;
+    }
+}
+
+/**
+ * Helper untuk mengambil nilai environment dengan fallback default
+ */
+if (!function_exists('env')) {
+    function env($key, $default = null) {
+        $val = getenv($key);
+        if ($val !== false && $val !== '') {
+            return $val;
+        }
+        if (isset($_ENV[$key]) && $_ENV[$key] !== '') {
+            return $_ENV[$key];
+        }
+        if (isset($_SERVER[$key]) && $_SERVER[$key] !== '') {
+            return $_SERVER[$key];
+        }
+        return $default;
+    }
+}
+
+// Muat .env dari root project atau folder spmb jika ada
+$rootDir = dirname(__DIR__);
+load_env_file($rootDir . '/.env');
+load_env_file(__DIR__ . '/.env');
+
+// Deteksi Otomatis Lingkungan (Local vs Production)
+$httpHost = $_SERVER['HTTP_HOST'] ?? '';
+$isLocalHost = in_array(strtolower(explode(':', $httpHost)[0]), ['localhost', '127.0.0.1', '::1'])
+    || (php_sapi_name() === 'cli' && empty(env('APP_ENV')));
+
+$detectedEnv = env('APP_ENV', $isLocalHost ? 'local' : 'production');
+define('APP_ENV', strtolower($detectedEnv));
+
+// Pengaturan Error Reporting berdasarkan Environment
+if (APP_ENV === 'production') {
+    error_reporting(E_ALL & ~E_DEPRECATED & ~E_STRICT);
+    ini_set('display_errors', '0');
+    ini_set('log_errors', '1');
+} else {
+    error_reporting(E_ALL);
+    ini_set('display_errors', '1');
+}
+
+// Konfigurasi Database MySQL (Dinamis: membaca .env jika ada, fallback ke default local)
+define('DB_HOST', env('DB_HOST', 'localhost'));
+define('DB_PORT', env('DB_PORT', '3306'));
+define('DB_USER', env('DB_USER', 'root'));
+define('DB_PASS', env('DB_PASS', ''));
+define('DB_NAME', env('DB_NAME', 'db_sekolah'));
+
+// Base URL Website
+$defaultScheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || 
+                 (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') 
+                 ? 'https' : 'http';
+$defaultHost = !empty($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : 'localhost:8000';
+define('APP_URL', rtrim(env('APP_URL', $defaultScheme . '://' . $defaultHost), '/'));
 
 // Daftar Jurusan Resmi SMKS Sukapura
 $DAFTAR_JURUSAN = [
@@ -111,32 +190,47 @@ function get_db_connection() {
         return $pdo;
     }
 
+    $portPart = (defined('DB_PORT') && DB_PORT) ? ";port=" . DB_PORT : "";
+    $dsn = "mysql:host=" . DB_HOST . $portPart . ";dbname=" . DB_NAME . ";charset=utf8mb4";
+
     try {
-        // 1. Coba konek langsung ke database db_spmb
-        $dsn = "mysql:host=" . DB_HOST . ";dbname=" . DB_NAME . ";charset=utf8mb4";
+        // 1. Coba konek langsung ke database
         $pdo = new PDO($dsn, DB_USER, DB_PASS, [
             PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
             PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
             PDO::ATTR_EMULATE_PREPARES => false
         ]);
     } catch (PDOException $e) {
-        // Jika database belum ada (error 1049: Unknown database), buat otomatis
-        try {
-            $temp_pdo = new PDO("mysql:host=" . DB_HOST . ";charset=utf8mb4", DB_USER, DB_PASS, [
-                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
-            ]);
-            $temp_pdo->exec("CREATE DATABASE IF NOT EXISTS `" . DB_NAME . "` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
-            $temp_pdo = null;
+        // Jika database belum ada (error 1049) dan di lingkungan local, coba buat otomatis
+        $isUnknownDb = ($e->getCode() == 1049 || strpos($e->getMessage(), 'Unknown database') !== false);
+        if ($isUnknownDb && (!defined('APP_ENV') || APP_ENV === 'local')) {
+            try {
+                $temp_pdo = new PDO("mysql:host=" . DB_HOST . $portPart . ";charset=utf8mb4", DB_USER, DB_PASS, [
+                    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
+                ]);
+                $temp_pdo->exec("CREATE DATABASE IF NOT EXISTS `" . DB_NAME . "` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
+                $temp_pdo = null;
 
-            // Konek ulang setelah dibuat
-            $dsn = "mysql:host=" . DB_HOST . ";dbname=" . DB_NAME . ";charset=utf8mb4";
-            $pdo = new PDO($dsn, DB_USER, DB_PASS, [
-                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-                PDO::ATTR_EMULATE_PREPARES => false
-            ]);
-        } catch (PDOException $ex) {
-            die("Koneksi MySQL Gagal: " . htmlspecialchars($ex->getMessage()));
+                // Konek ulang setelah dibuat
+                $pdo = new PDO($dsn, DB_USER, DB_PASS, [
+                    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+                    PDO::ATTR_EMULATE_PREPARES => false
+                ]);
+            } catch (PDOException $ex) {
+                die("Koneksi MySQL Gagal: " . htmlspecialchars($ex->getMessage()));
+            }
+        } else {
+            if (defined('APP_ENV') && APP_ENV === 'production') {
+                error_log("Database Connection Error: " . $e->getMessage());
+                die("<div style='font-family:sans-serif; text-align:center; padding:60px 20px; background:#F8FAFC; min-height:100vh; display:flex; flex-direction:column; justify-content:center; align-items:center;'>"
+                  . "<div style='background:#fff; border-radius:12px; padding:32px; max-width:480px; box-shadow:0 10px 25px rgba(0,0,0,0.08); border-top:4px solid #DC2626;'>"
+                  . "<h2 style='color:#1E293B; margin-top:0;'>Koneksi Database Belum Terhubung</h2>"
+                  . "<p style='color:#64748B; line-height:1.6;'>Sistem web tidak dapat tersambung ke database MySQL di server production. Pastikan database dan berkas <code>.env</code> sudah dikonfigurasi dengan benar.</p>"
+                  . "</div></div>");
+            } else {
+                die("Koneksi MySQL Gagal: " . htmlspecialchars($e->getMessage()));
+            }
         }
     }
 

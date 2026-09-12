@@ -1,0 +1,69 @@
+name: Deploy to VPS
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: Deploy to VPS Server
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Executing remote SSH commands
+        uses: appleboy/ssh-action@v1.0.3
+        env:
+          TARGET_DIR: ${{ secrets.VPS_TARGET_DIR || '/var/www/html' }}
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          password: ${{ secrets.SSH_PASSWORD }}
+          port: ${{ secrets.SSH_PORT || 22 }}
+          envs: TARGET_DIR
+          script: |
+            TARGET_DIR="${{ secrets.VPS_TARGET_DIR || '/var/www/html' }}"
+            echo "🚀 Memulai proses deployment ke VPS..."
+            echo "📁 Direktori target: $TARGET_DIR"
+
+            if [ ! -d "$TARGET_DIR" ]; then
+              echo "❌ Error: Direktori $TARGET_DIR tidak ditemukan di VPS!"
+              exit 1
+            fi
+
+            cd "$TARGET_DIR" || exit 1
+
+            # Hindari error fatal git 'dubious ownership' di VPS
+            git config --global --add safe.directory "$TARGET_DIR" 2>/dev/null || true
+
+            echo "📥 Mengambil kode terbaru dari GitHub..."
+            git fetch origin main
+            git reset --hard origin/main
+
+            # Siapkan file .env untuk Production jika belum ada
+            if [ ! -f ".env" ]; then
+              echo "⚙️ Menyiapkan file .env production dari .env.example..."
+              if [ -f ".env.example" ]; then
+                cp .env.example .env
+                sed -i 's/APP_ENV=local/APP_ENV=production/g' .env
+              fi
+            fi
+
+            echo "🔧 Memastikan folder upload & perizinan file..."
+            mkdir -p spmb/uploads/temp_pdf
+            chmod -R 775 spmb/uploads
+
+            # Set kepemilikan ke web server user jika dijalankan sebagai root (otomatis deteksi www-data / http / nginx)
+            if [ "$(id -u)" -eq 0 ]; then
+              if id "www-data" &>/dev/null; then
+                chown -R www-data:www-data "$TARGET_DIR"
+              elif id "http" &>/dev/null; then
+                chown -R http:http "$TARGET_DIR"
+              elif id "nginx" &>/dev/null; then
+                chown -R nginx:nginx "$TARGET_DIR"
+              fi
+            fi
+
+            echo "✅ Deployment selesai dengan sukses!"

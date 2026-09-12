@@ -176,8 +176,10 @@ function generate_kartu_peserta_pdf($pdo, $no_pendaftaran) {
         return false;
     }
 
-    // URL halaman cetak (akses lokal port 8000)
-    $urlCetak = 'http://localhost:8000/spmb/cetak.php?no=' . urlencode($no_pendaftaran);
+    // URL halaman cetak (dinamis sesuai konfigurasi base_url atau APP_URL)
+    $cfg = get_fonnte_config();
+    $baseUrl = !empty($cfg['base_url']) ? $cfg['base_url'] : (defined('APP_URL') ? APP_URL : 'http://localhost:8000');
+    $urlCetak = rtrim($baseUrl, '/') . '/spmb/cetak.php?no=' . urlencode($no_pendaftaran);
 
     $cmd = 'timeout 10s ' . escapeshellcmd($chromeBin) . 
            ' --headless --disable-gpu --no-sandbox --disable-dev-shm-usage' . 
