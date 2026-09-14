@@ -511,5 +511,5 @@ $current_script_path = $_SERVER['SCRIPT_NAME'] ?? '';
             </ul>
         </div>
     </nav>
-    <script src="<?php echo $base_url; ?>script.js" defer></script>
+    <script src="<?php echo $base_url; ?>script.js?v=<?php echo @filemtime(__DIR__ . '/../script.js') ?: time(); ?>" defer></script>
 </header>

@@ -29,8 +29,8 @@ $pendingCount = $pdo->query("SELECT COUNT(*) FROM `spmb_pendaftar` WHERE `status
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/regular/style.css"/>
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/bold/style.css"/>
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/fill/style.css"/>
-    <link rel="stylesheet" href="<?php echo $spmbPath; ?>spmb.css">
-    <link rel="stylesheet" href="<?php echo $adminPath; ?>admin.css">
+    <link rel="stylesheet" href="<?php echo $spmbPath; ?>spmb.css?v=<?php echo @filemtime(__DIR__ . '/../spmb.css') ?: time(); ?>">
+    <link rel="stylesheet" href="<?php echo $adminPath; ?>admin.css?v=<?php echo @filemtime(__DIR__ . '/admin.css') ?: time(); ?>">
     <link rel="shortcut icon" href="<?php echo $rootPath; ?>assets/favicon.ico" type="image/x-icon">
     <!-- Chart.js for Admin Analytics -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>

@@ -184,8 +184,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Perbaiki Formulir Pendaftaran - SPMB SMKS SUKAPURA</title>
-    <link rel="stylesheet" href="../css/style.css">
-    <link rel="stylesheet" href="spmb.css">
+    <link rel="stylesheet" href="../style.css?v=<?php echo @filemtime(__DIR__ . '/../style.css') ?: time(); ?>">
+    <link rel="stylesheet" href="spmb.css?v=<?php echo @filemtime(__DIR__ . '/spmb.css') ?: time(); ?>">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>

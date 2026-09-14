@@ -47,8 +47,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/regular/style.css"/>
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/bold/style.css"/>
-    <link rel="stylesheet" href="../spmb.css">
-    <link rel="stylesheet" href="admin.css">
+    <link rel="stylesheet" href="../spmb.css?v=<?php echo @filemtime(__DIR__ . '/../spmb.css') ?: time(); ?>">
+    <link rel="stylesheet" href="admin.css?v=<?php echo @filemtime(__DIR__ . '/admin.css') ?: time(); ?>">
     <link rel="shortcut icon" href="../../assets/favicon.ico" type="image/x-icon">
 </head>
 <body style="background: #F8FAFC; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px;">

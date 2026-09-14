@@ -61,7 +61,7 @@ if (function_exists('get_galeri_photos')) {
         type="text/css"
         href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/fill/style.css"
     />
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=<?php echo @filemtime(__DIR__ . '/style.css') ?: time(); ?>">
     <link rel="shortcut icon" href="assets/favicon.ico" type="image/x-icon">
 </head>
 <body>
@@ -615,6 +615,6 @@ if (function_exists('get_galeri_photos')) {
 
 <?php include 'components/footer.php'; ?>
 
-<script src="script.js"></script>
+<script src="script.js?v=<?php echo @filemtime(__DIR__ . '/script.js') ?: time(); ?>"></script>
 </body>
 </html>

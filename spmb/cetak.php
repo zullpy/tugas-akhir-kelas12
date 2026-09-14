@@ -49,7 +49,7 @@ if ($from === 'admin' || $from === 'pendaftar') {
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/regular/style.css"/>
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/bold/style.css"/>
-    <link rel="stylesheet" href="spmb.css">
+    <link rel="stylesheet" href="spmb.css?v=<?php echo @filemtime(__DIR__ . '/spmb.css') ?: time(); ?>">
     <link rel="shortcut icon" href="../assets/favicon.ico" type="image/x-icon">
 </head>
 <body style="background:#f4f4f4; padding:20px 0;">

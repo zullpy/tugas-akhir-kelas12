@@ -28,7 +28,7 @@ $subPageTitle = 'visi-misi';
         type="text/css"
         href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/fill/style.css"
     />
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=<?php echo @filemtime(__DIR__ . '/style.css') ?: time(); ?>">
     <link rel="shortcut icon" href="<?php echo $base_url; ?>assets/favicon.ico" type="image/x-icon">
 </head>
 <body>
@@ -156,6 +156,6 @@ $subPageTitle = 'visi-misi';
     </main>
 
     <?php include '../components/footer.php'; ?>
-    <script src="<?php echo $base_url; ?>script.js"></script>
+    <script src="<?php echo $base_url; ?>script.js?v=<?php echo @filemtime(__DIR__ . '/../script.js') ?: time(); ?>"></script>
 </body>
 </html>

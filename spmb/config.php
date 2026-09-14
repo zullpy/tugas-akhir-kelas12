@@ -54,6 +54,20 @@ if (!function_exists('env')) {
     }
 }
 
+/**
+ * Helper untuk cache-busting aset statis (CSS/JS) dengan timestamp modifikasi berkas
+ */
+if (!function_exists('asset_v')) {
+    function asset_v($filePath, $baseDir = null) {
+        $cleanPath = explode('?', $filePath)[0];
+        $dir = $baseDir ?: dirname(__DIR__);
+        $real = rtrim($dir, '/') . '/' . ltrim($cleanPath, '/');
+        $mtime = @file_exists($real) ? @filemtime($real) : time();
+        $sep = (strpos($filePath, '?') !== false) ? '&' : '?';
+        return $filePath . $sep . 'v=' . $mtime;
+    }
+}
+
 // Muat .env dari root project atau folder spmb jika ada
 $rootDir = dirname(__DIR__);
 load_env_file($rootDir . '/.env');
