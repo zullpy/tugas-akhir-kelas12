@@ -25,6 +25,16 @@ $spmbTahun = $spmbSettings['tahun_ajaran'] ?? '2027-2028';
 $spmbGelombang = $spmbSettings['gelombang'] ?? 'Gelombang 1';
 $spmbPeriode = $spmbSettings['periode_gelombang'] ?? '';
 $spmbJudul = !empty($spmbSettings['pengumuman_header']) ? $spmbSettings['pengumuman_header'] : 'Pendaftaran Peserta Didik Baru (SPMB)';
+
+// Ambil foto galeri yang dipilih admin untuk tampil di Beranda
+$berandaPhotos = [];
+if (function_exists('get_galeri_photos')) {
+    $berandaPhotos = get_galeri_photos(null, true, 8);
+    // Fallback jika belum ada yang ditandai beranda
+    if (empty($berandaPhotos)) {
+        $berandaPhotos = get_galeri_photos(null, false, 6);
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -486,6 +496,88 @@ $spmbJudul = !empty($spmbSettings['pengumuman_header']) ? $spmbSettings['pengumu
             </div>
         </div>
     </section>
+
+    <!-- SEKSI DOKUMENTASI GALERI DI BERANDA -->
+    <?php if (!empty($berandaPhotos)): ?>
+    <section class="galeri-beranda-section" id="galeri">
+        <div class="section-header-wrap reveal">
+            <div class="section-header">
+                <span class="section-badge badge-yellow"><i class="ph-bold ph-images"></i> DOKUMENTASI SEKOLAH</span>
+                <h2 class="section-title">Galeri &amp; Kegiatan Siswa</h2>
+                <p class="section-subtitle">Potret kebersamaan, kreativitas, dan momen inspiratif civitas akademika SMKS Sukapura</p>
+            </div>
+            <a href="galeri/index.php" class="btn-galeri-more">
+                <span>Lihat Semua Galeri</span> <i class="ph-bold ph-arrow-right"></i>
+            </a>
+        </div>
+
+        <div class="galeri-beranda-grid">
+            <?php 
+            $categoryBadges = [
+                'lomba'     => 'Kegiatan Lomba',
+                'istigosah' => 'Doa & Istigosah',
+                'porsekas'  => 'Porsekas Seni & Olahraga',
+                'sertijab'  => 'Organisasi & OSIS',
+                'tka'       => 'Akademik & TKA',
+                'upacara'   => 'Upacara Bendera',
+                'expo'      => 'Expo & Pameran Karya',
+                'prestasi'  => 'Prestasi Siswa'
+            ];
+            foreach ($berandaPhotos as $idx => $bp): 
+                $imgUrl = $bp['file_path'];
+                $badgeLabel = $categoryBadges[$bp['kategori']] ?? ucfirst($bp['kategori']);
+            ?>
+                <div class="galeri-beranda-card reveal reveal-scale reveal-delay-<?php echo ($idx % 4) + 1; ?>" 
+                     onclick="openBerandaLightbox('<?php echo htmlspecialchars($imgUrl); ?>', '<?php echo htmlspecialchars(addslashes($bp['judul'])); ?>', '<?php echo htmlspecialchars(addslashes($badgeLabel)); ?>')">
+                    <div class="galeri-beranda-img-wrapper">
+                        <img src="<?php echo htmlspecialchars($imgUrl); ?>" alt="<?php echo htmlspecialchars($bp['judul']); ?>" loading="lazy">
+                        <div class="galeri-beranda-badge"><?php echo htmlspecialchars($badgeLabel); ?></div>
+                        <div class="galeri-beranda-overlay">
+                            <div class="galeri-beranda-overlay-inner">
+                                <span class="galeri-beranda-zoom"><i class="ph-bold ph-arrows-out-simple"></i></span>
+                                <h3 class="galeri-beranda-title"><?php echo htmlspecialchars($bp['judul']); ?></h3>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+        </div>
+
+        <div class="galeri-beranda-footer-cta reveal">
+            <a href="galeri/index.php" class="btn-galeri-explore">
+                <i class="ph-bold ph-squares-four"></i> Jelajahi Seluruh Dokumentasi Galeri
+            </a>
+        </div>
+    </section>
+
+    <!-- Lightbox Modal untuk Beranda -->
+    <div id="berandaLightboxModal" class="beranda-lightbox" onclick="closeBerandaLightbox()">
+        <div class="beranda-lightbox-content" onclick="event.stopPropagation()">
+            <div class="beranda-lightbox-top">
+                <span class="beranda-lightbox-tag" id="berandaLightboxTag"><i class="ph-bold ph-image"></i> Dokumentasi</span>
+                <button type="button" class="beranda-lightbox-close" onclick="closeBerandaLightbox()">&times;</button>
+            </div>
+            <img id="berandaLightboxImg" src="" alt="Full Preview Foto">
+            <div class="beranda-lightbox-caption" id="berandaLightboxCaption"></div>
+        </div>
+    </div>
+    <script>
+    function openBerandaLightbox(src, title, tag) {
+        document.getElementById('berandaLightboxImg').src = src;
+        document.getElementById('berandaLightboxCaption').textContent = title;
+        document.getElementById('berandaLightboxTag').innerHTML = '<i class="ph-bold ph-image"></i> ' + tag;
+        document.getElementById('berandaLightboxModal').classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+    function closeBerandaLightbox() {
+        document.getElementById('berandaLightboxModal').classList.remove('active');
+        document.body.style.overflow = '';
+    }
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') closeBerandaLightbox();
+    });
+    </script>
+    <?php endif; ?>
 
     <section class="mitra-section">
         <div class="section-header center reveal">

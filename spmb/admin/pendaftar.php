@@ -375,6 +375,57 @@ document.addEventListener('keydown', function(e) {
         document.querySelectorAll('.adm-dropdown-menu').forEach(m => m.classList.remove('show'));
     }
 });
+
+function konfirmasiHapus(id, nama) {
+    // Tutup dropdown dulu
+    document.querySelectorAll('.adm-dropdown-menu').forEach(m => m.classList.remove('show'));
+
+    Swal.fire({
+        title: 'Hapus Data Pendaftar?',
+        html: `Data <strong>${nama}</strong> akan dihapus secara permanen beserta semua berkasnya.`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#EF4444',
+        cancelButtonColor: '#64748B',
+        confirmButtonText: '<i class="ph-bold ph-trash"></i> Ya, Hapus!',
+        cancelButtonText: 'Batal',
+        reverseButtons: true
+    }).then((result) => {
+        if (result.isConfirmed) {
+            const fd = new FormData();
+            fd.append('id', id);
+
+            fetch('hapus.php', {
+                method: 'POST',
+                headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                body: fd
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    // Hapus baris dari tabel
+                    const row = document.getElementById('row-pendaftar-' + id);
+                    if (row) {
+                        row.style.transition = 'opacity 0.3s, transform 0.3s';
+                        row.style.opacity = '0';
+                        row.style.transform = 'translateX(20px)';
+                        setTimeout(() => row.remove(), 300);
+                    }
+                    const Toast = Swal.mixin({
+                        toast: true, position: 'top-end',
+                        showConfirmButton: false, timer: 2500, timerProgressBar: true
+                    });
+                    Toast.fire({ icon: 'success', title: 'Data berhasil dihapus!' });
+                } else {
+                    Swal.fire({ icon: 'error', title: 'Gagal', text: data.message });
+                }
+            })
+            .catch(() => {
+                Swal.fire({ icon: 'error', title: 'Koneksi gagal', text: 'Tidak dapat menghubungi server.' });
+            });
+        }
+    });
+}
 </script>
 
 <?php require_once __DIR__ . '/footer.php'; ?>

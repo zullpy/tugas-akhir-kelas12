@@ -1,10 +1,11 @@
 <?php
 // spmb/admin/detail.php
 // Detail & Verifikasi Pendaftar SPMB
-$adminPageTitle = 'Detail Pendaftar';
-$adminPageHeading = 'Detail &amp; Verifikasi Berkas Pendaftar';
 
-require_once __DIR__ . '/header.php';
+// Load config & auth DULU sebelum output apapun
+require_once __DIR__ . '/../config.php';
+check_admin_login();
+$pdo = get_db_connection();
 
 $id = (int)($_GET['id'] ?? 0);
 if ($id <= 0) {
@@ -127,8 +128,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $p = $stmt->fetch();
         $infoP1 = get_jurusan_info_kuota($pdo, $p['jurusan_1']);
         $infoP2 = !empty($p['jurusan_2']) ? get_jurusan_info_kuota($pdo, $p['jurusan_2']) : null;
+
+        // Jika AJAX, kembalikan JSON
+        if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') {
+            header('Content-Type: application/json');
+            echo json_encode([
+                'success'      => true,
+                'message'      => strip_tags($success),
+                'status_baru'  => $p['status'],
+                'has_wa'       => !empty($waRes['success']),
+                'info_alert'   => $infoAlert
+            ]);
+            exit;
+        }
     }
 }
+?>
+
+<?php
+// Sekarang baru load HTML (semua AJAX sudah exit di atas)
+$adminPageTitle   = 'Detail Pendaftar';
+$adminPageHeading = 'Detail &amp; Verifikasi Berkas Pendaftar';
+require_once __DIR__ . '/header.php';
 ?>
 
 <?php if (!empty($error)): ?>
@@ -469,7 +490,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </div>
                 </div>
 
-                <form action="detail.php?id=<?php echo $p['id']; ?>" method="POST">
+                <form id="form-verifikasi" action="detail.php?id=<?php echo $p['id']; ?>" method="POST">
                     
                     <div class="spmb-form-group">
                         <label class="spmb-label" for="status">Keputusan Status Seleksi <span class="required">*</span></label>
@@ -626,7 +647,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     }
                 }
 
-                // Inisialisasi saat halaman dimuat
                 document.addEventListener('DOMContentLoaded', toggleFormFields);
 
                 function addCatatan(text) {
@@ -635,9 +655,55 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     if (current === '') {
                         txt.value = text;
                     } else if (current.indexOf(text) === -1) {
-                        txt.value = current + "\n• " + text;
+                        txt.value = current + "\n\u2022 " + text;
                     }
                     txt.focus();
+                }
+
+                // ─── AJAX Submit Verifikasi ───
+                const formVerif = document.getElementById('form-verifikasi');
+                if (formVerif) {
+                    formVerif.addEventListener('submit', function(e) {
+                        e.preventDefault();
+                        const btn = formVerif.querySelector('button[type="submit"]');
+                        const origHtml = btn ? btn.innerHTML : '';
+                        if (btn) { btn.disabled = true; btn.innerHTML = '<i class="ph-bold ph-spinner" style="animation:spin 1s linear infinite"></i> Menyimpan...'; }
+
+                        fetch(formVerif.action, {
+                            method: 'POST',
+                            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                            body: new FormData(formVerif)
+                        })
+                        .then(r => r.json())
+                        .then(data => {
+                            if (btn) { btn.disabled = false; btn.innerHTML = origHtml; }
+                            if (data.success) {
+                                const Toast = Swal.mixin({
+                                    toast: true, position: 'top-end',
+                                    showConfirmButton: false, timer: 3000, timerProgressBar: true
+                                });
+                                Toast.fire({ icon: 'success', title: data.message || 'Verifikasi berhasil disimpan!' });
+
+                                // Update badge status di halaman tanpa reload
+                                const badgeEl = document.getElementById('status-badge-display');
+                                if (badgeEl && data.status_baru) {
+                                    badgeEl.textContent = data.status_baru;
+                                }
+
+                                // Tampilkan info alert jika ada
+                                if (data.info_alert) {
+                                    const alertBox = document.getElementById('ajax-info-alert');
+                                    if (alertBox) { alertBox.innerHTML = data.info_alert; alertBox.style.display = 'flex'; }
+                                }
+                            } else {
+                                Swal.fire({ icon: 'error', title: 'Gagal', text: data.message || 'Terjadi kesalahan.' });
+                            }
+                        })
+                        .catch(() => {
+                            if (btn) { btn.disabled = false; btn.innerHTML = origHtml; }
+                            Swal.fire({ icon: 'error', title: 'Koneksi gagal', text: 'Tidak dapat menghubungi server.' });
+                        });
+                    });
                 }
                 </script>
             </div>

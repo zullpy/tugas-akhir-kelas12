@@ -3,6 +3,27 @@ $base_url = '../';
 $pageTitle = 'galeri';
 $subPageTitle = 'kegiatan';
 
+// Load sistem database jika tersedia
+$dbPhotos = [];
+if (file_exists(__DIR__ . '/../spmb/config.php')) {
+    require_once __DIR__ . '/../spmb/config.php';
+    if (function_exists('get_galeri_photos')) {
+        $allGaleri = get_galeri_photos();
+        foreach ($allGaleri as $g) {
+            $cat = $g['kategori'];
+            $path = $g['file_path'];
+            if (!preg_match('/^https?:\/\//', $path)) {
+                $path = '../' . ltrim($path, '/');
+            }
+            $dbPhotos[$cat][] = [
+                'path'  => $path,
+                'title' => $g['judul'],
+                'desc'  => $g['deskripsi'] ?? ''
+            ];
+        }
+    }
+}
+
 $categories = [
     'lomba' => [
         'badge' => 'KEGIATAN LOMBA',
@@ -38,8 +59,24 @@ $categories = [
         'badge' => 'PAMERAN & EXPO',
         'title' => 'Expo & Pameran Karya',
         'subtitle' => 'Pameran karya inovasi dan pameran hasil karya siswa SMKS Sukapura'
+    ],
+    'prestasi' => [
+        'badge' => 'PRESTASI SISWA',
+        'title' => 'Dokumentasi Prestasi',
+        'subtitle' => 'Momen penganugerahan dan apresiasi juara siswa-siswi SMKS Sukapura'
     ]
 ];
+
+// Gabungkan kategori tambahan dari database jika ada
+foreach ($dbPhotos as $catKey => $items) {
+    if (!isset($categories[$catKey])) {
+        $categories[$catKey] = [
+            'badge' => 'KEGIATAN SEKOLAH',
+            'title' => 'Dokumentasi ' . ucfirst($catKey),
+            'subtitle' => 'Kumpulan dokumentasi kegiatan ' . htmlspecialchars($catKey)
+        ];
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -86,16 +123,24 @@ $categories = [
     <main class="gallery-section">
         <?php foreach ($categories as $catKey => $catInfo): ?>
             <?php
-            $dirPath = "../assets/galeri/" . $catKey;
             $photos = [];
-            if (is_dir($dirPath)) {
-                $files = scandir($dirPath);
-                natsort($files);
-                foreach ($files as $file) {
-                    if ($file !== '.' && $file !== '..') {
-                        $ext = strtolower(pathinfo($file, PATHINFO_EXTENSION));
-                        if (in_array($ext, ['jpg', 'jpeg', 'png', 'webp'])) {
-                            $photos[] = "../assets/galeri/" . $catKey . "/" . $file;
+            if (!empty($dbPhotos[$catKey])) {
+                $photos = $dbPhotos[$catKey];
+            } else {
+                $dirPath = "../assets/galeri/" . $catKey;
+                if (is_dir($dirPath)) {
+                    $files = scandir($dirPath);
+                    natsort($files);
+                    foreach ($files as $file) {
+                        if ($file !== '.' && $file !== '..') {
+                            $ext = strtolower(pathinfo($file, PATHINFO_EXTENSION));
+                            if (in_array($ext, ['jpg', 'jpeg', 'png', 'webp'])) {
+                                $photos[] = [
+                                    'path'  => "../assets/galeri/" . $catKey . "/" . $file,
+                                    'title' => $catInfo['title'],
+                                    'desc'  => ''
+                                ];
+                            }
                         }
                     }
                 }
@@ -117,10 +162,10 @@ $categories = [
                     </div>
 
                     <div class="gallery-grid">
-                        <?php foreach ($photos as $index => $photoPath): ?>
-                            <div class="gallery-card <?php echo $index >= 4 ? 'hidden-photo' : ''; ?>" data-category-title="<?php echo htmlspecialchars($catInfo['title']); ?>">
+                        <?php foreach ($photos as $index => $pItem): ?>
+                            <div class="gallery-card <?php echo $index >= 4 ? 'hidden-photo' : ''; ?>" data-category-title="<?php echo htmlspecialchars($pItem['title'] ?: $catInfo['title']); ?>">
                                 <div class="gallery-img-container">
-                                    <img src="<?php echo $photoPath; ?>" alt="<?php echo htmlspecialchars($catInfo['title']); ?>" loading="lazy">
+                                    <img src="<?php echo htmlspecialchars($pItem['path']); ?>" alt="<?php echo htmlspecialchars($pItem['title'] ?: $catInfo['title']); ?>" loading="lazy">
                                     <div class="gallery-overlay">
                                         <div class="gallery-overlay-icon">
                                             <i class="ph-bold ph-arrows-out-simple"></i>

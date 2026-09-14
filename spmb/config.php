@@ -301,6 +301,26 @@ function init_spmb_tables(PDO $pdo) {
         INDEX idx_jurusan_diterima (`jurusan_diterima`)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
 
+    // Tabel Galeri Foto Sekolah
+    $pdo->exec("CREATE TABLE IF NOT EXISTS `galeri_foto` (
+        `id` INT AUTO_INCREMENT PRIMARY KEY,
+        `judul` VARCHAR(255) NOT NULL,
+        `kategori` VARCHAR(50) NOT NULL,
+        `file_path` VARCHAR(500) NOT NULL,
+        `public_id` VARCHAR(150) DEFAULT NULL,
+        `deskripsi` TEXT DEFAULT NULL,
+        `tampilkan_beranda` TINYINT(1) NOT NULL DEFAULT 0,
+        `urutan` INT NOT NULL DEFAULT 0,
+        `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+        INDEX idx_kategori (`kategori`),
+        INDEX idx_beranda (`tampilkan_beranda`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+
+    // Sinkronisasi otomatis foto galeri bawaan jika tabel masih kosong
+    if (function_exists('sync_existing_gallery_photos')) {
+        sync_existing_gallery_photos($pdo);
+    }
+
     // Seed default admin jika belum ada
     $stmt = $pdo->query("SELECT COUNT(*) FROM `spmb_admin`");
     if ($stmt->fetchColumn() == 0) {
@@ -489,10 +509,13 @@ function generate_no_pendaftaran($pdo) {
 /**
  * Cek autentikasi admin
  */
-function check_admin_login($redirect = true) {
+function check_admin_login($redirect = true, $loginUrl = null) {
     if (empty($_SESSION['spmb_admin_id'])) {
         if ($redirect) {
-            header("Location: login.php");
+            if ($loginUrl === null) {
+                $loginUrl = file_exists('login.php') ? 'login.php' : '../spmb/admin/login.php';
+            }
+            header("Location: " . $loginUrl);
             exit;
         }
         return false;
@@ -681,6 +704,7 @@ function parse_indonesian_date_range($str) {
     }
     return null;
 }
+
 
 /**
  * Mengecek apakah pendaftaran SPMB sedang dibuka (berdasarkan mode manual atau otomatis jadwal tanggal)
@@ -873,4 +897,408 @@ if (file_exists(__DIR__ . '/fonnte.php')) {
             // Abaikan error background auto-expire
         }
     }
+}
+
+// =====================================================================
+// MODUL CLOUDINARY & MANAJEMEN GALERI FOTO SEKOLAH
+// =====================================================================
+
+/**
+ * Mengambil konfigurasi Cloudinary dari .env atau spmb_pengaturan
+ */
+function get_cloudinary_config() {
+    $cloudName = env('CLOUDINARY_CLOUD_NAME');
+    $apiKey    = env('CLOUDINARY_API_KEY');
+    $apiSecret = env('CLOUDINARY_API_SECRET');
+
+    // Jika belum ada di .env, periksa di tabel pengaturan
+    if ((empty($cloudName) || empty($apiKey) || empty($apiSecret)) && function_exists('get_all_settings')) {
+        $st = get_all_settings();
+        if (empty($cloudName)) $cloudName = $st['cloudinary_cloud_name'] ?? '';
+        if (empty($apiKey))    $apiKey    = $st['cloudinary_api_key'] ?? '';
+        if (empty($apiSecret)) $apiSecret = $st['cloudinary_api_secret'] ?? '';
+    }
+
+    return [
+        'cloud_name' => $cloudName ?: '',
+        'api_key'    => $apiKey ?: '',
+        'api_secret' => $apiSecret ?: '',
+        'configured' => (!empty($cloudName) && !empty($apiKey) && !empty($apiSecret))
+    ];
+}
+
+/**
+ * Upload gambar ke Cloudinary via REST API cURL Native PHP
+ * @param string $filePath Path file lokal di server
+ * @param string|null $publicId ID unik opsional
+ * @param string $folder Folder di Cloudinary
+ * @return array ['success' => bool, 'url' => string, 'public_id' => string, 'message' => string]
+ */
+function upload_to_cloudinary($filePath, $publicId = null, $folder = 'smk_sukapura/galeri') {
+    $c = get_cloudinary_config();
+    if (!$c['configured']) {
+        return ['success' => false, 'message' => 'Konfigurasi Cloudinary belum lengkap. Silakan atur di menu Pengaturan atau file .env.'];
+    }
+
+    if (!file_exists($filePath) || !is_readable($filePath)) {
+        return ['success' => false, 'message' => 'File gambar tidak ditemukan di server: ' . $filePath];
+    }
+
+    $timestamp = time();
+    $params = [
+        'folder'    => $folder,
+        'timestamp' => $timestamp
+    ];
+    if ($publicId) {
+        $params['public_id'] = $publicId;
+    }
+
+    ksort($params);
+    $signParts = [];
+    foreach ($params as $k => $v) {
+        $signParts[] = $k . '=' . $v;
+    }
+    $signString = implode('&', $signParts) . $c['api_secret'];
+    $signature = sha1($signString);
+
+    $postData = $params;
+    $postData['api_key']   = $c['api_key'];
+    $postData['signature'] = $signature;
+    $postData['file']      = new CURLFile($filePath);
+
+    $url = "https://api.cloudinary.com/v1_1/{$c['cloud_name']}/image/upload";
+
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $postData);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 60);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+
+    $response = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $curlErr  = curl_error($ch);
+    if (PHP_VERSION_ID < 80500) {
+        @curl_close($ch);
+    }
+
+    if ($curlErr) {
+        return ['success' => false, 'message' => 'Koneksi cURL ke Cloudinary gagal: ' . $curlErr];
+    }
+
+    $resData = json_decode($response, true);
+    if ($httpCode >= 200 && $httpCode < 300 && !empty($resData['secure_url'])) {
+        return [
+            'success'   => true,
+            'url'       => $resData['secure_url'],
+            'public_id' => $resData['public_id'] ?? null,
+            'data'      => $resData
+        ];
+    } else {
+        $errMsg = $resData['error']['message'] ?? ('HTTP Error ' . $httpCode . ' dari Cloudinary');
+        if (stripos($errMsg, 'cloud_name mismatch') !== false) {
+            $errMsg = "Cloud Name '{$c['cloud_name']}' tidak cocok dengan API Key & Secret akun Cloudinary Anda (cloud_name mismatch). Periksa Cloud Name di dashboard Cloudinary.";
+        } elseif (stripos($errMsg, 'Invalid cloud_name') !== false) {
+            $errMsg = "Cloud Name '{$c['cloud_name']}' tidak valid atau tidak ditemukan di Cloudinary.";
+        }
+        return ['success' => false, 'message' => $errMsg];
+    }
+}
+
+/**
+ * Uji koneksi dan validitas kredensial Cloudinary
+ */
+function test_cloudinary_connection($cloudName = null, $apiKey = null, $apiSecret = null) {
+    if ($cloudName === null || $apiKey === null || $apiSecret === null) {
+        $c = get_cloudinary_config();
+        $cloudName = $c['cloud_name'];
+        $apiKey    = $c['api_key'];
+        $apiSecret = $c['api_secret'];
+    }
+
+    $cloudName = trim((string)$cloudName);
+    $apiKey    = trim((string)$apiKey);
+    $apiSecret = trim((string)$apiSecret);
+
+    if (empty($cloudName) || empty($apiKey) || empty($apiSecret)) {
+        return [
+            'success' => false,
+            'message' => 'Kredensial Cloudinary belum lengkap. Silakan isi Cloud Name, API Key, dan API Secret.'
+        ];
+    }
+
+    $url = "https://api.cloudinary.com/v1_1/{$cloudName}/ping";
+    $ch = curl_init($url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_USERPWD, "{$apiKey}:{$apiSecret}");
+    curl_setopt($ch, CURLOPT_TIMEOUT, 15);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+
+    $response = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $curlErr  = curl_error($ch);
+    if (PHP_VERSION_ID < 80500) {
+        @curl_close($ch);
+    }
+
+    if ($curlErr) {
+        return [
+            'success' => false,
+            'message' => 'Gagal menghubungi server Cloudinary: ' . $curlErr
+        ];
+    }
+
+    $resData = json_decode($response, true);
+
+    if ($httpCode === 200 && isset($resData['status']) && $resData['status'] === 'ok') {
+        return [
+            'success' => true,
+            'message' => "Koneksi ke Cloudinary BERHASIL! Akun '{$cloudName}' terhubung dan siap digunakan."
+        ];
+    }
+
+    $rawMsg = $resData['error']['message'] ?? ('HTTP Error ' . $httpCode);
+    if (stripos($rawMsg, 'cloud_name mismatch') !== false) {
+        $msg = "Cloud Name tidak cocok (mismatch)! API Key & Secret valid, tetapi '{$cloudName}' bukan Cloud Name untuk akun ini. Silakan periksa kolom 'Cloud name' di dashboard Cloudinary Anda (bukan username atau email).";
+    } elseif (stripos($rawMsg, 'Invalid credentials') !== false) {
+        $msg = "Kredensial tidak valid! API Key atau API Secret salah. Periksa kembali di dashboard Cloudinary Anda.";
+    } elseif (stripos($rawMsg, 'Invalid cloud_name') !== false) {
+        $msg = "Cloud Name '{$cloudName}' tidak ditemukan atau formatnya salah di Cloudinary.";
+    } else {
+        $msg = "Verifikasi Cloudinary gagal: " . $rawMsg;
+    }
+
+    return [
+        'success' => false,
+        'message' => $msg
+    ];
+}
+
+/**
+ * Hapus gambar dari Cloudinary berdasarkan public_id
+ */
+function delete_from_cloudinary($publicId) {
+    if (empty($publicId)) return false;
+    $c = get_cloudinary_config();
+    if (!$c['configured']) return false;
+
+    $timestamp = time();
+    $params = [
+        'public_id' => $publicId,
+        'timestamp' => $timestamp
+    ];
+    ksort($params);
+    $signParts = [];
+    foreach ($params as $k => $v) {
+        $signParts[] = $k . '=' . $v;
+    }
+    $signString = implode('&', $signParts) . $c['api_secret'];
+    $signature = sha1($signString);
+
+    $postData = $params;
+    $postData['api_key']   = $c['api_key'];
+    $postData['signature'] = $signature;
+
+    $url = "https://api.cloudinary.com/v1_1/{$c['cloud_name']}/image/destroy";
+
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $postData);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 20);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+    $response = curl_exec($ch);
+    if (PHP_VERSION_ID < 80500) {
+        @curl_close($ch);
+    }
+
+    $resData = json_decode($response, true);
+    return ($resData && ($resData['result'] ?? '') === 'ok');
+}
+
+/**
+ * Sinkronisasi Foto Galeri Bawaan ke Tabel galeri_foto saat inisialisasi
+ */
+function sync_existing_gallery_photos(PDO $pdo) {
+    try {
+        $check = $pdo->query("SELECT COUNT(*) FROM `galeri_foto`");
+        if (!$check || $check->fetchColumn() > 0) {
+            return;
+        }
+
+        $baseGaleriDir = dirname(__DIR__) . '/assets/galeri';
+        if (!is_dir($baseGaleriDir)) {
+            return;
+        }
+
+        $categoryLabels = [
+            'lomba'     => 'Dokumentasi Lomba 17 Agustus',
+            'istigosah' => 'Dokumentasi Doa Bersama & Istigosah',
+            'porsekas'  => 'Pekan Olahraga & Seni (Porsekas)',
+            'sertijab'  => 'Serah Terima Jabatan OSIS',
+            'tka'       => 'Tes Kemampuan Akademik (TKA)',
+            'upacara'   => 'Upacara Bendera Rutin',
+            'expo'      => 'Pameran Karya & Expo Siswa',
+            'prestasi'  => 'Dokumentasi Prestasi Siswa'
+        ];
+
+        $stmt = $pdo->prepare("INSERT INTO `galeri_foto` (`judul`, `kategori`, `file_path`, `tampilkan_beranda`, `urutan`) VALUES (?, ?, ?, ?, ?)");
+
+        $subdirs = scandir($baseGaleriDir);
+        $initialBerandaCount = 0;
+
+        foreach ($subdirs as $dir) {
+            if ($dir === '.' || $dir === '..' || !is_dir($baseGaleriDir . '/' . $dir) || $dir === 'uploads') {
+                continue;
+            }
+
+            $files = scandir($baseGaleriDir . '/' . $dir);
+            natsort($files);
+            $numInCat = 0;
+
+            foreach ($files as $file) {
+                if ($file === '.' || $file === '..') continue;
+                $ext = strtolower(pathinfo($file, PATHINFO_EXTENSION));
+                if (in_array($ext, ['jpg', 'jpeg', 'png', 'webp'])) {
+                    $numInCat++;
+                    $kategoriKey = $dir;
+                    $labelKategori = $categoryLabels[$kategoriKey] ?? ('Kegiatan ' . ucfirst($kategoriKey));
+                    $judul = $labelKategori . ' #' . $numInCat;
+                    $relPath = 'assets/galeri/' . $dir . '/' . $file;
+
+                    // Beri nilai awal tampil di Beranda untuk beberapa foto awal kategori unggulan
+                    $tampilkanBeranda = 0;
+                    if ($numInCat === 1 && in_array($kategoriKey, ['expo', 'upacara', 'lomba', 'porsekas', 'prestasi', 'tka']) && $initialBerandaCount < 6) {
+                        $tampilkanBeranda = 1;
+                        $initialBerandaCount++;
+                    }
+
+                    $stmt->execute([$judul, $kategoriKey, $relPath, $tampilkanBeranda, $numInCat]);
+                }
+            }
+        }
+    } catch (Exception $e) {
+        // Fallback jika error
+    }
+}
+
+/**
+ * Mengambil data foto galeri dari database
+ */
+function get_galeri_photos($kategori = null, $onlyBeranda = false, $limit = null) {
+    try {
+        $pdo = get_db_connection();
+        $sql = "SELECT * FROM `galeri_foto` WHERE 1=1";
+        $params = [];
+
+        if (!empty($kategori) && $kategori !== 'semua') {
+            $sql .= " AND `kategori` = ?";
+            $params[] = $kategori;
+        }
+
+        if ($onlyBeranda) {
+            $sql .= " AND `tampilkan_beranda` = 1";
+        }
+
+        $sql .= " ORDER BY `tampilkan_beranda` DESC, `urutan` ASC, `id` DESC";
+
+        if ($limit !== null && (int)$limit > 0) {
+            $sql .= " LIMIT " . (int)$limit;
+        }
+
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute($params);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch (Exception $e) {
+        return [];
+    }
+}
+
+/**
+ * Toggle atau ubah status tampilkan_beranda untuk foto galeri
+ */
+function toggle_galeri_beranda($id, $status = null) {
+    $pdo = get_db_connection();
+    if ($status === null) {
+        $stmt = $pdo->prepare("SELECT `tampilkan_beranda` FROM `galeri_foto` WHERE `id` = ?");
+        $stmt->execute([$id]);
+        $curr = $stmt->fetchColumn();
+        $newStatus = ($curr == 1) ? 0 : 1;
+    } else {
+        $newStatus = $status ? 1 : 0;
+    }
+
+    $update = $pdo->prepare("UPDATE `galeri_foto` SET `tampilkan_beranda` = ? WHERE `id` = ?");
+    $update->execute([$newStatus, $id]);
+    return $newStatus;
+}
+
+/**
+ * Tambah foto galeri ke database
+ */
+function add_galeri_photo($judul, $kategori, $filePath, $deskripsi = '', $tampilkanBeranda = 0, $publicId = null, $urutan = 0) {
+    $pdo = get_db_connection();
+    $stmt = $pdo->prepare("INSERT INTO `galeri_foto` (`judul`, `kategori`, `file_path`, `deskripsi`, `tampilkan_beranda`, `public_id`, `urutan`) VALUES (?, ?, ?, ?, ?, ?, ?)");
+    $stmt->execute([
+        $judul,
+        $kategori,
+        $filePath,
+        $deskripsi,
+        $tampilkanBeranda ? 1 : 0,
+        $publicId,
+        (int)$urutan
+    ]);
+    return $pdo->lastInsertId();
+}
+
+/**
+ * Update data foto galeri
+ */
+function update_galeri_photo($id, $judul, $kategori, $deskripsi = '', $tampilkanBeranda = 0, $urutan = 0) {
+    $pdo = get_db_connection();
+    $stmt = $pdo->prepare("UPDATE `galeri_foto` SET `judul` = ?, `kategori` = ?, `deskripsi` = ?, `tampilkan_beranda` = ?, `urutan` = ? WHERE `id` = ?");
+    return $stmt->execute([
+        $judul,
+        $kategori,
+        $deskripsi,
+        $tampilkanBeranda ? 1 : 0,
+        (int)$urutan,
+        $id
+    ]);
+}
+
+/**
+ * Hapus foto galeri dari database dan media penyimpanannya (Cloudinary / File Lokal)
+ */
+function delete_galeri_photo($id) {
+    $pdo = get_db_connection();
+    $stmt = $pdo->prepare("SELECT * FROM `galeri_foto` WHERE `id` = ?");
+    $stmt->execute([$id]);
+    $foto = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$foto) {
+        return false;
+    }
+
+    // Jika tersimpan di Cloudinary, hapus dari Cloudinary
+    if (!empty($foto['public_id'])) {
+        try {
+            delete_from_cloudinary($foto['public_id']);
+        } catch (Exception $e) {
+            // Lanjutkan penghapusan di DB
+        }
+    }
+
+    // Jika file fisik lokal di folder uploads, hapus
+    if (strpos($foto['file_path'], 'assets/galeri/uploads/') !== false) {
+        $fullPath = dirname(__DIR__) . '/' . ltrim($foto['file_path'], '/');
+        if (file_exists($fullPath)) {
+            @unlink($fullPath);
+        }
+    }
+
+    $del = $pdo->prepare("DELETE FROM `galeri_foto` WHERE `id` = ?");
+    return $del->execute([$id]);
 }

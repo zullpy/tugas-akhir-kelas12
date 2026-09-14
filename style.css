@@ -1603,3 +1603,277 @@ body {
         max-height: 160px;
     }
 }
+
+/* ==========================================================================
+   SEKSI DOKUMENTASI GALERI DI BERANDA
+   ========================================================================== */
+.galeri-beranda-section {
+    margin: 85px 0 70px;
+    position: relative;
+}
+
+.section-header-wrap {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 34px;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.btn-galeri-more {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background-color: var(--nb-white);
+    color: var(--nb-black);
+    font-family: var(--font-heading);
+    font-size: 0.92rem;
+    font-weight: 800;
+    padding: 10px 20px;
+    border: var(--border-thick);
+    border-radius: var(--radius-btn);
+    box-shadow: var(--shadow-sm);
+    text-decoration: none;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+}
+
+.btn-galeri-more:hover {
+    background-color: var(--nb-yellow);
+    transform: translate(-3px, -3px);
+    box-shadow: var(--shadow-md);
+}
+
+.galeri-beranda-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+    gap: 24px;
+}
+
+.galeri-beranda-card {
+    background: var(--nb-white);
+    border: var(--border-thick);
+    border-radius: var(--radius-box);
+    box-shadow: var(--shadow-md);
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.galeri-beranda-card:hover {
+    transform: translate(-4px, -4px);
+    box-shadow: 8px 8px 0px var(--nb-black);
+}
+
+.galeri-beranda-img-wrapper {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+    background-color: var(--nb-navy-dark);
+}
+
+.galeri-beranda-img-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.4s ease;
+}
+
+.galeri-beranda-card:hover .galeri-beranda-img-wrapper img {
+    transform: scale(1.08);
+}
+
+.galeri-beranda-badge {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    z-index: 3;
+    background-color: var(--nb-yellow);
+    color: var(--nb-black);
+    font-family: var(--font-heading);
+    font-size: 0.72rem;
+    font-weight: 800;
+    padding: 4px 10px;
+    border: var(--border-thin);
+    border-radius: var(--radius-pill);
+    box-shadow: 2px 2px 0px var(--nb-black);
+    text-transform: uppercase;
+}
+
+.galeri-beranda-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(0,0,0,0) 40%, rgba(5, 59, 80, 0.95) 100%);
+    opacity: 0.85;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 16px;
+    transition: opacity 0.3s ease;
+}
+
+.galeri-beranda-card:hover .galeri-beranda-overlay {
+    opacity: 1;
+    background: linear-gradient(180deg, rgba(0,0,0,0.1) 20%, rgba(5, 59, 80, 0.98) 100%);
+}
+
+.galeri-beranda-overlay-inner {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.galeri-beranda-zoom {
+    width: 32px;
+    height: 32px;
+    background: var(--nb-yellow);
+    color: var(--nb-black);
+    border: 1.5px solid var(--nb-black);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    flex-shrink: 0;
+    box-shadow: 2px 2px 0px var(--nb-black);
+}
+
+.galeri-beranda-title {
+    font-family: var(--font-heading);
+    font-size: 0.92rem;
+    font-weight: 800;
+    color: var(--nb-white);
+    line-height: 1.3;
+    margin: 0;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+}
+
+.galeri-beranda-footer-cta {
+    text-align: center;
+    margin-top: 36px;
+}
+
+.btn-galeri-explore {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background-color: var(--nb-navy);
+    color: var(--nb-white);
+    font-family: var(--font-heading);
+    font-size: 0.95rem;
+    font-weight: 800;
+    padding: 14px 28px;
+    border: var(--border-thick);
+    border-radius: var(--radius-btn);
+    box-shadow: var(--shadow-md);
+    text-decoration: none;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+}
+
+.btn-galeri-explore:hover {
+    background-color: var(--nb-navy-dark);
+    transform: translate(-3px, -3px);
+    box-shadow: var(--shadow-lg);
+}
+
+/* Lightbox Modal Beranda */
+.beranda-lightbox {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(5, 15, 25, 0.85);
+    backdrop-filter: blur(4px);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.beranda-lightbox.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.beranda-lightbox-content {
+    background: var(--nb-white);
+    border: 3px solid var(--nb-black);
+    border-radius: var(--radius-box);
+    box-shadow: 10px 10px 0px var(--nb-black);
+    max-width: 900px;
+    max-height: 90vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    animation: zoomInLight 0.25s ease-out;
+}
+
+@keyframes zoomInLight {
+    from { transform: scale(0.92); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+.beranda-lightbox-top {
+    padding: 12px 18px;
+    border-bottom: var(--border-thick);
+    background: var(--nb-yellow-light);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.beranda-lightbox-tag {
+    font-family: var(--font-heading);
+    font-weight: 800;
+    font-size: 0.85rem;
+    color: var(--nb-black);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    text-transform: uppercase;
+}
+
+.beranda-lightbox-close {
+    background: none;
+    border: none;
+    font-size: 1.8rem;
+    line-height: 1;
+    font-weight: 800;
+    cursor: pointer;
+    color: var(--nb-black);
+}
+
+.beranda-lightbox-content img {
+    max-height: 70vh;
+    width: auto;
+    max-width: 100%;
+    object-fit: contain;
+    background: #000;
+    display: block;
+}
+
+.beranda-lightbox-caption {
+    padding: 14px 18px;
+    background: var(--nb-white);
+    border-top: var(--border-thick);
+    font-family: var(--font-heading);
+    font-size: 1rem;
+    font-weight: 800;
+    color: var(--nb-black);
+}
+
+@media (max-width: 768px) {
+    .section-header-wrap {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .btn-galeri-more {
+        width: 100%;
+        justify-content: center;
+    }
+}

@@ -421,7 +421,7 @@ document.addEventListener('DOMContentLoaded', function() {
             <a href="export.php" class="adm-btn adm-btn-secondary">
                 <i class="ph-bold ph-download-simple"></i> Unduh Data Pendaftar (CSV/Excel)
             </a>
-            <a href="pengaturan.php" class="adm-btn adm-btn-secondary">
+            <a href="../../setting/" class="adm-btn adm-btn-secondary">
                 <i class="ph-bold ph-sliders"></i> Ubah Status Gelombang &amp; Kuota
             </a>
             <a href="../daftar.php" target="_blank" class="adm-btn adm-btn-warning">

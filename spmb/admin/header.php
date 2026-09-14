@@ -7,6 +7,13 @@ $currAdminFile = basename($_SERVER['PHP_SELF']);
 $pdo = get_db_connection();
 $settings = get_all_settings();
 
+// Path helper jika diakses dari /setting/ atau /spmb/admin/
+$isSetting = (strpos($_SERVER['PHP_SELF'], '/setting/') !== false);
+$adminPath = $isSetting ? '../spmb/admin/' : '';
+$spmbPath  = $isSetting ? '../spmb/' : '../';
+$rootPath  = $isSetting ? '../' : '../../';
+$settingPath = $isSetting ? './' : '../../setting/';
+
 // Hitung pendaftar yang belum diverifikasi
 $pendingCount = $pdo->query("SELECT COUNT(*) FROM `spmb_pendaftar` WHERE `status` = 'Menunggu Verifikasi'")->fetchColumn();
 ?>
@@ -22,9 +29,9 @@ $pendingCount = $pdo->query("SELECT COUNT(*) FROM `spmb_pendaftar` WHERE `status
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/regular/style.css"/>
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/bold/style.css"/>
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/fill/style.css"/>
-    <link rel="stylesheet" href="../spmb.css">
-    <link rel="stylesheet" href="admin.css">
-    <link rel="shortcut icon" href="../../assets/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="<?php echo $spmbPath; ?>spmb.css">
+    <link rel="stylesheet" href="<?php echo $adminPath; ?>admin.css">
+    <link rel="shortcut icon" href="<?php echo $rootPath; ?>assets/favicon.ico" type="image/x-icon">
     <!-- Chart.js for Admin Analytics -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
     <!-- SweetAlert2 -->
@@ -35,9 +42,9 @@ $pendingCount = $pdo->query("SELECT COUNT(*) FROM `spmb_pendaftar` WHERE `status
 <div class="adm-wrapper">
     <!-- SIDEBAR -->
     <aside class="adm-sidebar">
-        <a href="index.php" class="adm-brand">
+        <a href="<?php echo $adminPath; ?>index.php" class="adm-brand">
             <div class="adm-brand-logo">
-                <img src="../../assets/favicon.ico" alt="Logo">
+                <img src="<?php echo $rootPath; ?>assets/favicon.ico" alt="Logo">
             </div>
             <div>
                 <div class="adm-brand-title">SPMB SUKAPURA</div>
@@ -47,14 +54,14 @@ $pendingCount = $pdo->query("SELECT COUNT(*) FROM `spmb_pendaftar` WHERE `status
 
         <ul class="adm-menu">
             <li class="adm-menu-label">Utama</li>
-            <li class="adm-menu-item <?php echo ($currAdminFile === 'index.php') ? 'active' : ''; ?>">
-                <a href="index.php">
+            <li class="adm-menu-item <?php echo (!$isSetting && $currAdminFile === 'index.php') ? 'active' : ''; ?>">
+                <a href="<?php echo $adminPath; ?>index.php">
                     <i class="ph-bold ph-squares-four"></i>
                     <span>Dashboard</span>
                 </a>
             </li>
-            <li class="adm-menu-item <?php echo ($currAdminFile === 'pendaftar.php' || $currAdminFile === 'detail.php') ? 'active' : ''; ?>">
-                <a href="pendaftar.php" style="display:flex; justify-content:space-between;">
+            <li class="adm-menu-item <?php echo (!$isSetting && ($currAdminFile === 'pendaftar.php' || $currAdminFile === 'detail.php')) ? 'active' : ''; ?>">
+                <a href="<?php echo $adminPath; ?>pendaftar.php" style="display:flex; justify-content:space-between;">
                     <div style="display:flex; align-items:center; gap:12px;">
                         <i class="ph-bold ph-users"></i>
                         <span>Data Pendaftar</span>
@@ -64,36 +71,52 @@ $pendingCount = $pdo->query("SELECT COUNT(*) FROM `spmb_pendaftar` WHERE `status
                     <?php endif; ?>
                 </a>
             </li>
-            <li class="adm-menu-item <?php echo ($currAdminFile === 'tambah.php') ? 'active' : ''; ?>">
-                <a href="tambah.php">
+            <li class="adm-menu-item <?php echo (!$isSetting && $currAdminFile === 'tambah.php') ? 'active' : ''; ?>">
+                <a href="<?php echo $adminPath; ?>tambah.php">
                     <i class="ph-bold ph-user-plus"></i>
                     <span>Pendaftaran Manual</span>
                 </a>
             </li>
 
             <li class="adm-menu-label" style="margin-top:10px;">Laporan &amp; Pengaturan</li>
-            <li class="adm-menu-item">
-                <a href="export.php">
+            <li class="adm-menu-item <?php echo (!$isSetting && $currAdminFile === 'export.php') ? 'active' : ''; ?>">
+                <a href="<?php echo $adminPath; ?>export.php">
                     <i class="ph-bold ph-file-csv"></i>
                     <span>Ekspor Data (Excel/CSV)</span>
                 </a>
             </li>
-            <li class="adm-menu-item <?php echo ($currAdminFile === 'pengaturan.php') ? 'active' : ''; ?>">
-                <a href="pengaturan.php">
+            <li class="adm-menu-item <?php echo ($isSetting || $currAdminFile === 'pengaturan.php') ? 'active' : ''; ?>">
+                <a href="<?php echo $settingPath; ?>">
                     <i class="ph-bold ph-gear"></i>
-                    <span>Pengaturan SPMB</span>
+                    <span>Pengaturan</span>
+                </a>
+            </li>
+
+            <li class="adm-menu-label" style="margin-top:10px;">Konten Website</li>
+            <li class="adm-menu-item <?php echo (!$isSetting && $currAdminFile === 'galeri.php') ? 'active' : ''; ?>">
+                <a href="<?php echo $adminPath; ?>galeri.php" style="display:flex; justify-content:space-between;">
+                    <div style="display:flex; align-items:center; gap:12px;">
+                        <i class="ph-bold ph-images"></i>
+                        <span>Galeri &amp; Beranda</span>
+                    </div>
+                    <?php 
+                    $berandaCount = (int)$pdo->query("SELECT COUNT(*) FROM `galeri_foto` WHERE `tampilkan_beranda` = 1")->fetchColumn();
+                    if ($berandaCount > 0): 
+                    ?>
+                        <span style="background:var(--adm-yellow); color:var(--adm-black); font-size:0.72rem; padding:2px 7px; border-radius:10px; border:1px solid var(--adm-black); font-weight:800;" title="<?php echo $berandaCount; ?> foto tampil di Beranda"><?php echo $berandaCount; ?></span>
+                    <?php endif; ?>
                 </a>
             </li>
 
             <li class="adm-menu-label" style="margin-top:10px;">Tautan Luar</li>
             <li class="adm-menu-item">
-                <a href="../index.php" target="_blank">
+                <a href="<?php echo $spmbPath; ?>index.php" target="_blank">
                     <i class="ph-bold ph-arrow-square-out"></i>
                     <span>Lihat Web SPMB</span>
                 </a>
             </li>
             <li class="adm-menu-item">
-                <a href="../../index.php" target="_blank">
+                <a href="<?php echo $rootPath; ?>index.php" target="_blank">
                     <i class="ph-bold ph-globe"></i>
                     <span>Beranda Sekolah</span>
                 </a>
@@ -111,7 +134,7 @@ $pendingCount = $pdo->query("SELECT COUNT(*) FROM `spmb_pendaftar` WHERE `status
                         <div style="font-size:0.75rem; color:#555;">@<?php echo htmlspecialchars($_SESSION['spmb_admin_user'] ?? 'admin'); ?></div>
                     </div>
                 </div>
-                <a href="logout.php" title="Keluar" onclick="konfirmasiLogout(event, this.href);" style="color:var(--adm-red); font-size:1.3rem; padding:4px; display:flex; align-items:center;">
+                <a href="<?php echo $adminPath; ?>logout.php" title="Keluar" onclick="konfirmasiLogout(event, this.href);" style="color:var(--adm-red); font-size:1.3rem; padding:4px; display:flex; align-items:center;">
                     <i class="ph-bold ph-sign-out"></i>
                 </a>
             </div>
@@ -132,9 +155,6 @@ $pendingCount = $pdo->query("SELECT COUNT(*) FROM `spmb_pendaftar` WHERE `status
                 <span class="spmb-badge" style="background:#fff; font-size:0.8rem;">
                     <?php echo htmlspecialchars($settings['gelombang'] ?? 'Gelombang 1'); ?>
                 </span>
-                <a href="logout.php" class="adm-btn adm-btn-sm adm-btn-danger" onclick="konfirmasiLogout(event, this.href);">
-                    <i class="ph-bold ph-sign-out"></i> Logout
-                </a>
             </div>
         </header>
 

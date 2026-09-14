@@ -2,6 +2,11 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@600;700;800&display=swap');
 
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+}
+
 :root {
     --adm-yellow: #FACC15;
     --adm-yellow-light: #FEF9C3;
@@ -133,6 +138,22 @@ body {
 .adm-menu::-webkit-scrollbar-thumb {
     background: rgba(0, 0, 0, 0.2);
     border-radius: 4px;
+}
+
+/* ─── Modal Inner Scrollbar (slim & clean) ─── */
+.modal-inner-scroll::-webkit-scrollbar {
+    width: 4px;
+}
+.modal-inner-scroll::-webkit-scrollbar-track {
+    background: transparent;
+}
+.modal-inner-scroll::-webkit-scrollbar-thumb {
+    background: #CBD5E1;
+    border-radius: 99px;
+    transition: background 0.2s;
+}
+.modal-inner-scroll::-webkit-scrollbar-thumb:hover {
+    background: #94A3B8;
 }
 
 .adm-menu-label {
@@ -801,4 +822,309 @@ body {
 .adm-badge-btn:active {
     transform: translateY(0);
 }
+
+/* ==========================================================================
+   PREMIUM NEUBRUTALISM FORM CONTROLS & INPUTS
+   ========================================================================== */
+
+.adm-form-group {
+    margin-bottom: 20px;
+    position: relative;
+}
+
+.adm-form-label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-family: var(--font-body);
+    font-weight: 800;
+    font-size: 0.88rem;
+    color: var(--adm-black);
+    margin-bottom: 8px;
+    letter-spacing: -0.2px;
+}
+
+.adm-form-label .label-title {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.adm-form-label .label-title i {
+    font-size: 1.05rem;
+    color: var(--adm-navy);
+}
+
+.adm-form-label .label-req {
+    color: var(--adm-red);
+    font-weight: 900;
+    margin-left: 3px;
+}
+
+.adm-form-label .label-hint {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #64748B;
+}
+
+/* Base Input Style */
+.adm-input,
+.adm-select,
+textarea.adm-input {
+    width: 100%;
+    background-color: #FFFFFF;
+    color: var(--adm-black);
+    font-family: var(--font-body);
+    font-size: 0.92rem;
+    font-weight: 600;
+    padding: 12px 16px;
+    border: 2px solid var(--adm-black);
+    border-radius: var(--radius-btn);
+    box-shadow: 3px 3px 0px var(--adm-black);
+    outline: none;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    box-sizing: border-box;
+}
+
+.adm-input::placeholder,
+textarea.adm-input::placeholder {
+    color: #94A3B8;
+    font-weight: 500;
+}
+
+.adm-input:hover,
+.adm-select:hover,
+textarea.adm-input:hover {
+    background-color: #FFFDF7;
+}
+
+.adm-input:focus,
+.adm-select:focus,
+textarea.adm-input:focus {
+    background-color: #FFFEEA;
+    border-color: var(--adm-black);
+    box-shadow: 5px 5px 0px var(--adm-black);
+    transform: translate(-1.5px, -1.5px);
+}
+
+/* Styled Select with custom arrow */
+.adm-select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 256 256'%3E%3Cpath fill='%230F172A' d='m213.66 101.66l-80 80a8 8 0 0 1-11.32 0l-80-80a8 8 0 0 1 11.32-11.32L128 164.69l74.34-74.35a8 8 0 0 1 11.32 11.32Z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    background-size: 16px;
+    padding-right: 40px;
+    cursor: pointer;
+}
+
+/* Modern Input with Icon Wrapper */
+.adm-input-icon-group {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.adm-input-icon-group .input-icon-left {
+    position: absolute;
+    left: 14px;
+    font-size: 1.2rem;
+    color: #64748B;
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
+    transition: color 0.2s ease;
+}
+
+.adm-input-icon-group .adm-input,
+.adm-input-icon-group .adm-select {
+    padding-left: 46px !important;
+}
+
+.adm-input-icon-group:focus-within .input-icon-left {
+    color: var(--adm-navy);
+}
+
+/* Ultra Modern Neubrutalism Toggle Switch */
+.adm-toggle-card {
+    background: #FFFDF0;
+    border: 2px solid var(--adm-black);
+    border-radius: 12px;
+    box-shadow: 3px 3px 0px var(--adm-black);
+    padding: 16px 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    user-select: none;
+}
+
+.adm-toggle-card:hover {
+    transform: translate(-1px, -1px);
+    box-shadow: 4px 4px 0px var(--adm-black);
+    background: #FEF9C3;
+}
+
+.adm-toggle-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.adm-toggle-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    border: 2px solid var(--adm-black);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3rem;
+    background: var(--adm-yellow);
+    box-shadow: 2px 2px 0px var(--adm-black);
+    flex-shrink: 0;
+}
+
+.adm-toggle-label {
+    font-family: var(--font-heading);
+    font-weight: 800;
+    font-size: 0.95rem;
+    color: var(--adm-black);
+    line-height: 1.2;
+}
+
+.adm-toggle-sub {
+    font-size: 0.78rem;
+    color: #64748B;
+    margin-top: 3px;
+    font-weight: 500;
+}
+
+/* Custom Switch Element */
+.adm-switch {
+    position: relative;
+    display: inline-block;
+    width: 54px;
+    height: 30px;
+    flex-shrink: 0;
+}
+
+.adm-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.adm-switch-slider {
+    position: absolute;
+    cursor: pointer;
+    inset: 0;
+    background-color: #CBD5E1;
+    border: 2px solid var(--adm-black);
+    border-radius: 30px;
+    box-shadow: 2px 2px 0px var(--adm-black);
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.adm-switch-slider::before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 4px;
+    bottom: 4px;
+    background-color: #FFFFFF;
+    border: 2px solid var(--adm-black);
+    border-radius: 50%;
+    box-shadow: 1px 1px 0px var(--adm-black);
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.adm-switch input:checked + .adm-switch-slider {
+    background-color: var(--adm-yellow);
+}
+
+.adm-switch input:checked + .adm-switch-slider::before {
+    transform: translateX(24px);
+    background-color: #FFFFFF;
+}
+
+/* Interactive Dropzone */
+.adm-dropzone {
+    border: 2.5px dashed var(--adm-black);
+    border-radius: 14px;
+    background: #F8FAFC;
+    padding: 28px 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.adm-dropzone:hover {
+    background: #FFFEEA;
+    border-color: var(--adm-navy);
+    transform: translateY(-2px);
+    box-shadow: 4px 4px 0px var(--adm-black);
+}
+
+.adm-dropzone-icon-wrap {
+    width: 64px;
+    height: 64px;
+    background: #E0F2FE;
+    border: 2px solid var(--adm-black);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 14px;
+    font-size: 2rem;
+    color: var(--adm-navy);
+    box-shadow: 3px 3px 0px var(--adm-black);
+    transition: transform 0.2s ease;
+}
+
+.adm-dropzone:hover .adm-dropzone-icon-wrap {
+    transform: scale(1.1) rotate(-5deg);
+    background: var(--adm-yellow);
+}
+
+.adm-dropzone-title {
+    font-family: var(--font-heading);
+    font-weight: 800;
+    font-size: 1.05rem;
+    color: var(--adm-black);
+    margin-bottom: 4px;
+}
+
+.adm-dropzone-sub {
+    font-size: 0.8rem;
+    color: #64748B;
+    font-weight: 500;
+}
+
+.adm-dropzone-badges {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.adm-dropzone-badge {
+    background: #FFFFFF;
+    border: 1.5px solid var(--adm-black);
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 800;
+    padding: 2px 8px;
+    box-shadow: 1px 1px 0px var(--adm-black);
+    color: #334155;
+}
+
 

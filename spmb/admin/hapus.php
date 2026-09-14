@@ -3,7 +3,9 @@
 require_once __DIR__ . '/../config.php';
 check_admin_login();
 
-$id = (int)($_GET['id'] ?? 0);
+$id = (int)($_POST['id'] ?? $_GET['id'] ?? 0);
+
+$isAjax = !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
 
 if ($id > 0) {
     $pdo = get_db_connection();
@@ -28,6 +30,16 @@ if ($id > 0) {
 
     $del = $pdo->prepare("DELETE FROM `spmb_pendaftar` WHERE `id` = ?");
     $del->execute([$id]);
+
+    if ($isAjax) {
+        header('Content-Type: application/json');
+        echo json_encode(['success' => true, 'message' => 'Data pendaftar berhasil dihapus.']);
+        exit;
+    }
+} elseif ($isAjax) {
+    header('Content-Type: application/json');
+    echo json_encode(['success' => false, 'message' => 'ID tidak valid.']);
+    exit;
 }
 
 header("Location: pendaftar.php?msg=deleted");

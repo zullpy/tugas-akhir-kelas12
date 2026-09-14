@@ -1,10 +1,11 @@
 <?php
 // spmb/admin/edit.php
 // Edit Data Calon Peserta Didik oleh Admin SPMB SMKS SUKAPURA
-$adminPageTitle = 'Edit Data Pendaftar';
-$adminPageHeading = 'Edit Data Calon Siswa';
 
-require_once __DIR__ . '/header.php';
+// Load config & auth DULU sebelum output apapun
+require_once __DIR__ . '/../config.php';
+check_admin_login();
+$pdo = get_db_connection();
 
 $id = (int)($_GET['id'] ?? 0);
 if ($id <= 0) {
@@ -135,10 +136,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                 // Refresh data pendaftar
                 $stmt->execute([$id]);
                 $p = $stmt->fetch();
+
+                // Jika AJAX, navigasi ke detail
+                if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') {
+                    header('Content-Type: application/json');
+                    echo json_encode(['success' => true, 'redirect' => 'detail.php?id=' . $id, 'message' => strip_tags($success)]);
+                    exit;
+                }
             }
         }
     }
 }
+?>
+
+<?php
+// Sekarang baru load HTML (semua AJAX sudah exit di atas)
+$adminPageTitle   = 'Edit Data Pendaftar';
+$adminPageHeading = 'Edit Data Calon Siswa';
+require_once __DIR__ . '/header.php';
 ?>
 
 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:12px;">
@@ -476,7 +491,28 @@ function konfirmasiAdminEdit() {
         reverseButtons: true
     }).then((result) => {
         if (result.isConfirmed) {
-            form.submit();
+            const btn = form.querySelector('button[onclick="konfirmasiAdminEdit()"]');
+            const origHtml = btn ? btn.innerHTML : '';
+            if (btn) { btn.disabled = true; btn.innerHTML = '<i class="ph-bold ph-spinner" style="animation:spin 1s linear infinite"></i> Menyimpan...'; }
+
+            fetch(form.action, {
+                method: 'POST',
+                headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                body: new FormData(form)
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success && data.redirect) {
+                    window.location.href = data.redirect;
+                } else if (!data.success) {
+                    if (btn) { btn.disabled = false; btn.innerHTML = origHtml; }
+                    Swal.fire({ icon: 'error', title: 'Gagal', text: data.message || 'Terjadi kesalahan.' });
+                }
+            })
+            .catch(() => {
+                if (btn) { btn.disabled = false; btn.innerHTML = origHtml; }
+                Swal.fire({ icon: 'error', title: 'Koneksi gagal', text: 'Tidak dapat menghubungi server.' });
+            });
         }
     });
 }
