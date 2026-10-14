@@ -32,32 +32,133 @@ $infoP2 = !empty($p['jurusan_2']) ? get_jurusan_info_kuota($pdo, $p['jurusan_2']
 
 // Update Verifikasi Status
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $statusBaru       = sanitize_input($_POST['status'] ?? $p['status']);
-    $catatanAdmin     = sanitize_input($_POST['catatan_admin'] ?? '');
-    $ruangTes         = sanitize_input($_POST['ruang_tes'] ?? '');
-    $jurusanDiterima  = sanitize_input($_POST['jurusan_diterima'] ?? ($p['jurusan_diterima'] ?? ''));
+    try {
+        $statusBaru       = sanitize_input($_POST['status'] ?? $p['status']);
+        $catatanAdmin     = sanitize_input($_POST['catatan_admin'] ?? '');
+        $ruangTes         = sanitize_input($_POST['ruang_tes'] ?? '');
+        $jurusanDiterima  = sanitize_input($_POST['jurusan_diterima'] ?? ($p['jurusan_diterima'] ?? ''));
 
-    // Rakit Jadwal Ujian dari input date & dropdown 24 jam (tanpa AM/PM)
-    $tglTesInput      = sanitize_input($_POST['jadwal_tes_tanggal'] ?? '');
-    $jamHhInput       = sanitize_input($_POST['jadwal_tes_jam_hh'] ?? '');
-    $jamMmInput       = sanitize_input($_POST['jadwal_tes_jam_mm'] ?? '00');
+        // Rakit Jadwal Ujian dari input date & dropdown 24 jam (tanpa AM/PM)
+        $tglTesInput      = sanitize_input($_POST['jadwal_tes_tanggal'] ?? '');
+        $jamHhInput       = sanitize_input($_POST['jadwal_tes_jam_hh'] ?? '');
+        $jamMmInput       = sanitize_input($_POST['jadwal_tes_jam_mm'] ?? '00');
 
-    $jamTesInput = '';
-    if ($jamHhInput !== '') {
-        $jamTesInput = sprintf('%02d:%02d', (int)$jamHhInput, (int)$jamMmInput);
-    } elseif (!empty($_POST['jadwal_tes_jam'])) {
-        $jamTesInput = sanitize_input($_POST['jadwal_tes_jam']);
-    }
+        $jamTesInput = '';
+        if ($jamHhInput !== '') {
+            $jamTesInput = sprintf('%02d:%02d', (int)$jamHhInput, (int)$jamMmInput);
+        } elseif (!empty($_POST['jadwal_tes_jam'])) {
+            $jamTesInput = sanitize_input($_POST['jadwal_tes_jam']);
+        }
 
-    if (!empty($tglTesInput)) {
-        $jadwalTes = format_jadwal_tes($tglTesInput, $jamTesInput);
-    } else {
-        $jadwalTes = sanitize_input($_POST['jadwal_tes'] ?? '');
-    }
+        if (!empty($tglTesInput)) {
+            $jadwalTes = format_jadwal_tes($tglTesInput, $jamTesInput);
+        } else {
+            $jadwalTes = sanitize_input($_POST['jadwal_tes'] ?? '');
+        }
 
-    // Validasi status Perlu Perbaikan wajib ada catatan
-    if ($statusBaru === 'Perlu Perbaikan' && empty(trim($catatanAdmin))) {
-        $error = "Untuk status <strong>Perlu Perbaikan</strong>, Anda wajib menuliskan Catatan Panitia agar calon siswa mengetahui data atau berkas mana yang harus diperbaiki.";
+        // Validasi status Perlu Perbaikan wajib ada catatan
+        if ($statusBaru === 'Perlu Perbaikan' && empty(trim($catatanAdmin))) {
+            $error = "Untuk status <strong>Perlu Perbaikan</strong>, Anda wajib menuliskan Catatan Panitia agar calon siswa mengetahui data atau berkas mana yang harus diperbaiki.";
+            if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') {
+                while (ob_get_level() > 0) {
+                    ob_end_clean();
+                }
+                header('Content-Type: application/json');
+                echo json_encode([
+                    'success' => false,
+                    'message' => strip_tags($error)
+                ]);
+                exit;
+            }
+        } else {
+            // Logika Otomatisasi Kuota saat memilih Diterima
+            $tenggatPerbaikan = null;
+            $isKuotaPenuh = false;
+
+            if ($statusBaru === 'Diterima') {
+                // Karena input catatan tidak ditampilkan saat Diterima, kosongkan catatan revisi
+                $catatanAdmin = '';
+
+                // Jika admin tidak memilih jurusan spesifik secara eksplisit atau memilih auto
+                if (empty($jurusanDiterima) || $jurusanDiterima === 'AUTO') {
+                    $eval = evaluasi_kuota_pendaftar($pdo, $p['id'], $p['jurusan_1'], $p['jurusan_2'] ?? null);
+                    if ($eval['status'] === 'Diterima') {
+                        $jurusanDiterima = $eval['jurusan_diterima'];
+                        if (!empty($eval['dialihkan'])) {
+                            // Dialihkan ke Pilihan 2
+                            $catatanAdmin = "[Sistem: Kuota Pilihan 1 (" . $p['jurusan_1'] . ") penuh. Otomatis dialihkan & diterima di Pilihan 2 (" . $jurusanDiterima . ")]";
+                            $infoAlert = "<strong>Perhatian Alokasi Kuota:</strong> Kuota Pilihan 1 (" . $p['jurusan_1'] . ") sudah penuh. Calon siswa otomatis dialihkan dan <strong>DITERIMA di Pilihan 2 (" . $jurusanDiterima . ")</strong>.";
+                        }
+                    } else {
+                        // Pilihan 1 & 2 sama-sama penuh -> Alihkan ke status Perlu Perbaikan (Tenggat 1 Minggu)
+                        $statusBaru = 'Perlu Perbaikan';
+                        $jurusanDiterima = null;
+                        $isKuotaPenuh = true;
+                        $tenggatPerbaikan = $eval['tenggat_perbaikan'] ?? date('Y-m-d H:i:s', strtotime('+7 days'));
+                        $catatanAdmin = $eval['alasan'];
+                        $tenggatFormat = date('d F Y', strtotime($tenggatPerbaikan)) . ', pukul ' . date('H:i', strtotime($tenggatPerbaikan)) . ' WIB';
+                        $infoAlert = "<strong>Perhatian Kuota Penuh:</strong> Kuota Pilihan 1 (" . $p['jurusan_1'] . ")" . (!empty($p['jurusan_2']) ? " dan Pilihan 2 (" . $p['jurusan_2'] . ")" : "") . " telah terpenuhi seluruhnya. Calon siswa dialihkan ke status <strong>Perlu Perbaikan</strong> dengan tenggat waktu 1 minggu (hingga <strong>{$tenggatFormat}</strong>) agar dapat mengganti pilihan jurusan yang masih tersedia kuota.";
+                    }
+                }
+            } else {
+                // Jika bukan Diterima, jurusan_diterima diset null
+                $jurusanDiterima = null;
+                if ($statusBaru !== 'Perlu Perbaikan') {
+                    $tenggatPerbaikan = null;
+                } else {
+                    $tenggatPerbaikan = $p['tenggat_perbaikan'] ?? null;
+                }
+            }
+
+            $upd = $pdo->prepare("UPDATE `spmb_pendaftar` SET 
+                `status` = ?, 
+                `jurusan_diterima` = ?,
+                `catatan_admin` = ?, 
+                `tenggat_perbaikan` = ?,
+                `jadwal_tes` = ?, 
+                `ruang_tes` = ? 
+                WHERE `id` = ?");
+            $upd->execute([$statusBaru, $jurusanDiterima, $catatanAdmin, $tenggatPerbaikan, $jadwalTes, $ruangTes, $id]);
+
+            // Kirim Notifikasi WhatsApp Otomatis via Fonnte
+            $waRes = kirim_notifikasi_status_spmb($pdo, $id, $statusBaru, [
+                'catatan_admin'     => $catatanAdmin,
+                'is_kuota_penuh'    => $isKuotaPenuh,
+                'tenggat_perbaikan' => $tenggatPerbaikan
+            ]);
+
+            if (!empty($waRes['success'])) {
+                $success = "Status verifikasi berhasil diperbarui & Pesan WhatsApp terkirim ke calon siswa (" . htmlspecialchars($p['no_hp']) . ")!";
+            } elseif (!empty($waRes['skipped'])) {
+                $success = "Status verifikasi berhasil diperbarui! <br><small style='color:#475569;'><i class='ph-bold ph-info'></i> Notifikasi WhatsApp dilewati: " . htmlspecialchars($waRes['error']) . "</small>";
+            } else {
+                $success = "Status verifikasi berhasil diperbarui! <br><small style='color:#DC2626;'><i class='ph-bold ph-warning'></i> Pengiriman WhatsApp gagal: " . htmlspecialchars($waRes['error'] ?? 'Terjadi kendala koneksi API') . "</small>";
+            }
+            
+            // Refresh data pendaftar & kuota
+            $stmt->execute([$id]);
+            $p = $stmt->fetch();
+            $infoP1 = get_jurusan_info_kuota($pdo, $p['jurusan_1']);
+            $infoP2 = !empty($p['jurusan_2']) ? get_jurusan_info_kuota($pdo, $p['jurusan_2']) : null;
+
+            // Jika AJAX, kembalikan JSON
+            if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') {
+                while (ob_get_level() > 0) {
+                    ob_end_clean();
+                }
+                header('Content-Type: application/json');
+                echo json_encode([
+                    'success'      => true,
+                    'message'      => strip_tags($success),
+                    'status_baru'  => $p['status'],
+                    'has_wa'       => !empty($waRes['success']),
+                    'info_alert'   => $infoAlert
+                ]);
+                exit;
+            }
+        }
+    } catch (\Throwable $e) {
+        $errorMsg = 'Terjadi kesalahan: ' . $e->getMessage();
         if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') {
             while (ob_get_level() > 0) {
                 ob_end_clean();
@@ -65,95 +166,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             header('Content-Type: application/json');
             echo json_encode([
                 'success' => false,
-                'message' => strip_tags($error)
+                'message' => $errorMsg
             ]);
             exit;
-        }
-    } else {
-        // Logika Otomatisasi Kuota saat memilih Diterima
-        $tenggatPerbaikan = null;
-        $isKuotaPenuh = false;
-
-        if ($statusBaru === 'Diterima') {
-            // Karena input catatan tidak ditampilkan saat Diterima, kosongkan catatan revisi
-            $catatanAdmin = '';
-
-            // Jika admin tidak memilih jurusan spesifik secara eksplisit atau memilih auto
-            if (empty($jurusanDiterima) || $jurusanDiterima === 'AUTO') {
-                $eval = evaluasi_kuota_pendaftar($pdo, $p['id'], $p['jurusan_1'], $p['jurusan_2'] ?? null);
-                if ($eval['status'] === 'Diterima') {
-                    $jurusanDiterima = $eval['jurusan_diterima'];
-                    if (!empty($eval['dialihkan'])) {
-                        // Dialihkan ke Pilihan 2
-                        $catatanAdmin = "[Sistem: Kuota Pilihan 1 (" . $p['jurusan_1'] . ") penuh. Otomatis dialihkan & diterima di Pilihan 2 (" . $jurusanDiterima . ")]";
-                        $infoAlert = "<strong>Perhatian Alokasi Kuota:</strong> Kuota Pilihan 1 (" . $p['jurusan_1'] . ") sudah penuh. Calon siswa otomatis dialihkan dan <strong>DITERIMA di Pilihan 2 (" . $jurusanDiterima . ")</strong>.";
-                    }
-                } else {
-                    // Pilihan 1 & 2 sama-sama penuh -> Alihkan ke status Perlu Perbaikan (Tenggat 1 Minggu)
-                    $statusBaru = 'Perlu Perbaikan';
-                    $jurusanDiterima = null;
-                    $isKuotaPenuh = true;
-                    $tenggatPerbaikan = $eval['tenggat_perbaikan'] ?? date('Y-m-d H:i:s', strtotime('+7 days'));
-                    $catatanAdmin = $eval['alasan'];
-                    $tenggatFormat = date('d F Y', strtotime($tenggatPerbaikan)) . ', pukul ' . date('H:i', strtotime($tenggatPerbaikan)) . ' WIB';
-                    $infoAlert = "<strong>Perhatian Kuota Penuh:</strong> Kuota Pilihan 1 (" . $p['jurusan_1'] . ")" . (!empty($p['jurusan_2']) ? " dan Pilihan 2 (" . $p['jurusan_2'] . ")" : "") . " telah terpenuhi seluruhnya. Calon siswa dialihkan ke status <strong>Perlu Perbaikan</strong> dengan tenggat waktu 1 minggu (hingga <strong>{$tenggatFormat}</strong>) agar dapat mengganti pilihan jurusan yang masih tersedia kuota.";
-                }
-            }
         } else {
-            // Jika bukan Diterima, jurusan_diterima diset null
-            $jurusanDiterima = null;
-            if ($statusBaru !== 'Perlu Perbaikan') {
-                $tenggatPerbaikan = null;
-            } else {
-                $tenggatPerbaikan = $p['tenggat_perbaikan'] ?? null;
-            }
-        }
-
-        $upd = $pdo->prepare("UPDATE `spmb_pendaftar` SET 
-            `status` = ?, 
-            `jurusan_diterima` = ?,
-            `catatan_admin` = ?, 
-            `tenggat_perbaikan` = ?,
-            `jadwal_tes` = ?, 
-            `ruang_tes` = ? 
-            WHERE `id` = ?");
-        $upd->execute([$statusBaru, $jurusanDiterima, $catatanAdmin, $tenggatPerbaikan, $jadwalTes, $ruangTes, $id]);
-
-        // Kirim Notifikasi WhatsApp Otomatis via Fonnte
-        $waRes = kirim_notifikasi_status_spmb($pdo, $id, $statusBaru, [
-            'catatan_admin'     => $catatanAdmin,
-            'is_kuota_penuh'    => $isKuotaPenuh,
-            'tenggat_perbaikan' => $tenggatPerbaikan
-        ]);
-
-        if (!empty($waRes['success'])) {
-            $success = "Status verifikasi berhasil diperbarui & Pesan WhatsApp terkirim ke calon siswa (" . htmlspecialchars($p['no_hp']) . ")!";
-        } elseif (!empty($waRes['skipped'])) {
-            $success = "Status verifikasi berhasil diperbarui! <br><small style='color:#475569;'><i class='ph-bold ph-info'></i> Notifikasi WhatsApp dilewati: " . htmlspecialchars($waRes['error']) . "</small>";
-        } else {
-            $success = "Status verifikasi berhasil diperbarui! <br><small style='color:#DC2626;'><i class='ph-bold ph-warning'></i> Pengiriman WhatsApp gagal: " . htmlspecialchars($waRes['error'] ?? 'Terjadi kendala koneksi API') . "</small>";
-        }
-        
-        // Refresh data pendaftar & kuota
-        $stmt->execute([$id]);
-        $p = $stmt->fetch();
-        $infoP1 = get_jurusan_info_kuota($pdo, $p['jurusan_1']);
-        $infoP2 = !empty($p['jurusan_2']) ? get_jurusan_info_kuota($pdo, $p['jurusan_2']) : null;
-
-        // Jika AJAX, kembalikan JSON
-        if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') {
-            while (ob_get_level() > 0) {
-                ob_end_clean();
-            }
-            header('Content-Type: application/json');
-            echo json_encode([
-                'success'      => true,
-                'message'      => strip_tags($success),
-                'status_baru'  => $p['status'],
-                'has_wa'       => !empty($waRes['success']),
-                'info_alert'   => $infoAlert
-            ]);
-            exit;
+            $error = $errorMsg;
         }
     }
 }

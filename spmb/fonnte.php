@@ -263,41 +263,63 @@ function cek_nomor_wa_fonnte($nomor) {
  * @return string|false Path file PDF jika sukses, atau false jika gagal
  */
 function generate_kartu_peserta_pdf($pdo, $no_pendaftaran) {
-    $tempDir = __DIR__ . '/uploads/temp_pdf';
-    if (!is_dir($tempDir)) {
-        @mkdir($tempDir, 0777, true);
-    }
-
-    $safeNo = preg_replace('/[^a-zA-Z0-9_-]/', '_', $no_pendaftaran);
-    $pdfPath = $tempDir . '/Kartu_Peserta_' . $safeNo . '.pdf';
-
-    // Cari executable google-chrome / chromium di sistem
-    $chromeBin = '/usr/bin/google-chrome-stable';
-    if (!file_exists($chromeBin)) {
-        $chromeBin = trim(shell_exec('which google-chrome-stable 2>/dev/null') ?: '');
-        if (empty($chromeBin)) {
-            $chromeBin = trim(shell_exec('which chromium 2>/dev/null') ?: '');
-        }
-    }
-
-    if (empty($chromeBin) || !file_exists($chromeBin)) {
+    // 1. Cek apakah fungsi eksekusi shell tersedia dan tidak dinonaktifkan di server hosting
+    if (!function_exists('shell_exec') || !function_exists('exec')) {
         return false;
     }
 
-    // URL halaman cetak (dinamis sesuai konfigurasi base_url atau APP_URL)
-    $cfg = get_fonnte_config();
-    $baseUrl = !empty($cfg['base_url']) ? $cfg['base_url'] : (defined('APP_URL') ? APP_URL : 'http://localhost:8000');
-    $urlCetak = rtrim($baseUrl, '/') . '/spmb/cetak.php?no=' . urlencode($no_pendaftaran);
+    $disabledFuncs = array_map('trim', explode(',', (string)ini_get('disable_functions')));
+    if (in_array('shell_exec', $disabledFuncs) || in_array('exec', $disabledFuncs)) {
+        return false;
+    }
 
-    $cmd = 'timeout 10s ' . escapeshellcmd($chromeBin) . 
-           ' --headless --disable-gpu --no-sandbox --disable-dev-shm-usage' . 
-           ' --print-to-pdf=' . escapeshellarg($pdfPath) . 
-           ' ' . escapeshellarg($urlCetak) . ' 2>&1';
+    try {
+        $tempDir = __DIR__ . '/uploads/temp_pdf';
+        if (!is_dir($tempDir)) {
+            @mkdir($tempDir, 0777, true);
+        }
 
-    exec($cmd, $output, $returnCode);
+        $safeNo = preg_replace('/[^a-zA-Z0-9_-]/', '_', $no_pendaftaran);
+        $pdfPath = $tempDir . '/Kartu_Peserta_' . $safeNo . '.pdf';
 
-    if (file_exists($pdfPath) && filesize($pdfPath) > 5000) {
-        return $pdfPath;
+        // Cari executable google-chrome / chromium di sistem
+        $chromeBin = '';
+        if (file_exists('/usr/bin/google-chrome-stable')) {
+            $chromeBin = '/usr/bin/google-chrome-stable';
+        } else {
+            $foundChrome = trim(@shell_exec('which google-chrome-stable 2>/dev/null') ?: '');
+            if (!empty($foundChrome) && file_exists($foundChrome)) {
+                $chromeBin = $foundChrome;
+            } else {
+                $foundChromium = trim(@shell_exec('which chromium 2>/dev/null') ?: '');
+                if (!empty($foundChromium) && file_exists($foundChromium)) {
+                    $chromeBin = $foundChromium;
+                }
+            }
+        }
+
+        if (empty($chromeBin) || !file_exists($chromeBin)) {
+            return false;
+        }
+
+        // URL halaman cetak (dinamis sesuai konfigurasi base_url atau APP_URL)
+        $cfg = get_fonnte_config();
+        $baseUrl = !empty($cfg['base_url']) ? $cfg['base_url'] : (defined('APP_URL') ? APP_URL : 'http://localhost:8000');
+        $urlCetak = rtrim($baseUrl, '/') . '/spmb/cetak.php?no=' . urlencode($no_pendaftaran);
+
+        $cmd = 'timeout 10s ' . escapeshellcmd($chromeBin) . 
+               ' --headless --disable-gpu --no-sandbox --disable-dev-shm-usage' . 
+               ' --print-to-pdf=' . escapeshellarg($pdfPath) . 
+               ' ' . escapeshellarg($urlCetak) . ' 2>&1';
+
+        @exec($cmd, $output, $returnCode);
+
+        if (file_exists($pdfPath) && filesize($pdfPath) > 5000) {
+            return $pdfPath;
+        }
+    } catch (\Throwable $e) {
+        // Jika terjadi exception shell atau permission di shared hosting, lewati pembuatan PDF
+        return false;
     }
 
     return false;
@@ -353,6 +375,22 @@ function kirim_notifikasi_status_spmb($pdo, $pendaftar_id, $statusBaru, $opsi = 
             $infoTes .= "\n *Ruang Tes:* " . $p['ruang_tes'];
         }
 
+        // Generate Kartu Peserta PDF asli jika lingkungan hosting mendukung
+        $generatedPdf = false;
+        try {
+            $generatedPdf = generate_kartu_peserta_pdf($pdo, $noPendaftaran);
+        } catch (\Throwable $e) {
+            $generatedPdf = false;
+        }
+
+        if ($generatedPdf && file_exists($generatedPdf)) {
+            $pdfAttachment = $generatedPdf;
+            $attachmentName = 'Kartu_Peserta_' . preg_replace('/[^a-zA-Z0-9_-]/', '_', $noPendaftaran) . '.pdf';
+            $infoKartuPeserta = "Dokumen resmi kartu peserta Anda terlampir dalam bentuk file PDF bersama pesan ini. Anda juga dapat mengunduh atau mencetaknya secara langsung kapan saja melalui tautan:\n{$linkCetak}";
+        } else {
+            $infoKartuPeserta = "Dokumen resmi kartu peserta Anda dapat diunduh atau dicetak secara langsung melalui tautan resmi berikut:\n{$linkCetak}";
+        }
+
         $message = "📢 *PENGUMUMAN HASIL SELEKSI SPMB SMKS SUKAPURA*\n\n"
                  . "Halo Sdr/i *{$nama}*,\n"
                  . "Nomor Pendaftaran: *{$noPendaftaran}*\n\n"
@@ -360,20 +398,12 @@ function kirim_notifikasi_status_spmb($pdo, $pendaftar_id, $statusBaru, $opsi = 
                  . "*{$namaJurusan}*\n"
                  . $infoTes . "\n\n"
                  . "*Kartu Tanda Peserta / Bukti Kelulusan:*\n"
-                 . "Dokumen resmi kartu peserta Anda terlampir dalam bentuk file PDF bersama pesan ini. Anda juga dapat mengunduh atau mencetaknya secara langsung kapan saja melalui tautan:\n"
-                 . "{$linkCetak}\n\n"
+                 . $infoKartuPeserta . "\n\n"
                  . "*Petunjuk Daftar Ulang:*\n"
-                 . "1. Cetak Kartu Peserta dalam ukuran kertas A4/F4.\n"
+                 . "1. Buka tautan di atas dan cetak Kartu Peserta dalam ukuran kertas A4/F4.\n"
                  . "2. Hadir ke sekretariat SPMB SMKS Sukapura sesuai jadwal dengan membawa kartu peserta dan berkas fisik asli untuk verifikasi akhir.\n\n"
                  . "Selamat bergabung dengan keluarga besar SMKS Sukapura!\n\n"
                  . "Salam hangat,\n*Panitia SPMB SMKS SUKAPURA*";
-
-        // Generate Kartu Peserta PDF asli
-        $generatedPdf = generate_kartu_peserta_pdf($pdo, $noPendaftaran);
-        if ($generatedPdf && file_exists($generatedPdf)) {
-            $pdfAttachment = $generatedPdf;
-            $attachmentName = 'Kartu_Peserta_' . preg_replace('/[^a-zA-Z0-9_-]/', '_', $noPendaftaran) . '.pdf';
-        }
 
     } elseif ($statusBaru === 'Perlu Perbaikan' && $isKuotaPenuh) {
         // Format Khusus Sesuai Permintaan User Saat Kuota Pilihan 1 & 2 Penuh

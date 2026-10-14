@@ -306,6 +306,7 @@ function init_spmb_tables(PDO $pdo) {
         `berkas_prestasi` VARCHAR(255) DEFAULT NULL,
         `status` ENUM('Menunggu Verifikasi', 'Diterima', 'Cadangan', 'Perlu Perbaikan', 'Ditolak') NOT NULL DEFAULT 'Menunggu Verifikasi',
         `catatan_admin` TEXT DEFAULT NULL,
+        `tenggat_perbaikan` DATETIME DEFAULT NULL,
         `ruang_tes` VARCHAR(50) DEFAULT NULL,
         `jadwal_tes` VARCHAR(100) DEFAULT NULL,
         `tanggal_daftar` DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -315,6 +316,14 @@ function init_spmb_tables(PDO $pdo) {
         INDEX idx_jurusan_diterima (`jurusan_diterima`),
         INDEX idx_no_hp (`no_hp`)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+
+    // Pastikan kolom tenggat_perbaikan ada jika tabel sudah terbuat sebelumnya
+    try {
+        $checkCol = $pdo->query("SHOW COLUMNS FROM `spmb_pendaftar` LIKE 'tenggat_perbaikan'");
+        if ($checkCol && $checkCol->rowCount() === 0) {
+            $pdo->exec("ALTER TABLE `spmb_pendaftar` ADD COLUMN `tenggat_perbaikan` DATETIME DEFAULT NULL AFTER `catatan_admin`");
+        }
+    } catch (Exception $e) {}
 
     // Pastikan index idx_no_hp ada jika tabel sudah terbuat sebelumnya
     try {
