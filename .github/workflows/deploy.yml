@@ -23,6 +23,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      
       - name: Deploy to InfinityFree
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
@@ -38,5 +39,5 @@ jobs:
             **/.github/**
             **/.env
             **/.env.*
-            !**/.env.example
             **/node_modules/**
+
