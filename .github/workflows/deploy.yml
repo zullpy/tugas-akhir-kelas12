@@ -40,4 +40,6 @@ jobs:
             **/.env
             **/.env.*
             **/node_modules/**
+            dpmb
+            dpmb/**
 
