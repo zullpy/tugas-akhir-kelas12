@@ -31,7 +31,7 @@ jobs:
           password: ${{ secrets.FTP_PASSWORD_INFINITY }}
           protocol: ftp
           port: 21
-          server-dir: /htdocs/
+          server-dir: /smksukapura.miw.web.id/htdocs/
           local-dir: ./
           exclude: |
             **/.git*
