@@ -6,12 +6,23 @@ $pageTitle = 'spmb';
 $subPageTitle = 'daftar';
 
 require_once __DIR__ . '/config.php';
+require_once __DIR__ . '/fonnte.php';
 $pdo = get_db_connection();
 $settings = get_all_settings();
 
 // Cek apakah pendaftaran sedang dibuka (otomatis sesuai tanggal atau manual)
 $isBuka = is_spmb_open($settings);
 $statusInfo = get_spmb_status_info($settings);
+
+// Hitung batas usia dinamis PPDB (Maks 21 tahun per 1 Juli tahun ajaran, Min 13 tahun)
+$tahunAjaranStr = $settings['tahun_ajaran'] ?? date('Y');
+if (preg_match('/^(\d{4})/', $tahunAjaranStr, $m)) {
+    $refYear = (int)$m[1];
+} else {
+    $refYear = (int)date('Y');
+}
+$minBirthDate = ($refYear - 21) . '-07-01'; // Maksimal 21 tahun per 1 Juli
+$maxBirthDate = ($refYear - 13) . '-12-31'; // Minimal 13 tahun
 
 $error = '';
 $success = '';
@@ -56,17 +67,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $error = "NISN harus berupa 10 digit angka valid.";
         } elseif (!preg_match('/^[0-9]{16}$/', $nik)) {
             $error = "NIK harus berupa 16 digit angka valid sesuai KTP/KK.";
+        } elseif (!is_valid_indonesian_phone($no_hp)) {
+            $error = "Nomor WhatsApp Calon Siswa tidak valid. Harap gunakan nomor seluler Indonesia yang aktif (contoh: 081234567890, 10-14 digit).";
+        } elseif (!is_valid_indonesian_phone($no_hp_ortu)) {
+            $error = "Nomor WhatsApp Orang Tua tidak valid. Harap gunakan nomor seluler Indonesia yang aktif (contoh: 081234567890, 10-14 digit).";
         } elseif ($jurusan_1 === $jurusan_2) {
             $error = "Jurusan Pilihan 1 dan Pilihan 2 tidak boleh sama.";
+        } elseif (!empty($tanggal_lahir) && ($tanggal_lahir < $minBirthDate || $tanggal_lahir > $maxBirthDate)) {
+            $error = "Tanggal lahir calon siswa tidak memenuhi ketentuan batas usia PPDB (rentang usia 13 s.d. 21 tahun per 1 Juli $refYear sesuai Permendikbud).";
         } else {
             // Cek apakah NISN sudah pernah mendaftar
-            $checkNisn = $pdo->prepare("SELECT `no_pendaftaran` FROM `spmb_pendaftar` WHERE `nisn` = ?");
+            $checkNisn = $pdo->prepare("SELECT `no_pendaftaran`, `nama_lengkap` FROM `spmb_pendaftar` WHERE `nisn` = ?");
             $checkNisn->execute([$nisn]);
             $existing = $checkNisn->fetch();
 
             if ($existing) {
-                $error = "NISN <strong>$nisn</strong> sudah pernah didaftarkan dengan Nomor: <strong>{$existing['no_pendaftaran']}</strong>. Silakan gunakan menu <a href='cek-status.php?nisn=$nisn' style='color:#0A4D68; text-decoration:underline;'>Cek Status Pendaftaran</a>.";
+                $error = "NISN <strong>$nisn</strong> sudah pernah didaftarkan atas nama <strong>{$existing['nama_lengkap']}</strong> dengan Nomor: <strong>{$existing['no_pendaftaran']}</strong>. Silakan gunakan menu <a href='cek-status.php?nisn=$nisn' style='color:#0A4D68; text-decoration:underline;'>Cek Status Pendaftaran</a>.";
             } else {
+                // Normalisasi no_hp & no_hp_ortu sebelum disimpan
+                $no_hp = normalize_phone_number($no_hp);
+                $no_hp_ortu = normalize_phone_number($no_hp_ortu);
+
                 // Upload File Helper Function
                 $uploadFile = function($fieldKey, $prefix, $isRequired, $allowed = ['jpg', 'jpeg', 'png', 'webp', 'pdf'], $maxBytes = 3145728) use (&$error) {
                     if (!isset($_FILES[$fieldKey]) || $_FILES[$fieldKey]['error'] === UPLOAD_ERR_NO_FILE) {
@@ -120,7 +141,49 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $berkas_kk_path       = empty($error) ? $uploadFile('berkas_kk', 'kk', true) : null;
                 $berkas_akta_path     = empty($error) ? $uploadFile('berkas_akta', 'akta', true) : null;
                 $berkas_ijazah_path   = empty($error) ? $uploadFile('berkas_ijazah', 'ijazah', true) : null;
-                $berkas_ktp_ortu_path = empty($error) ? $uploadFile('berkas_ktp_ortu', 'ktp', true) : null;
+                // Upload Berkas KTP Orang Tua / Wali (Mendukung hingga 2 foto)
+                $uploadedKtp = [];
+                // 1. Cek jika dikirim via array multiple
+                if (isset($_FILES['berkas_ktp_ortu']['name']) && is_array($_FILES['berkas_ktp_ortu']['name'])) {
+                    $cnt = count($_FILES['berkas_ktp_ortu']['name']);
+                    for ($i = 0; $i < min($cnt, 2); $i++) {
+                        if ($_FILES['berkas_ktp_ortu']['error'][$i] === UPLOAD_ERR_NO_FILE) continue;
+                        if ($_FILES['berkas_ktp_ortu']['error'][$i] !== UPLOAD_ERR_OK) {
+                            $error = "Terjadi masalah saat mengunggah salah satu berkas KTP.";
+                            break;
+                        }
+                        $fileTmp  = $_FILES['berkas_ktp_ortu']['tmp_name'][$i];
+                        $fileName = $_FILES['berkas_ktp_ortu']['name'][$i];
+                        $fileSize = $_FILES['berkas_ktp_ortu']['size'][$i];
+                        $ext      = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
+                        if (!in_array($ext, ['jpg', 'jpeg', 'png', 'webp', 'pdf'])) {
+                            $error = "Format berkas KTP harus JPG, PNG, WEBP, atau PDF.";
+                            break;
+                        }
+                        if ($fileSize > 3145728) {
+                            $error = "Ukuran file KTP melebihi batas maksimal 3 MB.";
+                            break;
+                        }
+                        $newFileName = 'ktp_' . ($i + 1) . '_' . time() . '_' . rand(1000, 9999) . '.' . $ext;
+                        if (move_uploaded_file($fileTmp, __DIR__ . '/uploads/' . $newFileName)) {
+                            $uploadedKtp[] = $newFileName;
+                        }
+                    }
+                } else {
+                    $ktp1 = empty($error) ? $uploadFile('berkas_ktp_ortu', 'ktp1', false) : null;
+                    if ($ktp1) $uploadedKtp[] = $ktp1;
+                }
+
+                // 2. Cek juga slot kedua berkas_ktp_ortu_2 jika diisi
+                if (empty($error) && count($uploadedKtp) < 2) {
+                    $ktp2 = $uploadFile('berkas_ktp_ortu_2', 'ktp2', false);
+                    if ($ktp2) $uploadedKtp[] = $ktp2;
+                }
+
+                if (empty($error) && empty($uploadedKtp)) {
+                    $error = "Wajib mengunggah minimal 1 berkas <strong>KTP Orang Tua / Wali</strong>.";
+                }
+                $berkas_ktp_ortu_path = !empty($uploadedKtp) ? implode(',', $uploadedKtp) : null;
                 $berkas_kip_path      = empty($error) ? $uploadFile('berkas_kip', 'kip', false) : null;
                 
                 $berkas_prestasi_path = null;
@@ -378,6 +441,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                             <i class="ph-bold ph-check-circle"></i> File siap diunggah
                                         </div>
                                     </div>
+                                    <button type="button" class="spmb-cancel-upload-btn" onclick="cancelDoc('berkas_prestasi', 'prestasiPreview', 'previewImgPrestasi', 'previewIconPrestasi', 'fileNameDisplayPrestasi')" title="Batal pilihan"><i class="ph-bold ph-x"></i></button>
                                 </div>
                             </div>
                         </div>
@@ -408,8 +472,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <label class="spmb-label" for="nisn">
                                     NISN (Nomor Induk Siswa Nasional) <span class="required">*</span>
                                 </label>
-                                <input type="text" name="nisn" id="nisn" class="spmb-input" placeholder="Contoh: 0071234567" maxlength="10" value="<?php echo htmlspecialchars($_POST['nisn'] ?? ''); ?>" required>
-                                <div class="spmb-input-helper">10 digit angka resmi dari SMP/MTs.</div>
+                                <div style="position:relative;">
+                                    <input type="text" name="nisn" id="nisn" class="spmb-input" placeholder="Contoh: 0071234567" maxlength="10" value="<?php echo htmlspecialchars($_POST['nisn'] ?? ''); ?>" required autocomplete="off">
+                                    <span id="nisn_spinner" style="position:absolute; right:12px; top:50%; transform:translateY(-50%); display:none; color:#0A4D68;">
+                                        <i class="ph-bold ph-spinner" style="animation: spin 1s linear infinite; font-size:1.15rem; display:inline-block;"></i>
+                                    </span>
+                                </div>
+                                <div id="nisn_feedback" class="spmb-input-feedback"></div>
+                                <div class="spmb-input-helper" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:4px;">
+                                    <span>10 digit angka resmi dari SMP/MTs.</span>
+                                    <a href="https://nisn.data.kemendikdasmen.go.id/" target="_blank" rel="noopener noreferrer" style="color:#0A4D68; font-weight:700; text-decoration:underline; font-size:0.75rem;">
+                                        <i class="ph-bold ph-arrow-square-out"></i> Cek di Portal Kemendikbud
+                                    </a>
+                                </div>
                             </div>
 
                             <div class="spmb-form-group">
@@ -449,8 +524,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <label class="spmb-label" for="no_hp">
                                     No. WhatsApp Calon Siswa <span class="required">*</span>
                                 </label>
-                                <input type="tel" name="no_hp" id="no_hp" class="spmb-input" placeholder="Contoh: 081234567890" value="<?php echo htmlspecialchars($_POST['no_hp'] ?? ''); ?>" required>
-                                <div class="spmb-input-helper">Untuk menerima notifikasi status dan info seleksi.</div>
+                                <div style="position:relative;">
+                                    <input type="tel" name="no_hp" id="no_hp" class="spmb-input" placeholder="Contoh: 081234567890" value="<?php echo htmlspecialchars($_POST['no_hp'] ?? ''); ?>" required autocomplete="tel">
+                                    <span id="no_hp_spinner" style="position:absolute; right:12px; top:50%; transform:translateY(-50%); display:none; color:#0A4D68;">
+                                        <i class="ph-bold ph-spinner" style="animation: spin 1s linear infinite; font-size:1.15rem; display:inline-block;"></i>
+                                    </span>
+                                </div>
+                                <div id="no_hp_feedback" class="spmb-input-feedback"></div>
+                                <div class="spmb-input-helper">Untuk menerima notifikasi status kelulusan dan info seleksi.</div>
                             </div>
                         </div>
 
@@ -466,7 +547,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <label class="spmb-label" for="tanggal_lahir">
                                     Tanggal Lahir <span class="required">*</span>
                                 </label>
-                                <input type="date" name="tanggal_lahir" id="tanggal_lahir" class="spmb-input" value="<?php echo htmlspecialchars($_POST['tanggal_lahir'] ?? ''); ?>" required>
+                                <input type="date" name="tanggal_lahir" id="tanggal_lahir" class="spmb-input" value="<?php echo htmlspecialchars($_POST['tanggal_lahir'] ?? ''); ?>" min="<?php echo $minBirthDate; ?>" max="<?php echo $maxBirthDate; ?>" required>
+                                <div class="spmb-input-helper">Usia antara 13 s.d. 21 tahun per 1 Juli <?php echo $refYear; ?> (Sesuai Permendikbud PPDB).</div>
                             </div>
                         </div>
 
@@ -616,6 +698,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                             <div id="fileNameFoto" style="font-weight:700; font-size:0.82rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;"></div>
                                             <div style="font-size:0.75rem; color:#16A34A; font-weight:700;"><i class="ph-bold ph-check"></i> Siap diunggah</div>
                                         </div>
+                                        <button type="button" class="spmb-cancel-upload-btn" onclick="cancelDoc('foto', 'previewBoxFoto', 'previewImgFoto', null, 'fileNameFoto')" title="Hapus foto"><i class="ph-bold ph-x"></i></button>
                                     </div>
                                 </div>
                             </div>
@@ -645,6 +728,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                             <div id="fileNameKK" style="font-weight:700; font-size:0.82rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;"></div>
                                             <div style="font-size:0.75rem; color:#16A34A; font-weight:700;"><i class="ph-bold ph-check"></i> Berkas KK terpilih</div>
                                         </div>
+                                        <button type="button" class="spmb-cancel-upload-btn" onclick="cancelDoc('berkas_kk', 'previewBoxKK', 'previewImgKK', 'previewIconKK', 'fileNameKK')" title="Batal pilihan"><i class="ph-bold ph-x"></i></button>
                                     </div>
                                 </div>
                             </div>
@@ -674,6 +758,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                             <div id="fileNameAkta" style="font-weight:700; font-size:0.82rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;"></div>
                                             <div style="font-size:0.75rem; color:#16A34A; font-weight:700;"><i class="ph-bold ph-check"></i> Berkas Akta terpilih</div>
                                         </div>
+                                        <button type="button" class="spmb-cancel-upload-btn" onclick="cancelDoc('berkas_akta', 'previewBoxAkta', 'previewImgAkta', 'previewIconAkta', 'fileNameAkta')" title="Batal pilihan"><i class="ph-bold ph-x"></i></button>
                                     </div>
                                 </div>
                             </div>
@@ -703,6 +788,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                             <div id="fileNameIjazah" style="font-weight:700; font-size:0.82rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;"></div>
                                             <div style="font-size:0.75rem; color:#16A34A; font-weight:700;"><i class="ph-bold ph-check"></i> Berkas Ijazah terpilih</div>
                                         </div>
+                                        <button type="button" class="spmb-cancel-upload-btn" onclick="cancelDoc('berkas_ijazah', 'previewBoxIjazah', 'previewImgIjazah', 'previewIconIjazah', 'fileNameIjazah')" title="Batal pilihan"><i class="ph-bold ph-x"></i></button>
                                     </div>
                                 </div>
                             </div>
@@ -717,22 +803,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                         </div>
                                         <span class="spmb-upload-badge-req">Wajib</span>
                                     </div>
-                                    <p class="spmb-upload-card-desc">Scan / foto KTP Ayah, Ibu, atau Wali yang masih berlaku (JPG/PNG/PDF, Maks 3MB).</p>
+                                    <p class="spmb-upload-card-desc">Scan / foto KTP Ayah, Ibu, atau Wali (JPG/PNG/PDF, Maks 3MB). Bisa upload hingga 2 foto (KTP Ayah &amp; Ibu).</p>
                                 </div>
                                 <div>
-                                    <div class="spmb-upload-dropzone" onclick="document.getElementById('berkas_ktp_ortu').click();">
+                                    <div id="ktpDropzone" class="spmb-upload-dropzone" onclick="document.getElementById('berkas_ktp_ortu').click();">
                                         <i class="ph-bold ph-upload-simple" style="font-size:1.6rem; color:#7C3AED;"></i>
                                         <div style="font-weight:700; font-size:0.85rem; margin-top:4px;">Pilih Berkas KTP</div>
-                                        <input type="file" name="berkas_ktp_ortu" id="berkas_ktp_ortu" accept="image/jpeg,image/png,image/webp,application/pdf" style="display:none;" required onchange="previewDoc(this, 'previewBoxKtp', 'previewImgKtp', 'previewIconKtp', 'fileNameKtp')">
+                                        <span style="font-size:0.75rem; color:#64748B;">Bisa pilih 1 atau 2 foto sekaligus</span>
                                     </div>
-                                    <div id="previewBoxKtp" class="spmb-upload-preview">
-                                        <img id="previewImgKtp" src="" alt="KTP" style="display:none;">
-                                        <div id="previewIconKtp" class="pdf-icon" style="display:none;"><i class="ph-bold ph-file-pdf"></i></div>
-                                        <div style="flex:1; min-width:0;">
-                                            <div id="fileNameKtp" style="font-weight:700; font-size:0.82rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;"></div>
-                                            <div style="font-size:0.75rem; color:#16A34A; font-weight:700;"><i class="ph-bold ph-check"></i> Berkas KTP terpilih</div>
-                                        </div>
-                                    </div>
+                                    <input type="file" name="berkas_ktp_ortu[]" id="berkas_ktp_ortu" accept="image/jpeg,image/png,image/webp,application/pdf" style="display:none;" multiple required onchange="handleKtpChange(this)">
+                                    <input type="file" id="berkas_ktp_extra" accept="image/jpeg,image/png,image/webp,application/pdf" style="display:none;" onchange="handleKtpExtra(this)">
+                                    <div id="previewBoxKtpContainer" style="display:none;"></div>
                                 </div>
                             </div>
 
@@ -761,6 +842,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                             <div id="fileNameKip" style="font-weight:700; font-size:0.82rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;"></div>
                                             <div style="font-size:0.75rem; color:#16A34A; font-weight:700;"><i class="ph-bold ph-check"></i> Berkas KIP terpilih</div>
                                         </div>
+                                        <button type="button" class="spmb-cancel-upload-btn" onclick="cancelDoc('berkas_kip', 'previewBoxKip', 'previewImgKip', 'previewIconKip', 'fileNameKip')" title="Batal pilihan"><i class="ph-bold ph-x"></i></button>
                                     </div>
                                 </div>
                             </div>
@@ -808,6 +890,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
+    let isPhoneRegistered = false;
+    let isNisnRegistered = false;
+
     function validateCurrentStep() {
         const pane = document.getElementById('step-pane-' + currentStep);
         if (!pane) return true;
@@ -821,6 +906,103 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 return false;
             }
         }
+
+        // Validasi khusus Langkah 2 (Data Diri Calon Siswa)
+        if (currentStep === 2) {
+            const nisnInput = document.getElementById('nisn');
+            if (nisnInput) {
+                const nisnVal = nisnInput.value.trim();
+                if (!/^[0-9]{10}$/.test(nisnVal)) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'NISN Tidak Valid',
+                        text: 'NISN harus berupa 10 digit angka valid.',
+                        confirmButtonColor: '#0A4D68'
+                    });
+                    nisnInput.focus();
+                    return false;
+                }
+                if (isNisnRegistered) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'NISN Sudah Terdaftar',
+                        text: 'NISN ini sudah pernah didaftarkan. Harap gunakan menu Cek Status Pendaftaran.',
+                        confirmButtonColor: '#0A4D68'
+                    });
+                    nisnInput.focus();
+                    return false;
+                }
+            }
+
+            const hpInput = document.getElementById('no_hp');
+            if (hpInput) {
+                const hpVal = hpInput.value.trim();
+                let clean = hpVal.replace(/[^0-9]/g, '');
+                if (clean.startsWith('62')) clean = '0' + clean.slice(2);
+                else if (!clean.startsWith('0')) clean = '0' + clean;
+
+                if (!/^08[1-9][0-9]{7,11}$/.test(clean)) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Nomor WhatsApp Tidak Valid',
+                        text: 'Nomor WhatsApp calon siswa harus diawali 08/628 dan terdiri dari 10 sampai 14 digit angka.',
+                        confirmButtonColor: '#0A4D68'
+                    });
+                    hpInput.focus();
+                    return false;
+                }
+            }
+
+            const tglInput = document.getElementById('tanggal_lahir');
+            if (tglInput) {
+                const tglVal = tglInput.value;
+                const minD = tglInput.getAttribute('min');
+                const maxD = tglInput.getAttribute('max');
+                if (tglVal && minD && tglVal < minD) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Batas Usia Terlewati',
+                        text: 'Calon siswa berusia lebih dari 21 tahun per 1 Juli tahun ajaran ini (sesuai Permendikbud PPDB SMA/SMK).',
+                        confirmButtonColor: '#0A4D68'
+                    });
+                    tglInput.focus();
+                    return false;
+                }
+                if (tglVal && maxD && tglVal > maxD) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Usia Belum Memenuhi Syarat',
+                        text: 'Usia calon siswa minimal adalah 13 tahun untuk jenjang SMK.',
+                        confirmButtonColor: '#0A4D68'
+                    });
+                    tglInput.focus();
+                    return false;
+                }
+            }
+        }
+
+        // Validasi khusus Langkah 3 (Data Orang Tua)
+        if (currentStep === 3) {
+            const ortuInput = document.getElementById('no_hp_ortu');
+            if (ortuInput) {
+                const ortuVal = ortuInput.value.trim();
+                let clean = ortuVal.replace(/[^0-9]/g, '');
+                if (clean.startsWith('62')) clean = '0' + clean.slice(2);
+                else if (!clean.startsWith('0')) clean = '0' + clean;
+
+                if (!/^08[1-9][0-9]{7,11}$/.test(clean)) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Nomor WhatsApp Orang Tua Tidak Valid',
+                        text: 'Nomor WhatsApp orang tua harus diawali 08/628 dan berupa nomor seluler Indonesia yang valid (10-14 digit).',
+                        confirmButtonColor: '#0A4D68'
+                    });
+                    ortuInput.focus();
+                    return false;
+                }
+            }
+        }
+
         return true;
     }
 
@@ -893,6 +1075,264 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
+    function cancelDoc(inputId, previewBoxId, previewImgId, previewIconId, previewNameId) {
+        const input = document.getElementById(inputId);
+        if (input) {
+            input.value = '';
+        }
+        const box = document.getElementById(previewBoxId);
+        if (box) box.style.display = 'none';
+        const img = previewImgId ? document.getElementById(previewImgId) : null;
+        if (img) {
+            img.src = '';
+            img.style.display = 'none';
+        }
+        const icon = previewIconId ? document.getElementById(previewIconId) : null;
+        if (icon) icon.style.display = 'none';
+        const nameEl = previewNameId ? document.getElementById(previewNameId) : null;
+        if (nameEl) nameEl.textContent = '';
+    }
+
+    // State Berkas KTP Orang Tua (Maksimal 2 foto)
+    let selectedKtpFiles = [];
+
+    function handleKtpChange(input) {
+        if (!input.files || input.files.length === 0) return;
+        
+        if (input.files.length > 2) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Maksimal 2 Foto KTP',
+                text: 'Anda memilih ' + input.files.length + ' foto. Sistem hanya akan memproses 2 foto pertama.',
+                confirmButtonColor: '#0A4D68'
+            });
+        }
+
+        selectedKtpFiles = Array.from(input.files).slice(0, 2);
+        syncKtpInputFiles();
+        renderKtpPreviews();
+    }
+
+    function handleKtpExtra(extraInput) {
+        if (!extraInput.files || extraInput.files.length === 0) return;
+        if (selectedKtpFiles.length >= 2) return;
+
+        selectedKtpFiles.push(extraInput.files[0]);
+        extraInput.value = '';
+        syncKtpInputFiles();
+        renderKtpPreviews();
+    }
+
+    function removeKtpFile(index) {
+        if (index >= 0 && index < selectedKtpFiles.length) {
+            selectedKtpFiles.splice(index, 1);
+            syncKtpInputFiles();
+            renderKtpPreviews();
+        }
+    }
+
+    function cancelAllKtp() {
+        selectedKtpFiles = [];
+        syncKtpInputFiles();
+        renderKtpPreviews();
+    }
+
+    function syncKtpInputFiles() {
+        const mainInput = document.getElementById('berkas_ktp_ortu');
+        if (!mainInput) return;
+        try {
+            const dt = new DataTransfer();
+            selectedKtpFiles.forEach(function(file) {
+                dt.items.add(file);
+            });
+            mainInput.files = dt.files;
+        } catch (e) {
+            console.warn('DataTransfer not supported:', e);
+        }
+    }
+
+    function renderKtpPreviews() {
+        const dropzone = document.getElementById('ktpDropzone');
+        const container = document.getElementById('previewBoxKtpContainer');
+        const mainInput = document.getElementById('berkas_ktp_ortu');
+        if (!container) return;
+
+        if (selectedKtpFiles.length === 0) {
+            if (dropzone) dropzone.style.display = 'block';
+            container.style.display = 'none';
+            container.innerHTML = '';
+            if (mainInput) mainInput.value = '';
+            return;
+        }
+
+        if (dropzone) dropzone.style.display = 'none';
+        container.style.display = 'block';
+        container.innerHTML = '';
+
+        const grid = document.createElement('div');
+        grid.style.display = 'grid';
+        grid.style.gridTemplateColumns = 'repeat(2, minmax(0, 1fr))';
+        grid.style.gap = '8px';
+        grid.style.width = '100%';
+        grid.style.minWidth = '0';
+        grid.style.boxSizing = 'border-box';
+
+        selectedKtpFiles.forEach(function(file, idx) {
+            const card = document.createElement('div');
+            card.style.position = 'relative';
+            card.style.background = '#FFFFFF';
+            card.style.border = '1.5px solid #CBD5E1';
+            card.style.borderRadius = '8px';
+            card.style.padding = '6px 8px';
+            card.style.display = 'flex';
+            card.style.flexDirection = 'column';
+            card.style.gap = '4px';
+            card.style.minWidth = '0';
+            card.style.width = '100%';
+            card.style.boxSizing = 'border-box';
+            card.style.overflow = 'hidden';
+
+            // Close button with X
+            const closeBtn = document.createElement('button');
+            closeBtn.type = 'button';
+            closeBtn.className = 'spmb-cancel-upload-btn';
+            closeBtn.style.position = 'absolute';
+            closeBtn.style.top = '4px';
+            closeBtn.style.right = '4px';
+            closeBtn.style.width = '22px';
+            closeBtn.style.height = '22px';
+            closeBtn.style.fontSize = '12px';
+            closeBtn.style.zIndex = '5';
+            closeBtn.style.boxShadow = '0 1px 3px rgba(0,0,0,0.2)';
+            closeBtn.title = 'Hapus foto ini';
+            closeBtn.innerHTML = '<i class="ph-bold ph-x"></i>';
+            closeBtn.onclick = function(e) {
+                e.stopPropagation();
+                removeKtpFile(idx);
+            };
+            card.appendChild(closeBtn);
+
+            // Preview box
+            const previewBox = document.createElement('div');
+            previewBox.style.height = '72px';
+            previewBox.style.width = '100%';
+            previewBox.style.maxWidth = '100%';
+            previewBox.style.borderRadius = '6px';
+            previewBox.style.overflow = 'hidden';
+            previewBox.style.background = '#F8FAFC';
+            previewBox.style.border = '1px solid #E2E8F0';
+            previewBox.style.display = 'flex';
+            previewBox.style.alignItems = 'center';
+            previewBox.style.justifyContent = 'center';
+            previewBox.style.boxSizing = 'border-box';
+
+            if (file.type.startsWith('image/')) {
+                const img = document.createElement('img');
+                img.style.width = '100%';
+                img.style.maxWidth = '100%';
+                img.style.height = '100%';
+                img.style.objectFit = 'cover';
+                img.style.display = 'block';
+                const reader = new FileReader();
+                reader.onload = function(e) { img.src = e.target.result; };
+                reader.readAsDataURL(file);
+                previewBox.appendChild(img);
+            } else {
+                const iconDiv = document.createElement('div');
+                iconDiv.style.color = '#DC2626';
+                iconDiv.style.fontSize = '1.8rem';
+                iconDiv.innerHTML = '<i class="ph-bold ph-file-pdf"></i>';
+                previewBox.appendChild(iconDiv);
+            }
+            card.appendChild(previewBox);
+
+            // Filename
+            const nameDiv = document.createElement('div');
+            nameDiv.style.fontSize = '0.72rem';
+            nameDiv.style.fontWeight = '700';
+            nameDiv.style.color = '#1E293B';
+            nameDiv.style.whiteSpace = 'nowrap';
+            nameDiv.style.overflow = 'hidden';
+            nameDiv.style.textOverflow = 'ellipsis';
+            nameDiv.style.width = '100%';
+            nameDiv.style.maxWidth = '100%';
+            nameDiv.style.boxSizing = 'border-box';
+            nameDiv.title = file.name;
+            nameDiv.textContent = file.name;
+            card.appendChild(nameDiv);
+
+            // Sub info
+            const infoRow = document.createElement('div');
+            infoRow.style.display = 'flex';
+            infoRow.style.justifyContent = 'space-between';
+            infoRow.style.alignItems = 'center';
+            infoRow.style.fontSize = '0.68rem';
+            infoRow.style.width = '100%';
+            infoRow.style.minWidth = '0';
+            infoRow.style.boxSizing = 'border-box';
+            infoRow.innerHTML = '<span style="color:#16A34A; font-weight:700;"><i class="ph-bold ph-check"></i> Foto ' + (idx + 1) + '</span><span style="color:#64748B;">' + Math.round(file.size / 1024) + ' KB</span>';
+            card.appendChild(infoRow);
+
+            grid.appendChild(card);
+        });
+
+        // Jika baru 1 file, sediakan slot ke-2 berupa tombol "+ Foto KTP 2 (Opsional)"
+        if (selectedKtpFiles.length === 1) {
+            const addSlot = document.createElement('div');
+            addSlot.style.border = '2px dashed #94A3B8';
+            addSlot.style.background = '#F8FAFC';
+            addSlot.style.borderRadius = '8px';
+            addSlot.style.padding = '8px';
+            addSlot.style.display = 'flex';
+            addSlot.style.flexDirection = 'column';
+            addSlot.style.alignItems = 'center';
+            addSlot.style.justifyContent = 'center';
+            addSlot.style.minHeight = '100%';
+            addSlot.style.height = '100%';
+            addSlot.style.minWidth = '0';
+            addSlot.style.width = '100%';
+            addSlot.style.boxSizing = 'border-box';
+            addSlot.style.cursor = 'pointer';
+            addSlot.style.transition = 'all 0.15s ease';
+            addSlot.title = 'Tambah foto KTP kedua';
+            addSlot.innerHTML = '<i class="ph-bold ph-plus-circle" style="font-size:1.5rem; color:#7C3AED;"></i><div style="font-weight:700; font-size:0.75rem; color:#475569; margin-top:4px;">+ Foto KTP 2</div><span style="font-size:0.68rem; color:#94A3B8;">(Opsional)</span>';
+            addSlot.onmouseover = function() {
+                addSlot.style.borderColor = '#7C3AED';
+                addSlot.style.background = '#FAF5FF';
+            };
+            addSlot.onmouseout = function() {
+                addSlot.style.borderColor = '#94A3B8';
+                addSlot.style.background = '#F8FAFC';
+            };
+            addSlot.onclick = function() {
+                const extra = document.getElementById('berkas_ktp_extra');
+                if (extra) extra.click();
+            };
+            grid.appendChild(addSlot);
+        }
+
+        container.appendChild(grid);
+
+        // Bottom action bar
+        const bar = document.createElement('div');
+        bar.style.display = 'flex';
+        bar.style.justifyContent = 'space-between';
+        bar.style.alignItems = 'center';
+        bar.style.marginTop = '6px';
+        bar.style.padding = '0 2px';
+        bar.style.width = '100%';
+        bar.style.minWidth = '0';
+        bar.style.boxSizing = 'border-box';
+
+        const countText = selectedKtpFiles.length === 2 
+            ? '<span style="font-size:0.72rem; color:#16A34A; font-weight:700;"><i class="ph-bold ph-check-circle"></i> 2 Foto KTP terpilih (Lengkap)</span>'
+            : '<span style="font-size:0.72rem; color:#64748B;"><i class="ph-bold ph-info"></i> 1 Foto terpilih. Bisa tambah 1 lagi jika ada.</span>';
+
+        bar.innerHTML = countText + '<button type="button" onclick="cancelAllKtp()" style="background:none; border:none; color:#DC2626; font-size:0.72rem; font-weight:700; cursor:pointer; padding:0; display:flex; align-items:center; gap:3px;"><i class="ph-bold ph-trash"></i> Hapus Semua</button>';
+
+        container.appendChild(bar);
+    }
+
     function toggleJalurPrestasi(val) {
         const wrapper = document.getElementById('wrapper_berkas_prestasi');
         const input = document.getElementById('berkas_prestasi');
@@ -921,15 +1361,216 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
+    let phoneCheckTimer = null;
+    let nisnCheckTimer = null;
+
+    function checkPhoneRealtime(val) {
+        const feedback = document.getElementById('no_hp_feedback');
+        const input = document.getElementById('no_hp');
+        const spinner = document.getElementById('no_hp_spinner');
+        if (!feedback || !input) return;
+
+        val = val.trim();
+        if (!val) {
+            feedback.className = 'spmb-input-feedback';
+            feedback.innerHTML = '';
+            input.classList.remove('is-invalid', 'is-valid');
+            if (spinner) spinner.style.display = 'none';
+            return;
+        }
+
+        // Normalisasi format lokal
+        let clean = val.replace(/[^0-9]/g, '');
+        if (clean.startsWith('62')) clean = '0' + clean.slice(2);
+        else if (!clean.startsWith('0')) clean = '0' + clean;
+
+        if (!/^08[1-9][0-9]{7,11}$/.test(clean)) {
+            if (spinner) spinner.style.display = 'none';
+            input.classList.remove('is-valid');
+            input.classList.add('is-invalid');
+            feedback.className = 'spmb-input-feedback danger';
+            feedback.innerHTML = '<i class="ph-bold ph-warning-circle" style="font-size:1.1rem; flex-shrink:0;"></i><span>Format nomor HP tidak valid (diawali 08/628 dan 10-14 digit angka).</span>';
+            return;
+        }
+
+        if (spinner) spinner.style.display = 'none';
+        input.classList.remove('is-invalid');
+        input.classList.add('is-valid');
+        feedback.className = 'spmb-input-feedback success';
+        feedback.innerHTML = '<i class="ph-bold ph-check-circle" style="font-size:1.1rem; flex-shrink:0;"></i><span>Format nomor WhatsApp valid.</span>';
+    }
+
+    function checkNisnRealtime(val) {
+        const feedback = document.getElementById('nisn_feedback');
+        const input = document.getElementById('nisn');
+        const spinner = document.getElementById('nisn_spinner');
+        if (!feedback || !input) return;
+
+        val = val.trim();
+        if (!val) {
+            feedback.className = 'spmb-input-feedback';
+            feedback.innerHTML = '';
+            input.classList.remove('is-invalid', 'is-valid');
+            if (spinner) spinner.style.display = 'none';
+            isNisnRegistered = false;
+            return;
+        }
+
+        if (!/^[0-9]{10}$/.test(val)) {
+            if (spinner) spinner.style.display = 'none';
+            input.classList.remove('is-valid');
+            input.classList.add('is-invalid');
+            feedback.className = 'spmb-input-feedback danger';
+            feedback.innerHTML = '<i class="ph-bold ph-warning-circle" style="font-size:1.1rem; flex-shrink:0;"></i><span>NISN Kemendikbud harus berupa 10 digit angka valid.</span>';
+            isNisnRegistered = false;
+            return;
+        }
+
+        if (spinner) spinner.style.display = 'inline-block';
+        feedback.className = 'spmb-input-feedback checking';
+        feedback.innerHTML = '<i class="ph-bold ph-spinner" style="font-size:1.1rem; flex-shrink:0; animation: spin 1s linear infinite;"></i><span>Memeriksa NISN...</span>';
+
+        const tglInput = document.getElementById('tanggal_lahir');
+        const tglVal = tglInput ? tglInput.value : '';
+
+        fetch('cek-nohp.php?nisn=' + encodeURIComponent(val) + '&tanggal_lahir=' + encodeURIComponent(tglVal))
+            .then(res => res.json())
+            .then(data => {
+                if (spinner) spinner.style.display = 'none';
+                if (data.registered) {
+                    isNisnRegistered = true;
+                    input.classList.remove('is-valid');
+                    input.classList.add('is-invalid');
+                    feedback.className = 'spmb-input-feedback danger';
+                    feedback.innerHTML = '<i class="ph-bold ph-x-circle" style="font-size:1.1rem; flex-shrink:0;"></i><span>' + data.message + ' <a href="cek-status.php?nisn=' + encodeURIComponent(val) + '" target="_blank" style="color:#9F1239; font-weight:700; text-decoration:underline;">Cek Status</a>.</span>';
+                } else if (data.valid) {
+                    isNisnRegistered = false;
+                    input.classList.remove('is-invalid');
+                    input.classList.add('is-valid');
+                    feedback.className = 'spmb-input-feedback success';
+                    let html = '<i class="ph-bold ph-check-circle" style="font-size:1.1rem; flex-shrink:0;"></i><span>' + data.message + '</span>';
+                    if (data.note) {
+                        html += '<div style="margin-top:5px; font-size:0.78rem; color:#92400E; background:#FEF3C7; padding:4px 8px; border-radius:5px;"><i class="ph-bold ph-info"></i> ' + data.note + '</div>';
+                    }
+                    feedback.innerHTML = html;
+                }
+            })
+            .catch(() => {
+                if (spinner) spinner.style.display = 'none';
+                feedback.className = 'spmb-input-feedback';
+                feedback.innerHTML = '';
+            });
+    }
+
+    // Sinkronisasi dropdown jurusan: disable opsi yang sudah dipilih di dropdown lain
+    function syncJurusanDropdowns() {
+        const jurusan1 = document.getElementById('jurusan_1');
+        const jurusan2 = document.getElementById('jurusan_2');
+        if (!jurusan1 || !jurusan2) return;
+
+        const val1 = jurusan1.value;
+        const val2 = jurusan2.value;
+
+        // Reset semua option di jurusan_2, lalu disable yang sudah dipilih di jurusan_1
+        Array.from(jurusan2.options).forEach(opt => {
+            if (opt.value === '') {
+                opt.disabled = false; // placeholder tetap aktif
+            } else {
+                opt.disabled = (opt.value === val1);
+            }
+        });
+
+        // Reset semua option di jurusan_1, lalu disable yang sudah dipilih di jurusan_2
+        Array.from(jurusan1.options).forEach(opt => {
+            if (opt.value === '') {
+                opt.disabled = false;
+            } else {
+                opt.disabled = (opt.value === val2);
+            }
+        });
+
+        // Jika jurusan_2 saat ini sama dengan jurusan_1, reset jurusan_2
+        if (val1 && val2 && val1 === val2) {
+            jurusan2.value = '';
+        }
+    }
+
     document.addEventListener('DOMContentLoaded', function() {
         const checkedJalur = document.querySelector('input[name="jalur"]:checked');
         if (checkedJalur) {
             toggleJalurPrestasi(checkedJalur.value);
         }
 
+        // Pasang listener sinkronisasi jurusan
+        const jurusan1 = document.getElementById('jurusan_1');
+        const jurusan2 = document.getElementById('jurusan_2');
+        if (jurusan1) {
+            jurusan1.addEventListener('change', syncJurusanDropdowns);
+        }
+        if (jurusan2) {
+            jurusan2.addEventListener('change', syncJurusanDropdowns);
+        }
+        // Jalankan sekali saat halaman dimuat (untuk handle kasus POST re-fill)
+        syncJurusanDropdowns();
+
+        // Listener Real-time Validasi No HP
+        const hpInput = document.getElementById('no_hp');
+        if (hpInput) {
+            hpInput.addEventListener('input', function() {
+                clearTimeout(phoneCheckTimer);
+                phoneCheckTimer = setTimeout(() => {
+                    checkPhoneRealtime(this.value);
+                }, 400);
+            });
+            hpInput.addEventListener('blur', function() {
+                clearTimeout(phoneCheckTimer);
+                checkPhoneRealtime(this.value);
+            });
+            if (hpInput.value.trim() !== '') {
+                checkPhoneRealtime(hpInput.value);
+            }
+        }
+
+        // Listener Real-time Validasi NISN
+        const nisnInput = document.getElementById('nisn');
+        if (nisnInput) {
+            nisnInput.addEventListener('input', function() {
+                clearTimeout(nisnCheckTimer);
+                nisnCheckTimer = setTimeout(() => {
+                    checkNisnRealtime(this.value);
+                }, 400);
+            });
+            nisnInput.addEventListener('blur', function() {
+                clearTimeout(nisnCheckTimer);
+                checkNisnRealtime(this.value);
+            });
+            if (nisnInput.value.trim() !== '') {
+                checkNisnRealtime(nisnInput.value);
+            }
+        }
+
+        // Validasi submit form final
+        const formEl = document.getElementById('spmbForm');
+        if (formEl) {
+            formEl.addEventListener('submit', function(e) {
+                if (isNisnRegistered) {
+                    e.preventDefault();
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'NISN Sudah Terdaftar',
+                        text: 'NISN calon siswa sudah pernah didaftarkan. Silakan gunakan menu Cek Status Pendaftaran.',
+                        confirmButtonColor: '#0A4D68'
+                    });
+                    goToStep(2);
+                    if (nisnInput) nisnInput.focus();
+                    return false;
+                }
+            });
+        }
+
         <?php if (!empty($error)): ?>
-        // Jika ada error backend (misal salah upload berkas), arahkan ke langkah 4
-        goToStep(4);
+        // Jika ada error backend (misal salah upload berkas), arahkan ke langkah terkait
+        goToStep(<?php echo (!empty($no_hp) && strpos($error, 'WhatsApp') !== false) ? '2' : '4'; ?>);
         <?php endif; ?>
     });
     </script>

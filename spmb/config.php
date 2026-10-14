@@ -312,8 +312,14 @@ function init_spmb_tables(PDO $pdo) {
         INDEX idx_nisn (`nisn`),
         INDEX idx_status (`status`),
         INDEX idx_jurusan (`jurusan_1`),
-        INDEX idx_jurusan_diterima (`jurusan_diterima`)
+        INDEX idx_jurusan_diterima (`jurusan_diterima`),
+        INDEX idx_no_hp (`no_hp`)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+
+    // Pastikan index idx_no_hp ada jika tabel sudah terbuat sebelumnya
+    try {
+        $pdo->exec("CREATE INDEX IF NOT EXISTS idx_no_hp ON `spmb_pendaftar` (`no_hp`)");
+    } catch (Exception $e) {}
 
     // Tabel Galeri Foto Sekolah
     $pdo->exec("CREATE TABLE IF NOT EXISTS `galeri_foto` (
@@ -545,6 +551,63 @@ function sanitize_input($data) {
         return array_map('sanitize_input', $data);
     }
     return htmlspecialchars(trim((string)$data), ENT_QUOTES, 'UTF-8');
+}
+
+/**
+ * Normalisasi nomor HP ke format standar seluler Indonesia (08xxxxxxxxxx)
+ * Menangani input: +628..., 628..., 08..., 8..., dan karakter spasi/tanda minus
+ */
+function normalize_phone_number($phone) {
+    $clean = preg_replace('/[^0-9]/', '', (string)$phone);
+    if (empty($clean)) return '';
+    if (substr($clean, 0, 2) === '62') {
+        $clean = '0' . substr($clean, 2);
+    } elseif (substr($clean, 0, 1) !== '0') {
+        $clean = '0' . $clean;
+    }
+    return $clean;
+}
+
+/**
+ * Validasi apakah nomor HP berformat nomor seluler Indonesia yang valid (08xx, 10-14 digit)
+ */
+function is_valid_indonesian_phone($phone) {
+    $norm = normalize_phone_number($phone);
+    // Provider seluler Indonesia valid diawali 08[1-9] dengan panjang 10 s.d 14 digit
+    return (bool)preg_match('/^08[1-9][0-9]{7,11}$/', $norm);
+}
+
+/**
+ * Cari data pendaftar berdasarkan nomor HP (mencakup variasi format 08xx, 628xx, +628xx)
+ * Mengembalikan array data pendaftar jika ditemukan, atau null jika belum terdaftar
+ */
+function find_pendaftar_by_phone($pdo, $phone, $excludeId = null) {
+    $norm = normalize_phone_number($phone);
+    if (empty($norm)) return null;
+
+    $norm62 = '62' . substr($norm, 1);
+    $normPlus62 = '+' . $norm62;
+    $raw = trim((string)$phone);
+
+    $sql = "SELECT *
+            FROM `spmb_pendaftar`
+            WHERE (
+                `no_hp` = ? OR `no_hp` = ? OR `no_hp` = ? OR `no_hp` = ?
+                OR REPLACE(REPLACE(REPLACE(REPLACE(`no_hp`, ' ', ''), '-', ''), '+', ''), '.', '') = ?
+                OR REPLACE(REPLACE(REPLACE(REPLACE(`no_hp`, ' ', ''), '-', ''), '+', ''), '.', '') = ?
+            )";
+    $params = [$norm, $norm62, $normPlus62, $raw, $norm, $norm62];
+
+    if ($excludeId !== null && (int)$excludeId > 0) {
+        $sql .= " AND `id` != ?";
+        $params[] = (int)$excludeId;
+    }
+
+    $sql .= " ORDER BY `id` DESC LIMIT 1";
+
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute($params);
+    return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
 }
 
 /**
@@ -790,14 +853,14 @@ function get_spmb_status_info($settings = null) {
 
     if ($mode === 'buka') {
         $isOpen = true;
-        $label = 'Sedang Dibuka (Manual)';
+        $label = 'Sedang Dibuka';
         $badgeColor = '#16A34A';
-        $note = 'Dipaksa buka oleh panitia';
+        $note = !empty($tglSelesai) ? ('Batas akhir: ' . tgl_indo($tglSelesai)) : 'Pendaftaran aktif';
     } elseif ($mode === 'tutup') {
         $isOpen = false;
-        $label = 'Ditutup (Manual)';
+        $label = 'Pendaftaran Ditutup';
         $badgeColor = '#DC2626';
-        $note = 'Dipaksa tutup oleh panitia';
+        $note = 'Pendaftaran saat ini ditutup';
     } else {
         // Mode Otomatis
         if (!empty($tglMulai) && $today < $tglMulai) {

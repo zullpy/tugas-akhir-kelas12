@@ -61,6 +61,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         $cekDup->execute([$nisn, $nik, $id]);
         if ($cekDup->fetch()) {
             $error = "NISN atau NIK tersebut telah digunakan oleh pendaftar lain di sistem.";
+        } elseif (!empty($no_hp) && $no_hp !== '-' && !is_valid_indonesian_phone($no_hp)) {
+            $error = "Format nomor HP calon siswa tidak valid (harus diawali 08/628, 10-14 digit).";
         } else {
             // Upload helper untuk admin
             $uploadDir = __DIR__ . '/../uploads/';
@@ -104,9 +106,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
             $foto_path          = $uploadBerkas('foto', 'foto', $p['foto'], ['jpg','jpeg','png','webp'], 2097152);
             $berkas_kk_path     = empty($error) ? $uploadBerkas('berkas_kk', 'kk', $p['berkas_kk']) : $p['berkas_kk'];
             $berkas_akta_path   = empty($error) ? $uploadBerkas('berkas_akta', 'akta', $p['berkas_akta']) : $p['berkas_akta'];
-            $berkas_ijazah_path = empty($error) ? $uploadBerkas('berkas_ijazah', 'ijazah', $p['berkas_ijazah']) : $p['berkas_ijazah'];
-            $berkas_ktp_path    = empty($error) ? $uploadBerkas('berkas_ktp_ortu', 'ktp', $p['berkas_ktp_ortu']) : $p['berkas_ktp_ortu'];
-            $berkas_kip_path    = empty($error) ? $uploadBerkas('berkas_kip', 'kip', $p['berkas_kip']) : $p['berkas_kip'];
+            // KTP Orang Tua (Mendukung 2 foto)
+            $oldKtpAdminList = array_filter(array_map('trim', explode(',', $p['berkas_ktp_ortu'] ?? '')));
+            $oldKtp1 = $oldKtpAdminList[0] ?? null;
+            $oldKtp2 = $oldKtpAdminList[1] ?? null;
+
+            $ktp1_path = empty($error) ? $uploadBerkas('berkas_ktp_ortu', 'ktp1', $oldKtp1) : $oldKtp1;
+            $ktp2_path = empty($error) ? $uploadBerkas('berkas_ktp_ortu_2', 'ktp2', $oldKtp2) : $oldKtp2;
+            $finalKtpAdmin = array_filter([$ktp1_path, $ktp2_path]);
+            $berkas_ktp_path = !empty($finalKtpAdmin) ? implode(',', $finalKtpAdmin) : null;
             $berkas_pres_path   = empty($error) ? $uploadBerkas('berkas_prestasi', 'prestasi', $p['berkas_prestasi']) : $p['berkas_prestasi'];
 
             if (empty($error)) {
@@ -434,17 +442,35 @@ require_once __DIR__ . '/header.php';
                         <input type="file" name="berkas_ijazah" accept=".jpg,.jpeg,.png,.webp,.pdf" class="spmb-input" style="padding:6px;">
                     </div>
 
-                    <!-- KTP ORTU -->
+                    <!-- KTP ORTU (BISA 2 FOTO) -->
                     <div style="margin-bottom:14px; padding-bottom:12px; border-bottom:1px dashed #E2E8F0;">
-                        <label class="spmb-label">Scan/Foto KTP Orang Tua</label>
-                        <?php if (!empty($p['berkas_ktp_ortu']) && file_exists(__DIR__ . '/../uploads/' . $p['berkas_ktp_ortu'])): ?>
+                        <label class="spmb-label">Scan/Foto KTP Orang Tua (Maksimal 2 Foto)</label>
+                        <?php 
+                        $ktpAdminList = array_filter(array_map('trim', explode(',', $p['berkas_ktp_ortu'] ?? '')));
+                        if (!empty($ktpAdminList)): 
+                            foreach ($ktpAdminList as $idx => $kf):
+                                if (file_exists(__DIR__ . '/../uploads/' . $kf)):
+                        ?>
                             <div style="margin-bottom:6px;">
-                                <a href="../uploads/<?php echo htmlspecialchars($p['berkas_ktp_ortu']); ?>" target="_blank" style="color:#0284C7; font-weight:700; text-decoration:underline;">
-                                    <i class="ph-bold ph-file-pdf"></i> Lihat KTP Ortu Saat Ini
+                                <a href="../uploads/<?php echo htmlspecialchars($kf); ?>" target="_blank" style="color:#0284C7; font-weight:700; text-decoration:underline;">
+                                    <i class="ph-bold ph-identification-card"></i> Lihat Foto KTP <?php echo count($ktpAdminList) > 1 ? ($idx + 1) : ''; ?> Saat Ini
                                 </a>
                             </div>
-                        <?php endif; ?>
-                        <input type="file" name="berkas_ktp_ortu" accept=".jpg,.jpeg,.png,.webp,.pdf" class="spmb-input" style="padding:6px;">
+                        <?php 
+                                endif;
+                            endforeach;
+                        endif; 
+                        ?>
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:6px;">
+                            <div>
+                                <span style="font-size:0.75rem; color:#64748B; font-weight:700; display:block; margin-bottom:2px;">Foto KTP 1:</span>
+                                <input type="file" name="berkas_ktp_ortu" accept=".jpg,.jpeg,.png,.webp,.pdf" class="spmb-input" style="padding:6px;">
+                            </div>
+                            <div>
+                                <span style="font-size:0.75rem; color:#64748B; font-weight:700; display:block; margin-bottom:2px;">Foto KTP 2:</span>
+                                <input type="file" name="berkas_ktp_ortu_2" accept=".jpg,.jpeg,.png,.webp,.pdf" class="spmb-input" style="padding:6px;">
+                            </div>
+                        </div>
                     </div>
 
                     <!-- KIP / PRESTASI -->

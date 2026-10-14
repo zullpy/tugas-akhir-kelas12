@@ -737,6 +737,57 @@ body {
     font-weight: 500;
 }
 
+/* Validasi Input Realtime */
+.spmb-input.is-invalid {
+    border-color: #E11D48 !important;
+    background-color: #FFF1F2 !important;
+    box-shadow: 0 0 0 3px rgba(225, 29, 72, 0.15) !important;
+}
+
+.spmb-input.is-valid {
+    border-color: #10B981 !important;
+    background-color: #F0FDF4 !important;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15) !important;
+}
+
+.spmb-input-feedback {
+    display: none;
+    font-size: 0.82rem;
+    font-weight: 600;
+    margin-top: 6px;
+    padding: 7px 11px;
+    border-radius: 8px;
+    line-height: 1.45;
+    animation: fadeIn 0.2s ease-in-out;
+}
+
+.spmb-input-feedback.danger {
+    display: flex;
+    align-items: flex-start;
+    gap: 7px;
+    color: #9F1239;
+    background: #FFE4E6;
+    border: 1px solid #FECDD3;
+}
+
+.spmb-input-feedback.success {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    color: #065F46;
+    background: #D1FAE5;
+    border: 1px solid #A7F3D0;
+}
+
+.spmb-input-feedback.checking {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    color: #0369A1;
+    background: #E0F2FE;
+    border: 1px solid #BAE6FD;
+}
+
 /* Radio Cards (Jenis Kelamin & Jalur) */
 .spmb-radio-group {
     display: flex;
@@ -882,26 +933,28 @@ body {
    ========================================================================== */
 .spmb-card-print {
     max-width: 800px;
-    margin: 30px auto;
+    margin: 20px auto;
     background: var(--nb-white);
     border: 3px solid #000;
-    padding: 30px;
+    padding: 22px 26px;
     box-shadow: var(--shadow-lg);
     border-radius: 12px;
+    page-break-inside: avoid;
+    break-inside: avoid;
 }
 
 .spmb-print-header {
     display: flex;
     align-items: center;
-    gap: 20px;
-    padding-bottom: 20px;
+    gap: 16px;
+    padding-bottom: 12px;
     border-bottom: 3px double #000;
-    margin-bottom: 24px;
+    margin-bottom: 14px;
 }
 
 .spmb-print-logo {
-    width: 75px;
-    height: 75px;
+    width: 65px;
+    height: 65px;
     object-fit: contain;
 }
 
@@ -912,25 +965,29 @@ body {
 
 .spmb-print-title-box h2 {
     font-family: var(--font-heading);
-    font-size: 1.4rem;
+    font-size: 1.3rem;
     font-weight: 800;
     text-transform: uppercase;
+    margin: 2px 0 3px;
 }
 
 .spmb-print-title-box h3 {
-    font-size: 1.1rem;
+    font-size: 0.95rem;
     font-weight: 700;
+    margin: 0;
 }
 
 .spmb-print-title-box p {
-    font-size: 0.85rem;
+    font-size: 0.78rem;
     color: #444;
+    line-height: 1.25;
+    margin: 0;
 }
 
 .spmb-print-body {
     display: grid;
-    grid-template-columns: 1fr 200px;
-    gap: 30px;
+    grid-template-columns: 1fr 140px;
+    gap: 20px;
     align-items: start;
 }
 
@@ -940,27 +997,28 @@ body {
 }
 
 .spmb-print-table td {
-    padding: 8px 10px;
-    font-size: 0.92rem;
+    padding: 4px 8px;
+    font-size: 0.88rem;
     vertical-align: top;
+    line-height: 1.35;
 }
 
 .spmb-print-table td:first-child {
     font-weight: 700;
-    width: 180px;
+    width: 170px;
 }
 
 .spmb-print-photo-box {
     border: 2px solid #000;
-    width: 150px;
-    height: 200px;
+    width: 120px;
+    height: 155px;
     display: flex;
     align-items: center;
     justify-content: center;
     background: #f9f9f9;
     text-align: center;
     font-weight: 700;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     margin: 0 auto;
     overflow: hidden;
 }
@@ -972,17 +1030,28 @@ body {
 }
 
 .spmb-print-footer {
-    margin-top: 35px;
-    padding-top: 20px;
+    margin-top: 14px;
+    padding-top: 10px;
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 40px;
+    gap: 30px;
     border-top: 1px dashed #000;
+    page-break-inside: avoid;
+    break-inside: avoid;
+}
+
+@page {
+    size: A4 portrait;
+    margin: 8mm 10mm;
 }
 
 @media print {
-    body {
-        background: #fff;
+    html, body {
+        background: #fff !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
     }
     .header-wrapper,
     .footer-wrapper,
@@ -991,12 +1060,34 @@ body {
         display: none !important;
     }
     .spmb-card-print {
-        border: 2px solid #000;
-        box-shadow: none;
-        margin: 0;
-        padding: 20px;
-        width: 100%;
-        max-width: 100%;
+        border: 2px solid #000 !important;
+        box-shadow: none !important;
+        margin: 0 auto !important;
+        padding: 14px 18px !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+        page-break-after: avoid !important;
+        break-after: avoid !important;
+    }
+    .spmb-print-header {
+        padding-bottom: 8px !important;
+        margin-bottom: 10px !important;
+    }
+    .spmb-print-table td {
+        padding: 3px 6px !important;
+        font-size: 0.84rem !important;
+    }
+    .spmb-print-photo-box {
+        width: 110px !important;
+        height: 140px !important;
+    }
+    .spmb-print-footer {
+        margin-top: 10px !important;
+        padding-top: 8px !important;
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
     }
 }
 
@@ -1191,9 +1282,11 @@ body {
 /* Document Upload Cards */
 .spmb-upload-grid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
     gap: 16px;
     margin-top: 14px;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .spmb-upload-card {
@@ -1206,6 +1299,10 @@ body {
     justify-content: space-between;
     transition: all 0.2s ease;
     box-shadow: 2px 2px 0px rgba(0,0,0,0.03);
+    min-width: 0 !important;
+    width: 100%;
+    box-sizing: border-box;
+    overflow: hidden;
 }
 
 .spmb-upload-card:hover {
@@ -1258,6 +1355,7 @@ body {
     color: #64748B;
     margin-bottom: 14px;
     line-height: 1.4;
+    min-height: 36px;
 }
 
 .spmb-upload-dropzone {
@@ -1307,6 +1405,30 @@ body {
     border: 1px solid #FCA5A5;
 }
 
+.spmb-cancel-upload-btn {
+    background: #FEE2E2;
+    color: #DC2626;
+    border: 1px solid #FCA5A5;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 0.9rem;
+    flex-shrink: 0;
+    transition: all 0.15s ease;
+    padding: 0;
+}
+
+.spmb-cancel-upload-btn:hover {
+    background: #EF4444;
+    color: #FFFFFF;
+    border-color: #EF4444;
+    transform: scale(1.08);
+}
+
 .spmb-nav-buttons {
     display: flex;
     justify-content: space-between;
@@ -1325,7 +1447,7 @@ body {
         gap: 8px;
     }
     .spmb-upload-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: 1fr !important;
     }
 }
 @media (max-width: 540px) {

@@ -51,6 +51,36 @@ if ($from === 'admin' || $from === 'pendaftar') {
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/bold/style.css"/>
     <link rel="stylesheet" href="spmb.css?v=<?php echo @filemtime(__DIR__ . '/spmb.css') ?: time(); ?>">
     <link rel="shortcut icon" href="../assets/favicon.ico" type="image/x-icon">
+    <style>
+    @page {
+        size: A4 portrait;
+        margin: 8mm 10mm;
+    }
+    @media print {
+        html, body {
+            background: #FFFFFF !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
+        .no-print {
+            display: none !important;
+        }
+        .spmb-card-print {
+            border: 2px solid #000 !important;
+            box-shadow: none !important;
+            margin: 0 auto !important;
+            padding: 12px 16px !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            page-break-inside: avoid !important;
+            break-inside: avoid !important;
+            page-break-after: avoid !important;
+            break-after: avoid !important;
+        }
+    }
+    </style>
 </head>
 <body style="background:#f4f4f4; padding:20px 0;">
 
@@ -73,17 +103,17 @@ if ($from === 'admin' || $from === 'pendaftar') {
         <div class="spmb-print-header">
             <img src="../assets/favicon.ico" alt="Logo SMKS Sukapura" class="spmb-print-logo" onerror="this.src='https://via.placeholder.com/75?text=SMK';">
             <div class="spmb-print-title-box">
-                <h3 style="margin:0; font-size:1rem; font-weight:700; letter-spacing:1px;">PANITIA PENERIMAAN PESERTA DIDIK BARU (SPMB)</h3>
-                <h2 style="margin:2px 0 4px; font-size:1.45rem; font-weight:800; color:#0A4D68;">SMK SUKAPURA KABUPATEN TASIKMALAYA</h2>
-                <p style="margin:0; font-size:0.8rem; line-height:1.3;">
+                <h3 style="margin:0; font-size:0.95rem; font-weight:700; letter-spacing:1px;">PANITIA PENERIMAAN PESERTA DIDIK BARU (SPMB)</h3>
+                <h2 style="margin:2px 0 3px; font-size:1.3rem; font-weight:800; color:#0A4D68;">SMK SUKAPURA KABUPATEN TASIKMALAYA</h2>
+                <p style="margin:0; font-size:0.78rem; line-height:1.25;">
                     Jl. Sukapura, Singaparna, Kec. Singaparna, Kabupaten Tasikmalaya, Jawa Barat<br>
                     Website: smksukapura.sch.id | Email: <?php echo htmlspecialchars($settings['email_spmb'] ?? 'spmb@smksukapura.sch.id'); ?> | Hotline: <?php echo htmlspecialchars($settings['hotline_wa'] ?? '0812-3456-7890'); ?>
                 </p>
             </div>
         </div>
 
-        <div style="text-align:center; margin-bottom:20px;">
-            <div style="display:inline-block; border:2px solid #000; padding:6px 24px; font-family:var(--font-heading); font-weight:800; font-size:1.15rem; background:#FFE600; text-transform:uppercase;">
+        <div style="text-align:center; margin-bottom:12px;">
+            <div style="display:inline-block; border:2px solid #000; padding:4px 18px; font-family:var(--font-heading); font-weight:800; font-size:1rem; background:#FFE600; text-transform:uppercase;">
                 KARTU TANDA BUKTI PENDAFTARAN SPMB TA <?php echo htmlspecialchars($settings['tahun_ajaran'] ?? '2026/2027'); ?>
             </div>
         </div>
@@ -170,26 +200,26 @@ if ($from === 'admin' || $from === 'pendaftar') {
                     <?php endif; ?>
                 </div>
 
-                <div style="border:1.5px solid #000; padding:8px 12px; background:#fff; text-align:center; width:150px;">
-                    <div style="font-family:monospace; font-size:0.75rem; letter-spacing:2px; font-weight:800;">
+                <div style="border:1.5px solid #000; padding:5px 10px; background:#fff; text-align:center; width:125px;">
+                    <div style="font-family:monospace; font-size:0.72rem; letter-spacing:1.5px; font-weight:800; line-height:1.2;">
                         ||| | |||| | ||| ||<br>
                         ||| || ||| || ||||
                     </div>
-                    <span style="font-size:0.7rem; font-weight:700;"><?php echo htmlspecialchars($p['no_pendaftaran']); ?></span>
+                    <span style="font-size:0.68rem; font-weight:700;"><?php echo htmlspecialchars($p['no_pendaftaran']); ?></span>
                 </div>
             </div>
         </div>
 
         <!-- JADWAL & RUANG TES -->
-        <div style="margin-top:20px; border:2px solid #000; padding:12px 16px; background:#FFFDF0; font-size:0.9rem;">
-            <div style="font-weight:800; text-transform:uppercase; margin-bottom:4px; font-size:0.95rem;">
+        <div style="margin-top:10px; border:1.5px solid #000; padding:8px 12px; background:#FFFDF0; font-size:0.84rem; page-break-inside:avoid; break-inside:avoid;">
+            <div style="font-weight:800; text-transform:uppercase; margin-bottom:3px; font-size:0.88rem; display:flex; align-items:center; gap:6px;">
                 <i class="ph-bold ph-info"></i> Petunjuk &amp; Jadwal Ujian:
             </div>
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:6px;">
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:4px;">
                 <div>Jadwal Pelaksanaan: <strong><?php echo htmlspecialchars($p['jadwal_tes'] ?: 'Menunggu Jadwal Panitia'); ?></strong></div>
                 <div>Ruang Tes/Wawancara: <strong><?php echo htmlspecialchars($p['ruang_tes'] ?: 'Menunggu Informasi Panitia'); ?></strong></div>
             </div>
-            <div style="font-size:0.8rem; color:#444; margin-top:6px;">
+            <div style="font-size:0.75rem; color:#444; margin-top:4px; line-height:1.3;">
                 * Bawalah cetakan kartu tanda bukti ini beserta seluruh kelengkapan berkas fisik persyaratan saat proses <strong>Daftar Ulang</strong> di sekretariat SPMB SMKS Sukapura.
             </div>
         </div>
@@ -197,25 +227,25 @@ if ($from === 'admin' || $from === 'pendaftar') {
         <!-- TANDA TANGAN -->
         <div class="spmb-print-footer">
             <div style="text-align:center;">
-                <p style="margin:0; font-size:0.85rem;">Calon Peserta Didik,</p>
-                <div style="height:60px;"></div>
-                <p style="margin:0; font-weight:700; text-decoration:underline; font-size:0.95rem;">
+                <p style="margin:0; font-size:0.82rem;">Calon Peserta Didik,</p>
+                <div style="height:42px;"></div>
+                <p style="margin:0; font-weight:700; text-decoration:underline; font-size:0.9rem;">
                     <?php echo strtoupper(htmlspecialchars($p['nama_lengkap'])); ?>
                 </p>
-                <span style="font-size:0.8rem;">NISN: <?php echo htmlspecialchars($p['nisn']); ?></span>
+                <span style="font-size:0.75rem;">NISN: <?php echo htmlspecialchars($p['nisn']); ?></span>
             </div>
 
             <div style="text-align:center;">
-                <p style="margin:0; font-size:0.85rem;">Tasikmalaya, <?php echo tgl_indo($p['tanggal_daftar']); ?><br>Panitia SPMB SMKS Sukapura,</p>
-                <div style="height:60px; display:flex; align-items:center; justify-content:center;">
-                    <div style="border:1.5px dashed #0A4D68; color:#0A4D68; padding:3px 12px; font-size:0.75rem; font-weight:800; transform:rotate(-5deg); border-radius:4px;">
+                <p style="margin:0; font-size:0.82rem;">Tasikmalaya, <?php echo tgl_indo($p['tanggal_daftar']); ?><br>Panitia SPMB SMKS Sukapura,</p>
+                <div style="height:42px; display:flex; align-items:center; justify-content:center;">
+                    <div style="border:1.5px dashed #0A4D68; color:#0A4D68; padding:2px 10px; font-size:0.7rem; font-weight:800; transform:rotate(-4deg); border-radius:4px;">
                         TERVERIFIKASI SISTEM
                     </div>
                 </div>
-                <p style="margin:0; font-weight:700; text-decoration:underline; font-size:0.95rem;">
+                <p style="margin:0; font-weight:700; text-decoration:underline; font-size:0.9rem;">
                     PANITIA SPMB
                 </p>
-                <span style="font-size:0.8rem;">NIP/NUPTK Panitia</span>
+                <span style="font-size:0.75rem;">NIP/NUPTK Panitia</span>
             </div>
         </div>
 

@@ -58,6 +58,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Validasi status Perlu Perbaikan wajib ada catatan
     if ($statusBaru === 'Perlu Perbaikan' && empty(trim($catatanAdmin))) {
         $error = "Untuk status <strong>Perlu Perbaikan</strong>, Anda wajib menuliskan Catatan Panitia agar calon siswa mengetahui data atau berkas mana yang harus diperbaiki.";
+        if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') {
+            while (ob_get_level() > 0) {
+                ob_end_clean();
+            }
+            header('Content-Type: application/json');
+            echo json_encode([
+                'success' => false,
+                'message' => strip_tags($error)
+            ]);
+            exit;
+        }
     } else {
         // Logika Otomatisasi Kuota saat memilih Diterima
         $tenggatPerbaikan = null;
@@ -131,6 +142,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         // Jika AJAX, kembalikan JSON
         if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') {
+            while (ob_get_level() > 0) {
+                ob_end_clean();
+            }
             header('Content-Type: application/json');
             echo json_encode([
                 'success'      => true,
@@ -401,7 +415,16 @@ require_once __DIR__ . '/header.php';
                 </h4>
 
                 <?php
-                $renderDocItem = function($label, $filename, $icon, $isRequired = true) {
+                $renderDocItem = function($label, $filename, $icon, $isRequired = true) use (&$renderDocItem) {
+                    if (!empty($filename) && strpos($filename, ',') !== false) {
+                        $files = array_filter(array_map('trim', explode(',', $filename)));
+                        $idx = 1;
+                        foreach ($files as $f) {
+                            $renderDocItem($label . ' (Foto ' . $idx . ')', $f, $icon, $isRequired);
+                            $idx++;
+                        }
+                        return;
+                    }
                     echo '<div style="background:#FFFFFF; border:1.5px solid #CBD5E1; border-radius:10px; padding:12px 14px; display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:10px; box-shadow:1.5px 1.5px 0 rgba(0,0,0,0.03);">';
                     echo '<div style="display:flex; align-items:center; gap:12px; min-width:0;">';
                     
@@ -674,9 +697,17 @@ require_once __DIR__ . '/header.php';
                             headers: { 'X-Requested-With': 'XMLHttpRequest' },
                             body: new FormData(formVerif)
                         })
-                        .then(r => r.json())
-                        .then(data => {
+                        .then(r => r.text())
+                        .then(text => {
                             if (btn) { btn.disabled = false; btn.innerHTML = origHtml; }
+                            let data;
+                            try {
+                                data = JSON.parse(text);
+                            } catch(err) {
+                                console.error('Response server bukan JSON valid:', text);
+                                throw new Error('Respon dari server tidak valid.');
+                            }
+
                             if (data.success) {
                                 const Toast = Swal.mixin({
                                     toast: true, position: 'top-end',
@@ -699,9 +730,9 @@ require_once __DIR__ . '/header.php';
                                 Swal.fire({ icon: 'error', title: 'Gagal', text: data.message || 'Terjadi kesalahan.' });
                             }
                         })
-                        .catch(() => {
+                        .catch((err) => {
                             if (btn) { btn.disabled = false; btn.innerHTML = origHtml; }
-                            Swal.fire({ icon: 'error', title: 'Koneksi gagal', text: 'Tidak dapat menghubungi server.' });
+                            Swal.fire({ icon: 'error', title: 'Koneksi Terkendala', text: err.message || 'Tidak dapat menghubungi server.' });
                         });
                     });
                 }

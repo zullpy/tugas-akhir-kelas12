@@ -9,6 +9,16 @@ require_once __DIR__ . '/config.php';
 $pdo = get_db_connection();
 $settings = get_all_settings();
 
+// Hitung batas usia dinamis PPDB (Maks 21 tahun per 1 Juli tahun ajaran, Min 13 tahun)
+$tahunAjaranStr = $settings['tahun_ajaran'] ?? date('Y');
+if (preg_match('/^(\d{4})/', $tahunAjaranStr, $m)) {
+    $refYear = (int)$m[1];
+} else {
+    $refYear = (int)date('Y');
+}
+$minBirthDate = ($refYear - 21) . '-07-01';
+$maxBirthDate = ($refYear - 13) . '-12-31';
+
 $error = '';
 $success = '';
 
@@ -73,8 +83,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
             $error = "NISN harus berupa 10 digit angka valid.";
         } elseif (!preg_match('/^[0-9]{16}$/', $nik)) {
             $error = "NIK harus berupa 16 digit angka valid sesuai KTP/KK.";
+        } elseif (!is_valid_indonesian_phone($no_hp)) {
+            $error = "Nomor WhatsApp Calon Siswa tidak valid. Harap gunakan format nomor seluler Indonesia (contoh: 081234567890).";
+        } elseif (!is_valid_indonesian_phone($no_hp_ortu)) {
+            $error = "Nomor WhatsApp Orang Tua tidak valid. Harap gunakan format nomor seluler Indonesia (contoh: 081234567890).";
         } elseif ($jurusan_1 === $jurusan_2) {
             $error = "Jurusan Pilihan 1 dan Pilihan 2 tidak boleh sama.";
+        } elseif (!empty($tanggal_lahir) && ($tanggal_lahir < $minBirthDate || $tanggal_lahir > $maxBirthDate)) {
+            $error = "Tanggal lahir calon siswa tidak memenuhi ketentuan batas usia PPDB (rentang usia 13 s.d. 21 tahun per 1 Juli $refYear).";
         } else {
             // Cek jika NISN diganti dan ternyata bentrok dengan pendaftar lain
             if ($nisnBaru !== $p['nisn']) {
@@ -85,7 +101,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                 }
             }
 
+
+
             if (empty($error)) {
+                $no_hp = normalize_phone_number($no_hp);
+                $no_hp_ortu = normalize_phone_number($no_hp_ortu);
                 // Upload File Helper Function (Opsional: Jika tidak diupload, tetap gunakan file lama)
                 $uploadFileOptional = function($fieldKey, $prefix, $oldFile, $allowed = ['jpg', 'jpeg', 'png', 'webp', 'pdf'], $maxBytes = 3145728) use (&$error) {
                     if (!isset($_FILES[$fieldKey]) || $_FILES[$fieldKey]['error'] === UPLOAD_ERR_NO_FILE) {
@@ -130,9 +150,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                 $foto_path        = $uploadFileOptional('foto', 'foto', $p['foto'], ['jpg', 'jpeg', 'png', 'webp'], 2097152);
                 $berkas_kk_path   = empty($error) ? $uploadFileOptional('berkas_kk', 'kk', $p['berkas_kk']) : $p['berkas_kk'];
                 $berkas_akta_path = empty($error) ? $uploadFileOptional('berkas_akta', 'akta', $p['berkas_akta']) : $p['berkas_akta'];
-                $berkas_ijazah_path = empty($error) ? $uploadFileOptional('berkas_ijazah', 'ijazah', $p['berkas_ijazah']) : $p['berkas_ijazah'];
-                $berkas_ktp_path  = empty($error) ? $uploadFileOptional('berkas_ktp_ortu', 'ktp', $p['berkas_ktp_ortu']) : $p['berkas_ktp_ortu'];
-                $berkas_kip_path  = empty($error) ? $uploadFileOptional('berkas_kip', 'kip', $p['berkas_kip']) : $p['berkas_kip'];
+                // Handle KTP 1 dan KTP 2 (Bisa 2 Foto)
+                $oldKtpList = array_filter(array_map('trim', explode(',', $p['berkas_ktp_ortu'] ?? '')));
+                $oldKtp1 = $oldKtpList[0] ?? null;
+                $oldKtp2 = $oldKtpList[1] ?? null;
+
+                $ktp1_path = empty($error) ? $uploadFileOptional('berkas_ktp_ortu', 'ktp1', $oldKtp1) : $oldKtp1;
+                $ktp2_path = empty($error) ? $uploadFileOptional('berkas_ktp_ortu_2', 'ktp2', $oldKtp2) : $oldKtp2;
+                
+                $finalKtp = array_filter([$ktp1_path, $ktp2_path]);
+                $berkas_ktp_path = !empty($finalKtp) ? implode(',', $finalKtp) : null;
                 $berkas_pres_path = empty($error) ? $uploadFileOptional('berkas_prestasi', 'prestasi', $p['berkas_prestasi']) : $p['berkas_prestasi'];
 
                 if ($jalur === 'Prestasi' && empty($berkas_pres_path)) {
@@ -412,7 +439,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                             </div>
                             <div class="spmb-form-group">
                                 <label class="spmb-label" for="tanggal_lahir">Tanggal Lahir <span class="required">*</span></label>
-                                <input type="date" name="tanggal_lahir" id="tanggal_lahir" class="spmb-input" value="<?php echo htmlspecialchars($p['tanggal_lahir']); ?>" required>
+                                <input type="date" name="tanggal_lahir" id="tanggal_lahir" class="spmb-input" value="<?php echo htmlspecialchars($p['tanggal_lahir']); ?>" min="<?php echo $minBirthDate; ?>" max="<?php echo $maxBirthDate; ?>" required>
+                                <div style="font-size:0.78rem; color:#64748B; margin-top:4px;">Rentang usia 13 s.d. 21 tahun per 1 Juli <?php echo $refYear; ?>.</div>
                             </div>
                         </div>
 
@@ -570,17 +598,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                             <input type="file" name="berkas_ijazah" id="berkas_ijazah" class="spmb-input" accept=".jpg,.jpeg,.png,.webp,.pdf">
                         </div>
 
-                        <!-- 5. KTP Ortu -->
+                        <!-- 5. KTP Ortu (Bisa 2 Foto) -->
                         <div class="doc-preview-item">
-                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; flex-wrap:wrap; gap:6px;">
-                                <label class="spmb-label" style="margin-bottom:0;" for="berkas_ktp_ortu">KTP Orang Tua / Wali</label>
-                                <?php if (!empty($p['berkas_ktp_ortu'])): ?>
-                                    <a href="uploads/<?php echo htmlspecialchars($p['berkas_ktp_ortu']); ?>" target="_blank" style="font-size:0.8rem; font-weight:700; color:var(--nb-navy); display:inline-flex; align-items:center; gap:4px;">
-                                        <i class="ph-bold ph-check-circle" style="color:#16A34A;"></i> Lihat KTP Ortu Saat Ini
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; flex-wrap:wrap; gap:6px;">
+                                <label class="spmb-label" style="margin-bottom:0;" for="berkas_ktp_ortu">KTP Orang Tua / Wali (Maksimal 2 Foto)</label>
+                                <?php 
+                                $oldKtpList = array_filter(array_map('trim', explode(',', $p['berkas_ktp_ortu'] ?? '')));
+                                if (!empty($oldKtpList)): 
+                                    foreach ($oldKtpList as $ki => $kf):
+                                ?>
+                                    <a href="uploads/<?php echo htmlspecialchars($kf); ?>" target="_blank" style="font-size:0.8rem; font-weight:700; color:var(--nb-navy); display:inline-flex; align-items:center; gap:4px; margin-right:8px;">
+                                        <i class="ph-bold ph-check-circle" style="color:#16A34A;"></i> Lihat Foto KTP <?php echo count($oldKtpList) > 1 ? ($ki + 1) : ''; ?>
                                     </a>
-                                <?php endif; ?>
+                                <?php 
+                                    endforeach;
+                                endif; 
+                                ?>
                             </div>
-                            <input type="file" name="berkas_ktp_ortu" id="berkas_ktp_ortu" class="spmb-input" accept=".jpg,.jpeg,.png,.webp,.pdf">
+                            <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+                                <div>
+                                    <span style="font-size:0.75rem; font-weight:700; color:#475569; display:block; margin-bottom:4px;">Foto KTP 1 (Ayah / Utama):</span>
+                                    <input type="file" name="berkas_ktp_ortu" id="berkas_ktp_ortu" class="spmb-input" accept=".jpg,.jpeg,.png,.webp,.pdf">
+                                </div>
+                                <div>
+                                    <span style="font-size:0.75rem; font-weight:700; color:#475569; display:block; margin-bottom:4px;">Foto KTP 2 (Ibu / Tambahan):</span>
+                                    <input type="file" name="berkas_ktp_ortu_2" id="berkas_ktp_ortu_2" class="spmb-input" accept=".jpg,.jpeg,.png,.webp,.pdf">
+                                </div>
+                            </div>
+                            <div class="spmb-input-helper">Unggah berkas baru jika ingin mengganti, atau kosongkan jika tidak ingin diubah.</div>
                         </div>
 
                         <!-- 6. KIP (Opsional) -->

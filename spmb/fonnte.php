@@ -5,18 +5,35 @@
 require_once __DIR__ . '/config.php';
 
 /**
- * Ambil konfigurasi Fonnte dari database
+ * Ambil konfigurasi Fonnte dari database & deteksi Base URL hosting secara 100% otomatis
+ * Saat di hosting (smksukapura.miw.web.id), otomatis menggunakan domain resmi tanpa perlu diubah manual!
  */
 function get_fonnte_config() {
     $settings = get_all_settings();
-    
-    // Tentukan base URL default jika belum diset
-    $baseUrl = $settings['base_url'] ?? '';
-    if (empty($baseUrl)) {
+
+    // 1. Deteksi host server saat ini secara dinamis
+    $httpHost = $_SERVER['HTTP_HOST'] ?? '';
+    $hostOnly = strtolower(explode(':', $httpHost)[0]);
+    $isLocalHost = in_array($hostOnly, ['localhost', '127.0.0.1', '::1', '']);
+
+    // 2. Jika website sedang berjalan di hosting / live domain (bukan localhost)
+    if (!$isLocalHost && !empty($httpHost)) {
+        $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || 
+                  (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') 
+                  ? 'https' : 'http';
+        $baseUrl = $scheme . '://' . $httpHost;
+    } 
+    // 3. Jika di environment production / CLI
+    elseif (defined('APP_ENV') && APP_ENV === 'production') {
+        $baseUrl = 'https://smksukapura.miw.web.id';
+    } 
+    // 4. Default di local development
+    else {
         $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
-        $host = $_SERVER['HTTP_HOST'] ?? 'localhost:8000';
+        $host = $httpHost ?: 'localhost:8000';
         $baseUrl = $scheme . '://' . $host;
     }
+
     $baseUrl = rtrim($baseUrl, '/');
 
     return [
@@ -117,7 +134,9 @@ function kirim_wa_fonnte($target, $message, $filePath = null, $fileName = null) 
     $response = curl_exec($curl);
     $curlErr  = curl_error($curl);
     $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-    curl_close($curl);
+    if (PHP_VERSION_ID < 80500) {
+        @curl_close($curl);
+    }
 
     if ($curlErr) {
         return [
@@ -145,6 +164,95 @@ function kirim_wa_fonnte($target, $message, $filePath = null, $fileName = null) 
             'response' => $json
         ];
     }
+}
+
+/**
+ * Periksa apakah sebuah nomor HP benar-benar terdaftar aktif di aplikasi WhatsApp
+ * Menggunakan endpoint resmi Fonnte /validate yang langsung mengecek ke jaringan WhatsApp
+ * 
+ * @param string $nomor
+ * @return array ['checked' => bool, 'is_wa' => bool, 'message' => string]
+ */
+function cek_nomor_wa_fonnte($nomor) {
+    $cfg = get_fonnte_config();
+    if (empty($cfg['token']) || !$cfg['status']) {
+        return [
+            'checked' => false,
+            'is_wa'   => true, // Fallback pass jika gateway tidak aktif agar tidak memblokir pendaftar
+            'message' => 'Layanan Fonnte belum aktif / tidak dikonfigurasi.'
+        ];
+    }
+
+    $clean = preg_replace('/[^0-9]/', '', (string)$nomor);
+    if (empty($clean) || strlen($clean) < 9) {
+        return [
+            'checked' => true,
+            'is_wa'   => false,
+            'message' => 'Nomor telepon tidak valid.'
+        ];
+    }
+
+    $curl = curl_init();
+    curl_setopt_array($curl, [
+        CURLOPT_URL            => 'https://api.fonnte.com/validate',
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_POST           => true,
+        CURLOPT_POSTFIELDS     => [
+            'target'      => $clean,
+            'countryCode' => '62'
+        ],
+        CURLOPT_HTTPHEADER     => [
+            'Authorization: ' . $cfg['token']
+        ],
+        CURLOPT_TIMEOUT        => 8,
+        CURLOPT_SSL_VERIFYPEER => false,
+        CURLOPT_SSL_VERIFYHOST => false
+    ]);
+
+    $response = curl_exec($curl);
+    $curlErr  = curl_error($curl);
+
+    if ($curlErr || empty($response)) {
+        return [
+            'checked' => false,
+            'is_wa'   => true,
+            'message' => 'Gagal menghubungi server validasi WhatsApp.'
+        ];
+    }
+
+    $json = json_decode($response, true);
+    if (!is_array($json) || empty($json['status'])) {
+        return [
+            'checked' => false,
+            'is_wa'   => true,
+            'message' => $json['reason'] ?? 'Validasi gateway tidak merespon.'
+        ];
+    }
+
+    $registered = $json['registered'] ?? [];
+    $notRegistered = $json['not_registered'] ?? [];
+
+    if (!empty($registered)) {
+        return [
+            'checked' => true,
+            'is_wa'   => true,
+            'message' => 'Nomor aktif dan terdaftar di WhatsApp.'
+        ];
+    }
+
+    if (!empty($notRegistered)) {
+        return [
+            'checked' => true,
+            'is_wa'   => false,
+            'message' => 'Nomor HP ini TIDAK terdaftar di aplikasi WhatsApp.'
+        ];
+    }
+
+    return [
+        'checked' => false,
+        'is_wa'   => true,
+        'message' => 'Status nomor tidak dapat dipastikan.'
+    ];
 }
 
 /**

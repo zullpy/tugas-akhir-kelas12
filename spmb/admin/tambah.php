@@ -36,7 +36,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $check->execute([$nisn]);
         if ($check->fetchColumn() > 0) {
             $error = "NISN $nisn sudah pernah terdaftar di sistem.";
+        } elseif (!empty($no_hp) && $no_hp !== '-' && !is_valid_indonesian_phone($no_hp)) {
+            $error = "Format nomor HP calon siswa tidak valid (harus diawali 08/628, 10-14 digit).";
         } else {
+            if (!empty($no_hp) && $no_hp !== '-') {
+                $no_hp = normalize_phone_number($no_hp);
+            }
+            if (!empty($no_hp_ortu) && $no_hp_ortu !== '-') {
+                $no_hp_ortu = normalize_phone_number($no_hp_ortu);
+            }
             $no_pendaftaran = generate_no_pendaftaran($pdo);
 
             $ins = $pdo->prepare("INSERT INTO `spmb_pendaftar` (

@@ -20,9 +20,15 @@ if ($id > 0) {
         $uploadDir = __DIR__ . '/../uploads/';
         foreach ($fileKeys as $k) {
             if (!empty($row[$k])) {
-                $filePath = $uploadDir . $row[$k];
-                if (file_exists($filePath)) {
-                    @unlink($filePath);
+                $files = explode(',', $row[$k]);
+                foreach ($files as $f) {
+                    $f = trim($f);
+                    if (!empty($f)) {
+                        $filePath = $uploadDir . $f;
+                        if (file_exists($filePath)) {
+                            @unlink($filePath);
+                        }
+                    }
                 }
             }
         }

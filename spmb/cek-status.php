@@ -20,6 +20,10 @@ if (!empty($keyword)) {
     $stmt->execute([$keyword, $keyword, $keyword]);
     $pendaftar = $stmt->fetch();
     if (!$pendaftar) {
+        // Coba cari berdasarkan Nomor WhatsApp Calon Siswa
+        $pendaftar = find_pendaftar_by_phone($pdo, $keyword);
+    }
+    if (!$pendaftar) {
         $notFound = true;
     }
 }
@@ -51,7 +55,7 @@ if (!empty($keyword)) {
                 Cek Status Pendaftaran
             </h1>
             <p class="spmb-hero-subtitle" style="margin:0 auto;">
-                Masukkan Nomor Registrasi (contoh: <code>REG-SKPR-XXXXX</code>) atau 10 digit NISN calon siswa.
+                Masukkan Nomor Registrasi (contoh: <code>REG-SKPR-XXXXX</code>), 10 digit NISN, atau No. WhatsApp calon siswa.
             </p>
         </div>
     </div>
@@ -73,7 +77,7 @@ if (!empty($keyword)) {
             <div style="background:var(--nb-white); border:var(--border-thick); border-radius:var(--radius-card); box-shadow:var(--shadow-lg); padding:30px; margin-bottom:35px;">
                 <form action="cek-status.php" method="GET" style="display:flex; gap:12px; flex-wrap:wrap;">
                     <div style="flex:1; min-width:240px;">
-                        <input type="text" name="no" class="spmb-input" placeholder="Masukkan Nomor Registrasi / NISN..." value="<?php echo htmlspecialchars($keyword); ?>" required style="font-size:1.05rem; padding:14px 18px;">
+                        <input type="text" name="no" class="spmb-input" placeholder="Masukkan Nomor Registrasi / NISN / No. WhatsApp..." value="<?php echo htmlspecialchars($keyword); ?>" required style="font-size:1.05rem; padding:14px 18px;">
                     </div>
                     <button type="submit" class="spmb-btn spmb-btn-primary" style="padding:14px 26px;">
                         <i class="ph-bold ph-magnifying-glass"></i> Cari Data

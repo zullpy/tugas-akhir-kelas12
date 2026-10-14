@@ -230,7 +230,7 @@ $msg = sanitize_input($_GET['msg'] ?? '');
                         </tr>
                     <?php else: ?>
                         <?php $no = 1; foreach ($pendaftarList as $row): ?>
-                            <tr>
+                            <tr id="row-pendaftar-<?php echo $row['id']; ?>">
                                 <td><?php echo $no++; ?></td>
                                 <td>
                                     <strong style="font-family:monospace;"><?php echo htmlspecialchars($row['no_pendaftaran']); ?></strong><br>
@@ -277,7 +277,7 @@ $msg = sanitize_input($_GET['msg'] ?? '');
                                                     <i class="ph-bold ph-printer" style="color:#16A34A;"></i> Cetak Kartu
                                                 </a>
                                                 <div class="adm-dropdown-divider"></div>
-                                                <a href="hapus.php?id=<?php echo $row['id']; ?>" class="adm-dropdown-item danger" onclick="return konfirmasiHapus(event, this.href, '<?php echo htmlspecialchars(addslashes($row['nama_lengkap'])); ?>');">
+                                                <a href="hapus.php?id=<?php echo $row['id']; ?>" class="adm-dropdown-item danger" onclick="konfirmasiHapus(<?php echo $row['id']; ?>, '<?php echo htmlspecialchars(addslashes($row['nama_lengkap'])); ?>'); return false;">
                                                     <i class="ph-bold ph-trash"></i> Hapus Data
                                                 </a>
                                             </div>
@@ -309,17 +309,16 @@ $msg = sanitize_input($_GET['msg'] ?? '');
 }
 .adm-dropdown-menu {
     display: none;
-    position: absolute;
-    right: 0;
-    top: calc(100% + 4px);
+    position: fixed;
     background: #FFFFFF;
-    min-width: 165px;
+    min-width: 170px;
     border: 2px solid #000000;
     border-radius: 8px;
     box-shadow: 4px 4px 0 #000000;
-    z-index: 1000;
+    z-index: 999999;
     padding: 6px 0;
     text-align: left;
+    margin: 0;
 }
 .adm-dropdown-menu.show {
     display: block;
@@ -328,12 +327,13 @@ $msg = sanitize_input($_GET['msg'] ?? '');
     display: flex;
     align-items: center;
     gap: 8px;
-    padding: 8px 14px;
+    padding: 9px 14px;
     color: #0F172A;
     text-decoration: none;
-    font-size: 0.84rem;
+    font-size: 0.85rem;
     font-weight: 700;
     transition: background 0.1s ease;
+    cursor: pointer;
 }
 .adm-dropdown-item:hover {
     background: #F1F5F9;
@@ -354,25 +354,74 @@ $msg = sanitize_input($_GET['msg'] ?? '');
 <script>
 function toggleDropdownMenu(e, id) {
     e.stopPropagation();
-    const allMenus = document.querySelectorAll('.adm-dropdown-menu');
+    const btn = e.currentTarget;
     const target = document.getElementById('adm-menu-' + id);
+    if (!target) return;
+
     const isOpen = target.classList.contains('show');
 
-    allMenus.forEach(m => m.classList.remove('show'));
+    closeAllDropdowns();
+
     if (!isOpen) {
+        // Pindahkan menu ke body agar tidak terpotong oleh overflow card atau tabel
+        if (target.parentElement !== document.body) {
+            document.body.appendChild(target);
+        }
+
         target.classList.add('show');
+        positionDropdown(btn, target);
     }
 }
 
+function positionDropdown(btn, menu) {
+    const rect = btn.getBoundingClientRect();
+    const menuWidth = menu.offsetWidth || 170;
+    const menuHeight = menu.offsetHeight || 135;
+
+    // Cek ruang di bawah vs atas
+    const spaceBelow = window.innerHeight - rect.bottom;
+    const openUpwards = spaceBelow < (menuHeight + 15) && rect.top > menuHeight;
+
+    let top = openUpwards ? (rect.top - menuHeight - 4) : (rect.bottom + 4);
+    let left = rect.right - menuWidth;
+
+    // Pastikan tidak meluap ke luar layar
+    if (left < 10) left = 10;
+    if (left + menuWidth > window.innerWidth - 10) {
+        left = window.innerWidth - menuWidth - 10;
+    }
+
+    menu.style.position = 'fixed';
+    menu.style.top = top + 'px';
+    menu.style.left = left + 'px';
+    menu.style.right = 'auto';
+    menu.style.bottom = 'auto';
+    menu.style.zIndex = '999999';
+}
+
+function closeAllDropdowns() {
+    document.querySelectorAll('.adm-dropdown-menu.show').forEach(m => {
+        m.classList.remove('show');
+    });
+}
+
+// Tutup menu saat klik di luar
 document.addEventListener('click', function(e) {
-    if (!e.target.closest('.adm-dropdown')) {
-        document.querySelectorAll('.adm-dropdown-menu').forEach(m => m.classList.remove('show'));
+    if (!e.target.closest('.adm-dots-btn') && !e.target.closest('.adm-dropdown-menu')) {
+        closeAllDropdowns();
     }
 });
 
+// Tutup menu saat scrolling (window maupun tabel)
+window.addEventListener('scroll', closeAllDropdowns, true);
+
+// Tutup menu saat resize layar
+window.addEventListener('resize', closeAllDropdowns);
+
+// Tutup menu saat menekan tombol Escape
 document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') {
-        document.querySelectorAll('.adm-dropdown-menu').forEach(m => m.classList.remove('show'));
+        closeAllDropdowns();
     }
 });
 

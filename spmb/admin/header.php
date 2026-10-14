@@ -78,20 +78,6 @@ $pendingCount = $pdo->query("SELECT COUNT(*) FROM `spmb_pendaftar` WHERE `status
                 </a>
             </li>
 
-            <li class="adm-menu-label" style="margin-top:10px;">Laporan &amp; Pengaturan</li>
-            <li class="adm-menu-item <?php echo (!$isSetting && $currAdminFile === 'export.php') ? 'active' : ''; ?>">
-                <a href="<?php echo $adminPath; ?>export.php">
-                    <i class="ph-bold ph-file-csv"></i>
-                    <span>Ekspor Data (Excel/CSV)</span>
-                </a>
-            </li>
-            <li class="adm-menu-item <?php echo ($isSetting || $currAdminFile === 'pengaturan.php') ? 'active' : ''; ?>">
-                <a href="<?php echo $settingPath; ?>">
-                    <i class="ph-bold ph-gear"></i>
-                    <span>Pengaturan</span>
-                </a>
-            </li>
-
             <li class="adm-menu-label" style="margin-top:10px;">Konten Website</li>
             <li class="adm-menu-item <?php echo (!$isSetting && $currAdminFile === 'galeri.php') ? 'active' : ''; ?>">
                 <a href="<?php echo $adminPath; ?>galeri.php" style="display:flex; justify-content:space-between;">
@@ -107,6 +93,41 @@ $pendingCount = $pdo->query("SELECT COUNT(*) FROM `spmb_pendaftar` WHERE `status
                     <?php endif; ?>
                 </a>
             </li>
+
+            <li class="adm-menu-label" style="margin-top:10px;">Pengaturan Sistem</li>
+            <li class="adm-menu-item <?php echo ($isSetting && ($currAdminFile === 'index.php' || $currAdminFile === 'pengaturan.php')) ? 'active' : ''; ?>">
+                <a href="<?php echo $settingPath; ?>index.php">
+                    <i class="ph-bold ph-sliders-horizontal"></i>
+                    <span>Pengaturan SPMB</span>
+                </a>
+            </li>
+            <li class="adm-menu-item <?php echo ($isSetting && $currAdminFile === 'fonnte.php') ? 'active' : ''; ?>">
+                <a href="<?php echo $settingPath; ?>fonnte.php">
+                    <i class="ph-bold ph-whatsapp-logo" style="color:#22C55E;"></i>
+                    <span>WhatsApp Fonnte</span>
+                </a>
+            </li>
+            <li class="adm-menu-item <?php echo ($isSetting && $currAdminFile === 'cloudinary.php') ? 'active' : ''; ?>">
+                <a href="<?php echo $settingPath; ?>cloudinary.php">
+                    <i class="ph-bold ph-cloud" style="color:#0284C7;"></i>
+                    <span>Cloud Storage</span>
+                </a>
+            </li>
+            <li class="adm-menu-item <?php echo ($isSetting && $currAdminFile === 'keamanan.php') ? 'active' : ''; ?>">
+                <a href="<?php echo $settingPath; ?>keamanan.php">
+                    <i class="ph-bold ph-shield-check" style="color:#9333EA;"></i>
+                    <span>Keamanan Akun</span>
+                </a>
+            </li>
+
+            <li class="adm-menu-label" style="margin-top:10px;">Laporan</li>
+            <li class="adm-menu-item <?php echo (!$isSetting && $currAdminFile === 'export.php') ? 'active' : ''; ?>">
+                <a href="<?php echo $adminPath; ?>export.php">
+                    <i class="ph-bold ph-file-csv"></i>
+                    <span>Ekspor Data (Excel/CSV)</span>
+                </a>
+            </li>
+
 
             <li class="adm-menu-label" style="margin-top:10px;">Tautan Luar</li>
             <li class="adm-menu-item">
