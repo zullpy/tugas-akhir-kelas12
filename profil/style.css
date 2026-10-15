@@ -1,8 +1,27 @@
 /* Styling for Profile Page */
-*{
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
     margin: 0;
     padding: 0;
 }
+
+html {
+    overflow-x: hidden;
+    max-width: 100%;
+    width: 100%;
+}
+
+body {
+    overflow-x: hidden;
+    max-width: 100%;
+    width: 100%;
+    font-family: var(--font-body, 'Plus Jakarta Sans', sans-serif);
+    background-color: var(--nb-bg, #FFFDF0);
+    color: var(--nb-black, #000000);
+}
+
 .profile-main-container {
     width: 92%;
     max-width: 1100px;
@@ -19,6 +38,8 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    overflow: hidden;
+    max-width: 100%;
 }
 
 .profile-header .watermark {
@@ -266,78 +287,78 @@ footer {
 }
 
 .visi-text {
-    font-size: clamp(1.2rem, 2.2vw, 1.55rem);
+    font-size: clamp(1.15rem, 2.2vw, 1.55rem);
     font-weight: 700;
     color: #0F172A;
-    line-height: 1.6;
-    margin-bottom: 28px;
+    line-height: 1.8;
+    margin-bottom: 0;
 }
 
 /* Color Highlights inside Visi quote */
-.highlight-yellow {
-    background-color: #FFE600;
-    padding: 2px 8px;
+.visi-text span[class*="highlight-"] {
+    display: inline-block;
+    white-space: nowrap;
+    padding: 2px 9px;
     border-radius: 6px;
     border: 1.5px solid #000000;
+    font-weight: 800;
+    margin: 3px 2px;
+    vertical-align: baseline;
+    box-shadow: 1.5px 1.5px 0px #000000;
+    line-height: 1.4;
 }
 
-.highlight-green {
-    background-color: #86EFAC;
-    padding: 2px 8px;
-    border-radius: 6px;
-    border: 1.5px solid #000000;
+.highlight-yellow { background-color: #FFE600; color: #000000; }
+.highlight-green  { background-color: #86EFAC; color: #000000; }
+.highlight-blue   { background-color: #93C5FD; color: #000000; }
+.highlight-pink   { background-color: #F9A8D4; color: #000000; }
+.highlight-purple { background-color: #C084FC; color: #000000; }
+.highlight-red    { background-color: #FF6B6B; color: #000000; }
+
+/* Visi Tags Section */
+.visi-tags-wrapper {
+    margin-top: 26px;
+    padding-top: 22px;
+    border-top: 2px dashed #CBD5E1;
 }
 
-.highlight-blue {
-    background-color: #93C5FD;
-    padding: 2px 8px;
-    border-radius: 6px;
-    border: 1.5px solid #000000;
-}
-
-.highlight-pink {
-    background-color: #F9A8D4;
-    padding: 2px 8px;
-    border-radius: 6px;
-    border: 1.5px solid #000000;
-}
-
-.highlight-purple {
-    background-color: #C084FC;
-    padding: 2px 8px;
-    border-radius: 6px;
-    border: 1.5px solid #000000;
-    color: #FFFFFF;
-}
-
-.highlight-red {
-    background-color: #FF4B4B;
-    color: #FFFFFF;
-    padding: 2px 8px;
-    border-radius: 6px;
-    border: 1.5px solid #000000;
-}
-
-/* Visi Tags Pills */
-.visi-tags {
+.visi-tags-label {
     display: flex;
-    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--font-heading, 'Space Grotesk', sans-serif);
+    font-size: 0.85rem;
+    font-weight: 800;
+    color: #475569;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 14px;
+}
+
+.visi-tags {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
     gap: 12px;
+    width: 100%;
 }
 
 .tag-pill {
-    display: inline-flex;
+    display: flex;
     align-items: center;
-    gap: 6px;
+    justify-content: center;
+    gap: 8px;
     background-color: #FFFDF0;
-    border: 2.5px solid #000000;
-    border-radius: 999px;
-    padding: 8px 18px;
+    border: 2px solid #000000;
+    border-radius: 10px;
+    padding: 10px 14px;
     font-size: 0.88rem;
     font-weight: 700;
     color: #000000;
     box-shadow: 2.5px 2.5px 0px #000000;
-    transition: transform 0.15s ease, background-color 0.15s ease;
+    text-align: center;
+    box-sizing: border-box;
+    white-space: nowrap;
+    transition: transform 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .tag-pill:hover {
@@ -470,7 +491,33 @@ footer {
 
 @media (max-width: 640px) {
     .visi-card {
-        padding: 24px 18px;
+        padding: 22px 16px;
+    }
+
+    .visi-text {
+        font-size: 1.05rem;
+        line-height: 2;
+    }
+
+    .visi-text span[class*="highlight-"] {
+        padding: 2px 7px;
+        font-size: 0.92rem;
+    }
+
+    .visi-tags-wrapper {
+        margin-top: 20px;
+        padding-top: 18px;
+    }
+
+    .visi-tags {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+    }
+
+    .tag-pill {
+        padding: 9px 8px;
+        font-size: 0.8rem;
+        gap: 5px;
     }
 
     .misi-grid {
@@ -486,12 +533,20 @@ footer {
     }
 }
 
+@media (max-width: 360px) {
+    .visi-tags {
+        grid-template-columns: 1fr;
+    }
+}
+
 /* ==========================================
    HERO TITLE OVERLAY (Visi Misi & Struktur)
    ========================================== */
 
 .profile-hero {
     position: relative;
+    max-width: 100%;
+    overflow: hidden;
 }
 
 .hero-title-overlay {
@@ -499,6 +554,8 @@ footer {
     bottom: 0;
     left: 0;
     width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
     z-index: 2;
     padding: 30px 5%;
     display: flex;
@@ -754,17 +811,22 @@ footer {
     max-width: 1100px;
     margin: 0 auto 80px;
     font-family: var(--font-body, 'Plus Jakarta Sans', sans-serif);
+    box-sizing: border-box;
 }
 
 /* ── Section Header ── */
 .kontak-section-header {
     text-align: center;
     padding: 60px 0 40px;
+    box-sizing: border-box;
+    max-width: 100%;
 }
 
 .kontak-maps-section,
 .kontak-form-section {
     margin-top: 64px;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .kontak-maps-section .kontak-section-title,
@@ -772,6 +834,7 @@ footer {
 .kontak-form-section .kontak-section-title,
 .kontak-form-section .kontak-section-sub {
     text-align: center;
+    box-sizing: border-box;
 }
 
 .kontak-badge {
@@ -789,6 +852,7 @@ footer {
     letter-spacing: 0.5px;
     box-shadow: 3px 3px 0 #000;
     margin-bottom: 18px;
+    box-sizing: border-box;
 }
 
 .kontak-section-title {
@@ -797,6 +861,7 @@ footer {
     font-weight: 800;
     color: #0F172A;
     margin-bottom: 10px;
+    word-break: break-word;
 }
 
 .kontak-section-sub {
@@ -805,6 +870,7 @@ footer {
     max-width: 560px;
     margin: 0 auto;
     line-height: 1.65;
+    word-break: break-word;
 }
 
 /* ── Info Cards Grid ── */
@@ -812,6 +878,8 @@ footer {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 20px;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .kontak-info-card {
@@ -823,6 +891,10 @@ footer {
     padding: 24px 22px;
     box-shadow: 5px 5px 0 #000;
     transition: transform 0.18s ease, box-shadow 0.18s ease;
+    box-sizing: border-box;
+    min-width: 0;
+    max-width: 100%;
+    overflow: hidden;
 }
 
 .kontak-info-card:hover {
@@ -847,6 +919,15 @@ footer {
     align-items: center;
     justify-content: center;
     font-size: 1.5rem;
+    box-sizing: border-box;
+}
+
+.kontak-info-body {
+    flex: 1;
+    min-width: 0;
+    box-sizing: border-box;
+    overflow-wrap: break-word;
+    word-break: break-word;
 }
 
 .kontak-info-label {
@@ -865,6 +946,8 @@ footer {
     font-weight: 600;
     color: #0F172A;
     line-height: 1.6;
+    overflow-wrap: break-word;
+    word-break: break-word;
 }
 
 a.kontak-link {
@@ -872,6 +955,10 @@ a.kontak-link {
     color: #0F172A;
     border-bottom: 2px solid transparent;
     transition: border-color 0.15s;
+    overflow-wrap: anywhere;
+    word-break: break-all;
+    display: inline-block;
+    max-width: 100%;
 }
 a.kontak-link:hover {
     border-bottom-color: #000;
@@ -881,12 +968,15 @@ a.kontak-link:hover {
 .jam-row {
     display: flex;
     justify-content: space-between;
-    gap: 16px;
+    align-items: center;
+    gap: 12px;
     font-size: 0.9rem;
     font-weight: 600;
     color: #0F172A;
-    padding: 3px 0;
+    padding: 4px 0;
     border-bottom: 1px dashed #CBD5E1;
+    flex-wrap: wrap;
+    box-sizing: border-box;
 }
 .jam-row:last-child { border-bottom: none; }
 .jam-libur { color: #DC2626; }
@@ -898,19 +988,23 @@ a.kontak-link:hover {
     align-items: center;
     gap: 16px;
     flex-wrap: wrap;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .kontak-sosmed-label {
     font-weight: 700;
     font-size: 0.9rem;
     color: #0F172A;
-    white-space: nowrap;
+    white-space: normal;
 }
 
 .kontak-sosmed-btns {
     display: flex;
     gap: 10px;
     flex-wrap: wrap;
+    max-width: 100%;
+    box-sizing: border-box;
 }
 
 .sosmed-btn {
@@ -926,6 +1020,8 @@ a.kontak-link:hover {
     box-shadow: 3px 3px 0 #000;
     background-color: #F1F5F9;
     color: #0F172A;
+    box-sizing: border-box;
+    max-width: 100%;
     transition: transform 0.15s ease, box-shadow 0.15s ease,
                 background-color 0.18s ease, color 0.18s ease;
 }
@@ -944,13 +1040,19 @@ a.kontak-link:hover {
     margin-top: 24px;
     border: 3.5px solid #000;
     border-radius: 16px;
-    box-shadow: 7px 7px 0 #000;
+    box-shadow: 6px 6px 0 #000;
     overflow: hidden;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
 }
 
 .kontak-maps-wrapper iframe {
     display: block;
-    width: 100%;
+    width: 100% !important;
+    max-width: 100% !important;
+    height: 380px;
+    border: 0;
 }
 
 /* ── Form Pesan ── */
@@ -959,8 +1061,11 @@ a.kontak-link:hover {
     background-color: #fff;
     border: 3px solid #000;
     border-radius: 16px;
-    box-shadow: 7px 7px 0 #000;
+    box-shadow: 6px 6px 0 #000;
     padding: 36px 32px;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
 }
 
 .kontak-form-row {
@@ -968,6 +1073,8 @@ a.kontak-link:hover {
     grid-template-columns: 1fr 1fr;
     gap: 18px;
     margin-bottom: 18px;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .kontak-form-group {
@@ -975,6 +1082,8 @@ a.kontak-link:hover {
     flex-direction: column;
     gap: 7px;
     margin-bottom: 18px;
+    width: 100%;
+    box-sizing: border-box;
 }
 .kontak-form-group:last-of-type {
     margin-bottom: 0;
@@ -990,6 +1099,7 @@ a.kontak-link:hover {
 .kontak-form-group input,
 .kontak-form-group textarea {
     width: 100%;
+    max-width: 100%;
     padding: 12px 14px;
     border: 2.5px solid #000;
     border-radius: 10px;
@@ -1032,6 +1142,8 @@ a.kontak-link:hover {
     cursor: pointer;
     box-shadow: 4px 4px 0 #000;
     transition: transform 0.15s ease, box-shadow 0.15s ease;
+    box-sizing: border-box;
+    max-width: 100%;
 }
 .kontak-submit-btn:hover {
     transform: translate(-3px, -3px);
@@ -1042,18 +1154,94 @@ a.kontak-link:hover {
 @media (max-width: 768px) {
     .kontak-cards-grid {
         grid-template-columns: 1fr;
+        gap: 16px;
     }
 
     .kontak-form-row {
         grid-template-columns: 1fr;
+        gap: 0;
     }
 
     .kontak-sosmed-wrap {
         flex-direction: column;
         align-items: flex-start;
+        gap: 12px;
     }
 
     .kontak-form {
         padding: 24px 18px;
+        box-shadow: 5px 5px 0 #000;
+    }
+
+    .kontak-maps-wrapper {
+        box-shadow: 5px 5px 0 #000;
+    }
+
+    .kontak-maps-wrapper iframe {
+        height: 300px;
+    }
+}
+
+@media (max-width: 480px) {
+    .kontak-main {
+        width: 92%;
+        margin: 0 auto 60px;
+    }
+
+    .kontak-info-card {
+        padding: 18px 14px;
+        gap: 14px;
+        box-shadow: 4px 4px 0 #000;
+    }
+
+    .kontak-info-icon {
+        width: 42px;
+        height: 42px;
+        font-size: 1.3rem;
+    }
+
+    .kontak-info-value {
+        font-size: 0.9rem;
+    }
+
+    a.kontak-link {
+        font-size: 0.88rem;
+    }
+
+    .kontak-section-header {
+        padding: 40px 0 24px;
+    }
+
+    .kontak-section-title {
+        font-size: 1.6rem;
+    }
+
+    .kontak-maps-section,
+    .kontak-form-section {
+        margin-top: 40px;
+    }
+
+    .kontak-form {
+        padding: 20px 14px;
+        box-shadow: 4px 4px 0 #000;
+    }
+
+    .kontak-maps-wrapper {
+        box-shadow: 4px 4px 0 #000;
+    }
+
+    .kontak-maps-wrapper iframe {
+        height: 240px;
+    }
+
+    .sosmed-btn {
+        padding: 7px 12px;
+        font-size: 0.8rem;
+    }
+
+    .kontak-submit-btn {
+        width: 100%;
+        justify-content: center;
+        box-shadow: 3px 3px 0 #000;
     }
 }

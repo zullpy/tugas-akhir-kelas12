@@ -439,6 +439,204 @@ body {
 }
 
 /* ==========================================================================
+   SPMB Home Announcement Banner (Neubrutalism Style)
+   ========================================================================== */
+.spmb-home-banner {
+    background: #FFE600;
+    border: 2.5px solid #000000;
+    border-radius: 14px;
+    box-shadow: 4px 4px 0px #000000;
+    padding: 14px 22px;
+    margin-top: 15px;
+    margin-bottom: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+    box-sizing: border-box;
+    width: 100%;
+}
+
+.spmb-banner-left {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex: 1;
+    min-width: 0;
+}
+
+.spmb-banner-icon {
+    width: 44px;
+    height: 44px;
+    background: #0A4D68;
+    color: #FFE600;
+    border: 2px solid #000000;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.45rem;
+    box-shadow: 2px 2px 0px #000000;
+    flex-shrink: 0;
+}
+
+.spmb-banner-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.spmb-banner-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 3px;
+}
+
+.spmb-badge-status {
+    font-size: 0.72rem;
+    font-weight: 800;
+    color: #FFFFFF;
+    border: 1.5px solid #000000;
+    padding: 2px 7px;
+    border-radius: 999px;
+    text-transform: uppercase;
+}
+
+.spmb-banner-title {
+    font-family: var(--font-heading, 'Space Grotesk', sans-serif);
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: #000000;
+    margin: 0;
+    line-height: 1.2;
+    word-break: break-word;
+}
+
+.spmb-banner-periode {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #334155;
+    margin-top: 3px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    flex-wrap: wrap;
+}
+
+.spmb-banner-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.spmb-btn {
+    font-family: var(--font-heading, 'Space Grotesk', sans-serif);
+    font-weight: 800;
+    font-size: 0.88rem;
+    padding: 9px 18px;
+    border: 2px solid #000000;
+    border-radius: 8px;
+    box-shadow: 2.5px 2.5px 0px #000000;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    box-sizing: border-box;
+}
+
+.spmb-btn:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 4px 4px 0px #000000;
+}
+
+.spmb-btn:active {
+    transform: translate(1px, 1px);
+    box-shadow: 1px 1px 0px #000000;
+}
+
+.spmb-btn-primary {
+    background: #0A4D68;
+    color: #FFFFFF;
+}
+
+.spmb-btn-secondary {
+    background: #FFFFFF;
+    color: #000000;
+}
+
+@media (max-width: 768px) {
+    .spmb-home-banner {
+        flex-direction: column;
+        align-items: stretch;
+        padding: 12px 14px;
+        border: 2px solid #000000;
+        border-radius: 12px;
+        box-shadow: 3px 3px 0px #000000;
+        gap: 10px;
+    }
+
+    .spmb-banner-left {
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .spmb-banner-icon {
+        width: 36px;
+        height: 36px;
+        font-size: 1.15rem;
+        border: 1.5px solid #000000;
+        border-radius: 8px;
+        box-shadow: 1.5px 1.5px 0px #000000;
+        margin-top: 2px;
+    }
+
+    .spmb-badge-status {
+        font-size: 0.68rem;
+        padding: 2px 7px;
+    }
+
+    .spmb-banner-title {
+        font-size: 0.95rem;
+        line-height: 1.3;
+    }
+
+    .spmb-banner-periode {
+        font-size: 0.75rem;
+    }
+
+    .spmb-banner-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+        width: 100%;
+        margin-top: 2px;
+    }
+
+    .spmb-btn {
+        padding: 8px 10px;
+        font-size: 0.8rem;
+        border: 1.5px solid #000000;
+        box-shadow: 2px 2px 0px #000000;
+        justify-content: center;
+        width: 100%;
+        box-sizing: border-box;
+    }
+}
+
+@media (max-width: 380px) {
+    .spmb-btn {
+        font-size: 0.72rem;
+        padding: 7px 6px;
+        gap: 4px;
+    }
+}
+
+/* ==========================================================================
    Sambutan Section & Section Header (Neubrutalism Style)
    ========================================================================== */
 .sambutan-section {
@@ -1118,6 +1316,7 @@ body {
     overflow: hidden;
     border-bottom: var(--border-thick);
     background-color: var(--nb-navy-dark);
+    cursor: pointer;
 }
 
 .prestasi-img {
@@ -1130,6 +1329,45 @@ body {
 
 .prestasi-card:hover .prestasi-img {
     transform: scale(1.06);
+}
+
+.prestasi-img-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(10, 77, 104, 0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.25s ease;
+    z-index: 4;
+    pointer-events: none;
+}
+
+.prestasi-card:hover .prestasi-img-overlay,
+.prestasi-img-wrapper:focus .prestasi-img-overlay {
+    opacity: 1;
+}
+
+.prestasi-zoom-btn {
+    background: var(--nb-yellow);
+    color: var(--nb-black);
+    border: var(--border-thin);
+    border-radius: var(--radius-pill);
+    padding: 6px 14px;
+    font-family: var(--font-heading);
+    font-size: 0.82rem;
+    font-weight: 800;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    box-shadow: 2.5px 2.5px 0px var(--nb-black);
+    transform: translateY(8px);
+    transition: transform 0.25s ease, background 0.15s ease;
+}
+
+.prestasi-card:hover .prestasi-zoom-btn {
+    transform: translateY(0);
 }
 
 .prestasi-category {
@@ -1340,7 +1578,7 @@ body {
 @media (max-width: 768px) {
     main {
         width: 95% !important;
-        margin: 20px auto !important;
+        margin: 75px auto 40px !important;
     }
 
     .keahlian-grid {
@@ -1778,20 +2016,20 @@ body {
     box-shadow: var(--shadow-lg);
 }
 
-/* Lightbox Modal Beranda */
+/* Lightbox Modal Beranda (Prestasi & Galeri) */
 .beranda-lightbox {
     position: fixed;
     inset: 0;
-    background-color: rgba(5, 15, 25, 0.85);
-    backdrop-filter: blur(4px);
+    background-color: rgba(5, 15, 25, 0.88);
+    backdrop-filter: blur(6px);
     z-index: 9999;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 20px;
+    padding: 24px;
     opacity: 0;
     visibility: hidden;
-    transition: opacity 0.3s ease, visibility 0.3s ease;
+    transition: opacity 0.25s ease, visibility 0.25s ease;
 }
 
 .beranda-lightbox.active {
@@ -1801,16 +2039,18 @@ body {
 
 .beranda-lightbox-content {
     background: var(--nb-white);
-    border: 3px solid var(--nb-black);
+    border: var(--border-thick);
     border-radius: var(--radius-box);
     box-shadow: 10px 10px 0px var(--nb-black);
-    max-width: 900px;
-    max-height: 90vh;
-    overflow: hidden;
+    width: -moz-fit-content;
+    width: fit-content;
+    max-width: min(88vw, 840px);
+    max-height: 94vh;
     display: flex;
     flex-direction: column;
     position: relative;
-    animation: zoomInLight 0.25s ease-out;
+    overflow: visible;
+    animation: zoomInLight 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 @keyframes zoomInLight {
@@ -1819,52 +2059,333 @@ body {
 }
 
 .beranda-lightbox-top {
-    padding: 12px 18px;
+    padding: 12px 16px;
     border-bottom: var(--border-thick);
-    background: var(--nb-yellow-light);
+    background: var(--nb-yellow);
+    border-radius: 10px 10px 0 0;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 12px;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .beranda-lightbox-tag {
     font-family: var(--font-heading);
     font-weight: 800;
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     color: var(--nb-black);
     display: inline-flex;
     align-items: center;
     gap: 6px;
     text-transform: uppercase;
+    background: var(--nb-white);
+    border: var(--border-thin);
+    border-radius: var(--radius-pill);
+    box-shadow: 2px 2px 0px var(--nb-black);
+    padding: 5px 12px;
+    min-width: 0;
+    max-width: calc(100% - 110px);
+    overflow: hidden;
+    flex-shrink: 1;
+}
+
+.beranda-lightbox-tag i {
+    flex-shrink: 0;
+}
+
+.beranda-lightbox-tag span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: 0;
+    display: block;
+}
+
+.beranda-lightbox-top-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+}
+
+.beranda-lightbox-counter {
+    background: var(--nb-white);
+    border: var(--border-thin);
+    border-radius: var(--radius-pill);
+    box-shadow: 2px 2px 0px var(--nb-black);
+    padding: 4px 10px;
+    font-family: var(--font-heading);
+    font-weight: 800;
+    font-size: 0.8rem;
+    color: var(--nb-black);
+    white-space: nowrap;
+    flex-shrink: 0;
 }
 
 .beranda-lightbox-close {
-    background: none;
-    border: none;
-    font-size: 1.8rem;
+    background: var(--nb-white);
+    border: var(--border-thin);
+    border-radius: var(--radius-btn);
+    box-shadow: 2px 2px 0px var(--nb-black);
+    width: 34px;
+    height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
     line-height: 1;
     font-weight: 800;
     cursor: pointer;
     color: var(--nb-black);
+    transition: all 0.15s ease;
+    flex-shrink: 0;
 }
 
-.beranda-lightbox-content img {
-    max-height: 70vh;
+.beranda-lightbox-close:hover {
+    background-color: var(--nb-red);
+    color: var(--nb-white);
+    transform: translate(-1px, -1px);
+    box-shadow: 3px 3px 0px var(--nb-black);
+}
+
+.beranda-lightbox-body {
+    position: relative;
+    background-color: var(--nb-white);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: visible;
+    line-height: 0;
+    user-select: none;
+    touch-action: pan-y;
+    cursor: grab;
+}
+
+.beranda-lightbox-body.is-dragging {
+    cursor: grabbing;
+}
+
+.beranda-lightbox-body img {
+    max-height: 58vh;
+    max-width: 82vw;
     width: auto;
-    max-width: 100%;
+    height: auto;
     object-fit: contain;
-    background: #000;
     display: block;
+    transition: opacity 0.2s ease;
+    -webkit-user-drag: none;
+    user-select: none;
+    pointer-events: none;
 }
 
-.beranda-lightbox-caption {
+.beranda-lightbox-swipe-badge {
+    position: absolute;
+    bottom: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--nb-yellow);
+    color: var(--nb-black);
+    border: var(--border-thin);
+    border-radius: var(--radius-pill);
+    box-shadow: 2.5px 2.5px 0px var(--nb-black);
+    padding: 5px 13px;
+    font-family: var(--font-heading);
+    font-size: 0.74rem;
+    font-weight: 800;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    z-index: 14;
+    pointer-events: none;
+    white-space: nowrap;
+    user-select: none;
+    letter-spacing: 0.2px;
+    line-height: 1.2;
+}
+
+.beranda-lightbox-swipe-badge i {
+    font-size: 0.95rem;
+    animation: swipeBadgeNudge 1.8s ease-in-out infinite;
+}
+
+@keyframes swipeBadgeNudge {
+    0%, 100% { transform: translateX(0); }
+    20% { transform: translateX(-4px); }
+    40% { transform: translateX(4px); }
+    60% { transform: translateX(-2px); }
+    80% { transform: translateX(2px); }
+}
+
+.beranda-lightbox-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 48px;
+    height: 48px;
+    background: var(--nb-white);
+    border: var(--border-medium);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    color: var(--nb-black);
+    cursor: pointer;
+    box-shadow: 4px 4px 0px var(--nb-black);
+    transition: all 0.15s ease;
+    z-index: 25;
+}
+
+.beranda-lightbox-nav:hover {
+    background: var(--nb-yellow);
+    transform: translateY(-50%) translate(-2px, -2px) scale(1.06);
+    box-shadow: 6px 6px 0px var(--nb-black);
+}
+
+.beranda-lightbox-nav:active {
+    transform: translateY(-50%) translate(2px, 2px);
+    box-shadow: 2px 2px 0px var(--nb-black);
+}
+
+.beranda-lightbox-nav.prev {
+    left: -66px;
+}
+
+.beranda-lightbox-nav.next {
+    right: -66px;
+}
+
+.beranda-lightbox-footer {
     padding: 14px 18px;
     background: var(--nb-white);
     border-top: var(--border-thick);
+    border-radius: 0 0 10px 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    box-sizing: border-box;
+    width: 0;
+    min-width: 100%;
+}
+
+.beranda-lightbox-caption {
     font-family: var(--font-heading);
-    font-size: 1rem;
+    font-size: 1.15rem;
     font-weight: 800;
     color: var(--nb-black);
+    margin: 0;
+    word-break: break-word;
+}
+
+.beranda-lightbox-desc {
+    font-family: var(--font-body);
+    font-size: 0.86rem;
+    color: #4b5563;
+    line-height: 1.45;
+    margin: 0;
+    word-break: break-word;
+}
+
+@media (max-width: 768px) {
+    .beranda-lightbox {
+        padding: 10px;
+        gap: 0;
+    }
+
+    .beranda-lightbox-content {
+        width: 100% !important;
+        max-width: 95vw !important;
+        max-height: 92vh;
+        border-radius: var(--radius-box);
+        box-shadow: 6px 6px 0px var(--nb-black);
+        overflow: hidden !important;
+    }
+
+    .beranda-lightbox-top {
+        padding: 10px 12px;
+        gap: 8px;
+        border-radius: 0;
+    }
+
+    .beranda-lightbox-tag {
+        font-size: 0.72rem;
+        padding: 4px 8px;
+        max-width: calc(100% - 105px);
+    }
+
+    .beranda-lightbox-top-right {
+        gap: 8px;
+    }
+
+    .beranda-lightbox-counter {
+        font-size: 0.74rem;
+        padding: 3px 8px;
+    }
+
+    .beranda-lightbox-close {
+        width: 32px;
+        height: 32px;
+        font-size: 1.3rem;
+    }
+
+    .beranda-lightbox-body {
+        background-color: #0b1118;
+        min-height: 250px;
+        overflow: hidden;
+    }
+
+    .beranda-lightbox-body img {
+        max-height: 52vh;
+        max-width: 100%;
+        width: auto;
+    }
+
+    .beranda-lightbox-nav {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 38px;
+        height: 38px;
+        font-size: 1.15rem;
+        box-shadow: 2.5px 2.5px 0px var(--nb-black);
+        z-index: 15;
+    }
+
+    .beranda-lightbox-nav:hover {
+        transform: translateY(-50%) scale(1.06);
+        box-shadow: 3.5px 3.5px 0px var(--nb-black);
+    }
+
+    .beranda-lightbox-nav.prev {
+        left: 8px !important;
+    }
+
+    .beranda-lightbox-nav.next {
+        right: 8px !important;
+    }
+
+    .beranda-lightbox-footer {
+        padding: 12px 14px;
+        border-radius: 0;
+    }
+
+    .beranda-lightbox-caption {
+        font-size: 1rem;
+    }
+
+    .beranda-lightbox-desc {
+        font-size: 0.82rem;
+    }
+
+    .beranda-lightbox-swipe-badge {
+        bottom: 10px;
+        font-size: 0.68rem;
+        padding: 4px 10px;
+        gap: 5px;
+        box-shadow: 2px 2px 0px var(--nb-black);
+    }
 }
 
 @media (max-width: 768px) {

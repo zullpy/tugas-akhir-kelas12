@@ -57,15 +57,20 @@ $subPageTitle = 'visi-misi';
             </div>
             <div class="visi-card reveal">
                 <blockquote class="visi-text">
-                    "Menjadikan sekolah yang unggul dengan lulusan yang <span class="highlight-yellow">Berprestasi</span>, <span class="highlight-green">Disiplin</span>, <span class="highlight-blue">Berkarakter baik</span>, <span class="highlight-pink">Inovatif</span>, <span class="highlight-purple">Kreatif</span>, dan <span class="highlight-red">siap berkarir</span>."
+                    "Menjadikan sekolah yang unggul dengan lulusan yang <span class="highlight-yellow">Berprestasi</span>, <span class="highlight-green">Disiplin</span>, <span class="highlight-blue">Berkarakter Baik</span>, <span class="highlight-pink">Inovatif</span>, <span class="highlight-purple">Kreatif</span>, dan <span class="highlight-red">Siap Berkarir</span>."
                 </blockquote>
-                <div class="visi-tags">
-                    <span class="tag-pill"><i class="ph-bold ph-trophy"></i> Berprestasi</span>
-                    <span class="tag-pill"><i class="ph-bold ph-shield-check"></i> Disiplin</span>
-                    <span class="tag-pill"><i class="ph-bold ph-heart"></i> Berkarakter Baik</span>
-                    <span class="tag-pill"><i class="ph-bold ph-lightbulb"></i> Inovatif</span>
-                    <span class="tag-pill"><i class="ph-bold ph-palette"></i> Kreatif</span>
-                    <span class="tag-pill"><i class="ph-bold ph-rocket-launch"></i> Siap Berkarir</span>
+                <div class="visi-tags-wrapper">
+                    <div class="visi-tags-label">
+                        <i class="ph-bold ph-sparkle"></i> 6 Pilar Karakter &amp; Kompetensi
+                    </div>
+                    <div class="visi-tags">
+                        <span class="tag-pill"><i class="ph-bold ph-trophy"></i> Berprestasi</span>
+                        <span class="tag-pill"><i class="ph-bold ph-shield-check"></i> Disiplin</span>
+                        <span class="tag-pill"><i class="ph-bold ph-heart"></i> Berkarakter Baik</span>
+                        <span class="tag-pill"><i class="ph-bold ph-lightbulb"></i> Inovatif</span>
+                        <span class="tag-pill"><i class="ph-bold ph-palette"></i> Kreatif</span>
+                        <span class="tag-pill"><i class="ph-bold ph-rocket-launch"></i> Siap Berkarir</span>
+                    </div>
                 </div>
             </div>
         </section>

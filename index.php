@@ -135,43 +135,40 @@ if (function_exists('get_galeri_photos')) {
 
 <main style="width: 92%; max-width: 1200px; margin: 75px auto 50px; min-height: 400px;">
     <!-- SPMB BANNER ANNOUNCEMENT (DYNAMIC FROM ADMIN) -->
-    <div style="margin-top: 15px; margin-bottom: 35px; background: #FFE600; border: 2.5px solid #000; border-radius: 14px; box-shadow: 4px 4px 0px #000; padding: 14px 22px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
-        <div style="display: flex; align-items: center; gap: 14px;">
-            <div style="width: 44px; height: 44px; background: #0A4D68; color: #FFE600; border: 2px solid #000; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.45rem; box-shadow: 2px 2px 0px #000; flex-shrink: 0;">
+    <div class="spmb-home-banner">
+        <div class="spmb-banner-left">
+            <div class="spmb-banner-icon">
                 <i class="ph-bold ph-megaphone"></i>
             </div>
-            <div>
-                <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 3px;">
-                    <span style="font-size: 0.75rem; font-weight: 800; background: #FFF; border: 1.5px solid #000; padding: 2px 8px; border-radius: 999px; text-transform: uppercase;">
-                        TA <?php echo htmlspecialchars($spmbTahun); ?> &bull; <?php echo htmlspecialchars($spmbGelombang); ?>
-                    </span>
-                    <span style="font-size: 0.72rem; font-weight: 800; background: <?php echo $statusInfo['badgeColor']; ?>; color: #FFF; border: 1.5px solid #000; padding: 2px 7px; border-radius: 999px; text-transform: uppercase;">
+            <div class="spmb-banner-content">
+                <div class="spmb-banner-header">
+                    <span class="spmb-badge-status" style="background: <?php echo $statusInfo['badgeColor']; ?>;">
                         <?php echo htmlspecialchars($statusInfo['label']); ?>
                     </span>
                 </div>
-                <h3 style="font-family: 'Space Grotesk', sans-serif; font-size: 1.15rem; font-weight: 800; color: #000; margin: 0; line-height: 1.2;">
+                <h3 class="spmb-banner-title">
                     <?php echo htmlspecialchars($spmbJudul); ?>
                 </h3>
                 <?php if (!empty($spmbPeriode)): ?>
-                    <div style="font-size: 0.8rem; font-weight: 700; color: #334155; margin-top: 3px; display: flex; align-items: center; gap: 5px;">
+                    <div class="spmb-banner-periode">
                         <i class="ph-bold ph-calendar"></i> Periode: <?php echo htmlspecialchars($spmbPeriode); ?>
                     </div>
                 <?php endif; ?>
             </div>
         </div>
-        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+        <div class="spmb-banner-actions">
             <?php if ($isSpmbBuka): ?>
-                <a href="spmb/daftar.php" style="background: #0A4D68; color: #FFF; font-family: 'Space Grotesk', sans-serif; font-weight: 800; font-size: 0.88rem; padding: 9px 18px; border: 2px solid #000; border-radius: 8px; box-shadow: 2.5px 2.5px 0px #000; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
+                <a href="spmb/daftar.php" class="spmb-btn spmb-btn-primary">
                     <i class="ph-bold ph-pencil-simple"></i> Daftar Sekarang
                 </a>
-                <a href="spmb/index.php" style="background: #FFF; color: #000; font-family: 'Space Grotesk', sans-serif; font-weight: 800; font-size: 0.88rem; padding: 9px 18px; border: 2px solid #000; border-radius: 8px; box-shadow: 2.5px 2.5px 0px #000; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
+                <a href="spmb/index.php" class="spmb-btn spmb-btn-secondary">
                     Info Lengkap <i class="ph-bold ph-arrow-right"></i>
                 </a>
             <?php else: ?>
-                <a href="spmb/index.php" style="background: #0A4D68; color: #FFF; font-family: 'Space Grotesk', sans-serif; font-weight: 800; font-size: 0.88rem; padding: 9px 18px; border: 2px solid #000; border-radius: 8px; box-shadow: 2.5px 2.5px 0px #000; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
+                <a href="spmb/index.php" class="spmb-btn spmb-btn-primary">
                     <i class="ph-bold ph-info"></i> Info &amp; Alur SPMB
                 </a>
-                <a href="spmb/cek-status.php" style="background: #FFF; color: #000; font-family: 'Space Grotesk', sans-serif; font-weight: 800; font-size: 0.88rem; padding: 9px 18px; border: 2px solid #000; border-radius: 8px; box-shadow: 2.5px 2.5px 0px #000; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
+                <a href="spmb/cek-status.php" class="spmb-btn spmb-btn-secondary">
                     <i class="ph-bold ph-magnifying-glass"></i> Cek Status
                 </a>
             <?php endif; ?>
@@ -207,7 +204,7 @@ if (function_exists('get_galeri_photos')) {
                     <div class="sambutan-body">
                         <p>Puji syukur kita panjatkan ke hadirat Allah SWT atas limpahan rahmat dan karunia-Nya sehingga website sekolah ini dapat hadir sebagai sarana informasi, komunikasi, dan inspirasi bagi seluruh warga sekolah serta masyarakat luas.</p>
                         <p>Website ini kami hadirkan sebagai wujud komitmen untuk mendukung <strong>pendidikan yang adaptif</strong> terhadap perkembangan teknologi. Melalui platform ini, kami berharap dapat memberikan akses informasi yang cepat, akurat, dan transparan terkait kegiatan, prestasi, dan layanan sekolah.</p>
-                        <p>Kami juga mengundang seluruh siswa, guru, orang tua, dan masyarakat untuk berpartisipasi aktif dalam mengisi dan memanfaatkan website ini demi kemajuan pendidikan. Semoga melalui kerja sama dan sinergi, kita dapat mencetak <strong>generasi yang unggul, berkarakter, dan berprestasi</strong>.</p>
+                        <p>Kami juga mengundang seluruh siswa, guru, orang tua, dan masyarakat untuk berpartisipasi aktif dalam mengisi dan memanfaatkan website ini demi kemajuan pendidikan. Semoga melalui kerja sama dan sinergi, kita dapat mencetak <strong>generasi yang Unggul, Berkarakter, dan Berprestasi</strong>.</p>
                         <p>Terima kasih atas dukungan dan kepercayaan yang telah diberikan kepada sekolah kami. Mari bersama-sama membangun pendidikan yang lebih baik.</p>
                     </div>
                     <p class="greeting-closing">Waalaikumsalam Warahmatullahi Wabarakatuh.</p>
@@ -227,123 +224,99 @@ if (function_exists('get_galeri_photos')) {
             <p class="section-subtitle">Ukiran Kebanggaan dan Raihan Juara Siswa-Siswi SMK Sukapura</p>
         </div>
 
+        <?php
+        $prestasiList = [
+            [
+                'img'      => 'assets/prestasi/kiki.jpg',
+                'category' => 'MOJANG JAJAKA',
+                'rank'     => 'Wakil Gandes',
+                'icon'     => 'ph-trophy',
+                'title'    => 'Mojang Jajaka Sukapura',
+                'caption'  => 'Terpilih sebagai Pemenang Nominasi Wakil Gandes dalam ajang Pemilihan Duta Pariwisata, Budaya, dan Ekonomi Kreatif.'
+            ],
+            [
+                'img'      => 'assets/prestasi/shota.jpg',
+                'category' => 'MOJANG JAJAKA',
+                'rank'     => 'Pemenang Wakil 2',
+                'icon'     => 'ph-trophy',
+                'title'    => 'Mojang Jajaka Sukapura',
+                'caption'  => 'Terpilih sebagai Pemenang Nominasi Wakil 2 dalam ajang Pemilihan Duta Pariwisata, Budaya, dan Ekonomi Kreatif.'
+            ],
+            [
+                'img'      => 'assets/prestasi/osis.jpg',
+                'category' => 'ORGANISASI SISWA',
+                'rank'     => 'Apresiasi',
+                'icon'     => 'ph-medal',
+                'title'    => 'Penghargaan Kepemimpinan OSIS',
+                'caption'  => 'Penghargaan untuk pengurus OSIS SMK Sukapura atas dedikasi dan suksesnya berbagai program kerja kreatif.'
+            ],
+            [
+                'img'      => 'assets/prestasi/paskibra.jpg',
+                'category' => 'PASUJA PASKIBRA',
+                'rank'     => 'Juara Utama',
+                'icon'     => 'ph-trophy',
+                'title'    => 'Juara Utama Paskibra Sukapura',
+                'caption'  => 'Tim Paskibra SMK Sukapura (Pasuja) berhasil mendulang prestasi gemilang dalam kejuaraan baris-berbaris.'
+            ],
+            [
+                'img'      => 'assets/prestasi/paskibra2.jpg',
+                'category' => 'PASUJA PASKIBRA',
+                'rank'     => 'Trofi Kemenangan',
+                'icon'     => 'ph-trophy',
+                'title'    => 'Trofi Kebanggaan Paskibra',
+                'caption'  => 'Penyerahan piala penghargaan tingkat kabupaten dan provinsi atas ketangkasan formasi tim Pasuja.'
+            ],
+            [
+                'img'      => 'assets/prestasi/vollypi.jpg',
+                'category' => 'OLAHRAGA VOLI',
+                'rank'     => 'Juara Voli PI',
+                'icon'     => 'ph-trophy',
+                'title'    => 'Juara Tim Bola Voli Putri',
+                'caption'  => 'Prestasi luar biasa tim bola voli putri SMK Sukapura merebut gelar juara dalam turnamen antar pelajar.'
+            ],
+            [
+                'img'      => 'assets/prestasi/vollypa.jpg',
+                'category' => 'OLAHRAGA VOLI',
+                'rank'     => 'Juara Voli PA',
+                'icon'     => 'ph-trophy',
+                'title'    => 'Juara Tim Bola Voli Putra',
+                'caption'  => 'Semangat juang dan kekompakan tim bola voli putra SMK Sukapura membuahkan trofi kejuaraan regional.'
+            ],
+            [
+                'img'      => 'assets/prestasi/mgmp.jpg',
+                'category' => 'LOMBA PAI',
+                'rank'     => 'Juara MGMP PAI',
+                'icon'     => 'ph-trophy',
+                'title'    => 'Juara Ajang Pentas MGMP PAI',
+                'caption'  => 'Prestasi membanggakan siswa-siswi SMK Sukapura dalam Pekan Keterampilan dan Seni Pendidikan Agama Islam (Pentas PAI) MGMP.'
+            ],
+            [
+                'img'      => 'assets/prestasi/poster.jpg',
+                'category' => 'DESAIN DIGITAL',
+                'rank'     => 'Juara Poster Digital',
+                'icon'     => 'ph-palette',
+                'title'    => 'Juara Lomba Desain Poster Digital',
+                'caption'  => 'Kreativitas dan keahlian siswa SMK Sukapura dalam merancang poster digital artistik yang edukatif dan inspiratif.'
+            ]
+        ];
+        ?>
         <div class="prestasi-grid">
-            <!-- Card 1: Kiki Nopiansyah -->
-            <div class="prestasi-card reveal reveal-scale reveal-delay-1">
-                <div class="prestasi-img-wrapper">
-                    <img src="assets/prestasi/kiki.jpg" alt="Kiki Nopiansyah - Pasanggiri Mojang Jajaka Sukapura" class="prestasi-img">
-                    <span class="prestasi-category">MOJANG JAJAKA</span>
-                    <span class="prestasi-rank"><i class="ph-bold ph-trophy"></i> Wakil Gandes</span>
+            <?php foreach ($prestasiList as $idx => $item): ?>
+            <div class="prestasi-card reveal reveal-scale reveal-delay-<?php echo ($idx % 3) + 1; ?>">
+                <div class="prestasi-img-wrapper" onclick="openPrestasiLightbox(<?php echo $idx; ?>)" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openPrestasiLightbox(<?php echo $idx; ?>);}" title="Klik untuk memperbesar foto: <?php echo htmlspecialchars($item['title']); ?>">
+                    <img src="<?php echo htmlspecialchars($item['img']); ?>" alt="<?php echo htmlspecialchars($item['title']); ?>" class="prestasi-img" loading="lazy">
+                    <span class="prestasi-category"><?php echo htmlspecialchars($item['category']); ?></span>
+                    <span class="prestasi-rank"><i class="ph-bold <?php echo htmlspecialchars($item['icon']); ?>"></i> <?php echo htmlspecialchars($item['rank']); ?></span>
+                    <div class="prestasi-img-overlay">
+                        <span class="prestasi-zoom-btn"><i class="ph-bold ph-arrows-out-simple"></i> Buka Foto</span>
+                    </div>
                 </div>
                 <div class="prestasi-content">
-                    <h3 class="prestasi-title">Mojang Jajaka Sukapura</h3>
-                    <p class="prestasi-caption">Terpilih sebagai Pemenang Nominasi Wakil Gandes dalam ajang Pemilihan Duta Pariwisata, Budaya, dan Ekonomi Kreatif.</p>
+                    <h3 class="prestasi-title"><?php echo htmlspecialchars($item['title']); ?></h3>
+                    <p class="prestasi-caption"><?php echo htmlspecialchars($item['caption']); ?></p>
                 </div>
             </div>
-
-            <!-- Card 2: Shota Abdullah -->
-            <div class="prestasi-card reveal reveal-scale reveal-delay-2">
-                <div class="prestasi-img-wrapper">
-                    <img src="assets/prestasi/shota.jpg" alt="Shota Abdullah - Pasanggiri Mojang Jajaka Sukapura" class="prestasi-img">
-                    <span class="prestasi-category">MOJANG JAJAKA</span>
-                    <span class="prestasi-rank"><i class="ph-bold ph-trophy"></i> Pemenang Wakil 2</span>
-                </div>
-                <div class="prestasi-content">
-                    <h3 class="prestasi-title">Mojang Jajaka Sukapura</h3>
-                    <p class="prestasi-caption">Terpilih sebagai Pemenang Nominasi Wakil 2 dalam ajang Pemilihan Duta Pariwisata, Budaya, dan Ekonomi Kreatif.</p>
-                </div>
-            </div>
-
-            <!-- Card 3: OSIS -->
-            <div class="prestasi-card reveal reveal-scale reveal-delay-3">
-                <div class="prestasi-img-wrapper">
-                    <img src="assets/prestasi/osis.jpg" alt="OSIS SMK Sukapura" class="prestasi-img">
-                    <span class="prestasi-category">ORGANISASI SISWA</span>
-                    <span class="prestasi-rank"><i class="ph-bold ph-medal"></i> Apresiasi</span>
-                </div>
-                <div class="prestasi-content">
-                    <h3 class="prestasi-title">Penghargaan Kepemimpinan OSIS</h3>
-                    <p class="prestasi-caption">Penghargaan untuk pengurus OSIS SMK Sukapura atas dedikasi dan suksesnya berbagai program kerja kreatif.</p>
-                </div>
-            </div>
-
-            <!-- Card 4: Paskibra 1 -->
-            <div class="prestasi-card reveal reveal-scale reveal-delay-1">
-                <div class="prestasi-img-wrapper">
-                    <img src="assets/prestasi/paskibra.jpg" alt="Paskibra Pasuja SMK Sukapura" class="prestasi-img">
-                    <span class="prestasi-category">PASUJA PASKIBRA</span>
-                    <span class="prestasi-rank"><i class="ph-bold ph-trophy"></i> Juara Utama</span>
-                </div>
-                <div class="prestasi-content">
-                    <h3 class="prestasi-title">Juara Utama Paskibra Sukapura</h3>
-                    <p class="prestasi-caption">Tim Paskibra SMK Sukapura (Pasuja) berhasil mendulang prestasi gemilang dalam kejuaraan baris-berbaris.</p>
-                </div>
-            </div>
-
-            <!-- Card 5: Paskibra 2 -->
-            <div class="prestasi-card reveal reveal-scale reveal-delay-2">
-                <div class="prestasi-img-wrapper">
-                    <img src="assets/prestasi/paskibra2.jpg" alt="Trofi Paskibra SMK Sukapura" class="prestasi-img">
-                    <span class="prestasi-category">PASUJA PASKIBRA</span>
-                    <span class="prestasi-rank"><i class="ph-bold ph-trophy"></i> Trofi Kemenangan</span>
-                </div>
-                <div class="prestasi-content">
-                    <h3 class="prestasi-title">Trofi Kebanggaan Paskibra</h3>
-                    <p class="prestasi-caption">Penyerahan piala penghargaan tingkat kabupaten dan provinsi atas ketangkasan formasi tim Pasuja.</p>
-                </div>
-            </div>
-
-            <!-- Card 6: Volly Putri -->
-            <div class="prestasi-card reveal reveal-scale reveal-delay-3">
-                <div class="prestasi-img-wrapper">
-                    <img src="assets/prestasi/vollypi.jpg" alt="Tim Voli Putri SMK Sukapura" class="prestasi-img">
-                    <span class="prestasi-category">OLAHRAGA VOLI</span>
-                    <span class="prestasi-rank"><i class="ph-bold ph-trophy"></i> Juara Voli PI</span>
-                </div>
-                <div class="prestasi-content">
-                    <h3 class="prestasi-title">Juara Tim Bola Voli Putri</h3>
-                    <p class="prestasi-caption">Prestasi luar biasa tim bola voli putri SMK Sukapura merebut gelar juara dalam turnamen antar pelajar.</p>
-                </div>
-            </div>
-
-            <!-- Card 7: Volly Putra -->
-            <div class="prestasi-card reveal reveal-scale reveal-delay-1">
-                <div class="prestasi-img-wrapper">
-                    <img src="assets/prestasi/vollypa.jpg" alt="Tim Voli Putra SMK Sukapura" class="prestasi-img">
-                    <span class="prestasi-category">OLAHRAGA VOLI</span>
-                    <span class="prestasi-rank"><i class="ph-bold ph-trophy"></i> Juara Voli PA</span>
-                </div>
-                <div class="prestasi-content">
-                    <h3 class="prestasi-title">Juara Tim Bola Voli Putra</h3>
-                    <p class="prestasi-caption">Semangat juang dan kekompakan tim bola voli putra SMK Sukapura membuahkan trofi kejuaraan regional.</p>
-                </div>
-            </div>
-
-            <!-- Card 8: MGMP PAI -->
-            <div class="prestasi-card reveal reveal-scale reveal-delay-2">
-                <div class="prestasi-img-wrapper">
-                    <img src="assets/prestasi/mgmp.jpg" alt="Juara Pentas MGMP PAI SMK Sukapura" class="prestasi-img">
-                    <span class="prestasi-category">LOMBA PAI</span>
-                    <span class="prestasi-rank"><i class="ph-bold ph-trophy"></i> Juara MGMP PAI</span>
-                </div>
-                <div class="prestasi-content">
-                    <h3 class="prestasi-title">Juara Ajang Pentas MGMP PAI</h3>
-                    <p class="prestasi-caption">Prestasi membanggakan siswa-siswi SMK Sukapura dalam Pekan Keterampilan dan Seni Pendidikan Agama Islam (Pentas PAI) MGMP.</p>
-                </div>
-            </div>
-
-            <!-- Card 9: Poster Digital -->
-            <div class="prestasi-card reveal reveal-scale reveal-delay-3">
-                <div class="prestasi-img-wrapper">
-                    <img src="assets/prestasi/poster.jpg" alt="Juara Lomba Poster Digital SMK Sukapura" class="prestasi-img">
-                    <span class="prestasi-category">DESAIN DIGITAL</span>
-                    <span class="prestasi-rank"><i class="ph-bold ph-palette"></i> Juara Poster Digital</span>
-                </div>
-                <div class="prestasi-content">
-                    <h3 class="prestasi-title">Juara Lomba Desain Poster Digital</h3>
-                    <p class="prestasi-caption">Kreativitas dan keahlian siswa SMK Sukapura dalam merancang poster digital artistik yang edukatif dan inspiratif.</p>
-                </div>
-            </div>
+            <?php endforeach; ?>
         </div>
     </section>
 
@@ -550,33 +523,6 @@ if (function_exists('get_galeri_photos')) {
         </div>
     </section>
 
-    <!-- Lightbox Modal untuk Beranda -->
-    <div id="berandaLightboxModal" class="beranda-lightbox" onclick="closeBerandaLightbox()">
-        <div class="beranda-lightbox-content" onclick="event.stopPropagation()">
-            <div class="beranda-lightbox-top">
-                <span class="beranda-lightbox-tag" id="berandaLightboxTag"><i class="ph-bold ph-image"></i> Dokumentasi</span>
-                <button type="button" class="beranda-lightbox-close" onclick="closeBerandaLightbox()">&times;</button>
-            </div>
-            <img id="berandaLightboxImg" src="" alt="Full Preview Foto">
-            <div class="beranda-lightbox-caption" id="berandaLightboxCaption"></div>
-        </div>
-    </div>
-    <script>
-    function openBerandaLightbox(src, title, tag) {
-        document.getElementById('berandaLightboxImg').src = src;
-        document.getElementById('berandaLightboxCaption').textContent = title;
-        document.getElementById('berandaLightboxTag').innerHTML = '<i class="ph-bold ph-image"></i> ' + tag;
-        document.getElementById('berandaLightboxModal').classList.add('active');
-        document.body.style.overflow = 'hidden';
-    }
-    function closeBerandaLightbox() {
-        document.getElementById('berandaLightboxModal').classList.remove('active');
-        document.body.style.overflow = '';
-    }
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape') closeBerandaLightbox();
-    });
-    </script>
     <?php endif; ?>
 
     <section class="mitra-section">
@@ -611,6 +557,305 @@ if (function_exists('get_galeri_photos')) {
             </button>
         </div>
     </section>
+
+    <!-- Lightbox Modal untuk Beranda (Prestasi & Galeri) -->
+    <div id="berandaLightboxModal" class="beranda-lightbox" onclick="closeBerandaLightbox()" role="dialog" aria-modal="true" aria-label="Pratinjau Foto">
+        <div class="beranda-lightbox-content" onclick="event.stopPropagation()">
+            <div class="beranda-lightbox-top">
+                <span class="beranda-lightbox-tag" id="berandaLightboxTag" title="Kategori Prestasi">
+                    <i class="ph-bold ph-trophy"></i> <span>Prestasi</span>
+                </span>
+                <div class="beranda-lightbox-top-right">
+                    <span class="beranda-lightbox-counter" id="berandaLightboxCounter">1 / 9</span>
+                    <button type="button" class="beranda-lightbox-close" onclick="closeBerandaLightbox()" aria-label="Tutup Pratinjau">&times;</button>
+                </div>
+            </div>
+            <div class="beranda-lightbox-body">
+                <button type="button" class="beranda-lightbox-nav prev" id="berandaLightboxPrev" onclick="prevPrestasiLightbox(event)" aria-label="Foto Sebelumnya">
+                    <i class="ph-bold ph-caret-left"></i>
+                </button>
+                <img id="berandaLightboxImg" src="" alt="Full Preview Foto">
+                <button type="button" class="beranda-lightbox-nav next" id="berandaLightboxNext" onclick="nextPrestasiLightbox(event)" aria-label="Foto Selanjutnya">
+                    <i class="ph-bold ph-caret-right"></i>
+                </button>
+                <div class="beranda-lightbox-swipe-badge" id="berandaLightboxSwipeBadge">
+                    <i class="ph-bold ph-arrows-left-right"></i>
+                    <span>Geser untuk lihat foto lain</span>
+                </div>
+            </div>
+            <div class="beranda-lightbox-footer">
+                <h3 class="beranda-lightbox-caption" id="berandaLightboxCaption"></h3>
+                <p class="beranda-lightbox-desc" id="berandaLightboxDesc"></p>
+            </div>
+        </div>
+    </div>
+    <script>
+    const prestasiData = <?php echo json_encode($prestasiList ?? [], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>;
+    let currentPrestasiIndex = 0;
+    let isPrestasiMode = false;
+
+    function syncModalWidth(imgEl) {
+        if (!imgEl) return;
+        const contentEl = document.querySelector('#berandaLightboxModal .beranda-lightbox-content');
+        if (!contentEl) return;
+
+        const applyWidth = () => {
+            if (window.innerWidth <= 768) {
+                contentEl.style.width = '';
+                return;
+            }
+            if (imgEl.naturalWidth && imgEl.naturalHeight) {
+                const maxH = Math.min(window.innerHeight * 0.58, 520);
+                const ratio = imgEl.naturalWidth / imgEl.naturalHeight;
+                const targetW = Math.round(maxH * ratio);
+                const finalW = Math.max(420, Math.min(targetW, 840, window.innerWidth * 0.85));
+                contentEl.style.width = finalW + 'px';
+            }
+        };
+
+        if (imgEl.complete && imgEl.naturalWidth) {
+            applyWidth();
+        } else {
+            imgEl.onload = applyWidth;
+        }
+    }
+
+    function openPrestasiLightbox(index) {
+        if (!prestasiData || index < 0 || index >= prestasiData.length) return;
+        currentPrestasiIndex = index;
+        isPrestasiMode = true;
+        updatePrestasiModal();
+        const modal = document.getElementById('berandaLightboxModal');
+        if (modal) modal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function updatePrestasiModal() {
+        const item = prestasiData[currentPrestasiIndex];
+        if (!item) return;
+
+        const imgEl = document.getElementById('berandaLightboxImg');
+        if (imgEl) {
+            imgEl.src = item.img;
+            imgEl.alt = item.title;
+            syncModalWidth(imgEl);
+        }
+
+        const capEl = document.getElementById('berandaLightboxCaption');
+        if (capEl) capEl.textContent = item.title;
+
+        const descEl = document.getElementById('berandaLightboxDesc');
+        if (descEl) {
+            descEl.textContent = item.caption || '';
+            descEl.style.display = item.caption ? 'block' : 'none';
+        }
+
+        const tagEl = document.getElementById('berandaLightboxTag');
+        if (tagEl) {
+            const iconClass = item.icon || 'ph-trophy';
+            const fullTag = item.category + ' \u2022 ' + item.rank;
+            tagEl.title = fullTag;
+            tagEl.innerHTML = '<i class="ph-bold ' + iconClass + '"></i> <span>' + escapeLightboxHtml(fullTag) + '</span>';
+        }
+
+        const counterEl = document.getElementById('berandaLightboxCounter');
+        if (counterEl) {
+            counterEl.textContent = (currentPrestasiIndex + 1) + ' / ' + prestasiData.length;
+            counterEl.style.display = 'inline-flex';
+        }
+
+        const prevBtn = document.getElementById('berandaLightboxPrev');
+        const nextBtn = document.getElementById('berandaLightboxNext');
+        if (prevBtn) prevBtn.style.display = 'flex';
+        if (nextBtn) nextBtn.style.display = 'flex';
+
+        const swipeBadge = document.getElementById('berandaLightboxSwipeBadge');
+        if (swipeBadge) {
+            swipeBadge.style.display = (prestasiData && prestasiData.length > 1) ? 'inline-flex' : 'none';
+        }
+    }
+
+    function prevPrestasiLightbox(e) {
+        if (e) e.stopPropagation();
+        if (!isPrestasiMode || !prestasiData.length) return;
+        currentPrestasiIndex = (currentPrestasiIndex - 1 + prestasiData.length) % prestasiData.length;
+        updatePrestasiModal();
+    }
+
+    function nextPrestasiLightbox(e) {
+        if (e) e.stopPropagation();
+        if (!isPrestasiMode || !prestasiData.length) return;
+        currentPrestasiIndex = (currentPrestasiIndex + 1) % prestasiData.length;
+        updatePrestasiModal();
+    }
+
+    function openBerandaLightbox(src, title, tag) {
+        isPrestasiMode = false;
+        const imgEl = document.getElementById('berandaLightboxImg');
+        if (imgEl) {
+            imgEl.src = src;
+            imgEl.alt = title;
+            syncModalWidth(imgEl);
+        }
+
+        const capEl = document.getElementById('berandaLightboxCaption');
+        if (capEl) capEl.textContent = title;
+
+        const descEl = document.getElementById('berandaLightboxDesc');
+        if (descEl) {
+            descEl.textContent = '';
+            descEl.style.display = 'none';
+        }
+
+        const tagEl = document.getElementById('berandaLightboxTag');
+        if (tagEl) {
+            tagEl.title = tag;
+            tagEl.innerHTML = '<i class="ph-bold ph-image"></i> <span>' + escapeLightboxHtml(tag) + '</span>';
+        }
+
+        const counterEl = document.getElementById('berandaLightboxCounter');
+        if (counterEl) counterEl.style.display = 'none';
+
+        const prevBtn = document.getElementById('berandaLightboxPrev');
+        const nextBtn = document.getElementById('berandaLightboxNext');
+        if (prevBtn) prevBtn.style.display = 'none';
+        if (nextBtn) nextBtn.style.display = 'none';
+
+        const swipeBadge = document.getElementById('berandaLightboxSwipeBadge');
+        if (swipeBadge) swipeBadge.style.display = 'none';
+
+        const modal = document.getElementById('berandaLightboxModal');
+        if (modal) modal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeBerandaLightbox() {
+        const modal = document.getElementById('berandaLightboxModal');
+        if (modal) modal.classList.remove('active');
+        document.body.style.overflow = '';
+        const contentEl = document.querySelector('#berandaLightboxModal .beranda-lightbox-content');
+        if (contentEl) contentEl.style.width = '';
+    }
+
+    function escapeLightboxHtml(str) {
+        if (!str) return '';
+        const d = document.createElement('div');
+        d.textContent = str;
+        return d.innerHTML;
+    }
+
+    document.addEventListener('keydown', function(e) {
+        const modal = document.getElementById('berandaLightboxModal');
+        if (!modal || !modal.classList.contains('active')) return;
+        if (e.key === 'Escape') {
+            closeBerandaLightbox();
+        } else if (e.key === 'ArrowLeft') {
+            if (isPrestasiMode) prevPrestasiLightbox();
+        } else if (e.key === 'ArrowRight') {
+            if (isPrestasiMode) nextPrestasiLightbox();
+        }
+    });
+
+    window.addEventListener('resize', function() {
+        const modal = document.getElementById('berandaLightboxModal');
+        if (modal && modal.classList.contains('active')) {
+            const imgEl = document.getElementById('berandaLightboxImg');
+            syncModalWidth(imgEl);
+        }
+    });
+
+    // Swipe & Drag Gesture Support for Lightbox (Mobile touch + Mouse drag)
+    (function initLightboxSwipe() {
+        const bodyEl = document.querySelector('#berandaLightboxModal .beranda-lightbox-body');
+        const imgEl = document.getElementById('berandaLightboxImg');
+        if (!bodyEl || !imgEl) return;
+
+        let startX = 0;
+        let startY = 0;
+        let diffX = 0;
+        let isSwiping = false;
+        let isMouseDown = false;
+
+        function handleStart(x, y) {
+            if (!isPrestasiMode) return;
+            startX = x;
+            startY = y;
+            diffX = 0;
+            isSwiping = true;
+        }
+
+        function handleMove(x, y) {
+            if (!isSwiping || !isPrestasiMode) return;
+            diffX = x - startX;
+            const diffY = y - startY;
+
+            // Jika tarikan horizontal dominan
+            if (Math.abs(diffX) > Math.abs(diffY)) {
+                bodyEl.classList.add('is-dragging');
+                const damped = Math.max(-90, Math.min(90, diffX * 0.45));
+                imgEl.style.transform = 'translateX(' + damped + 'px)';
+                imgEl.style.transition = 'none';
+            }
+        }
+
+        function handleEnd() {
+            if (!isSwiping) return;
+            isSwiping = false;
+            bodyEl.classList.remove('is-dragging');
+            imgEl.style.transition = 'transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease';
+            imgEl.style.transform = '';
+
+            if (isPrestasiMode && Math.abs(diffX) > 42) {
+                if (diffX > 0) {
+                    prevPrestasiLightbox();
+                } else {
+                    nextPrestasiLightbox();
+                }
+            }
+            diffX = 0;
+        }
+
+        // Touch events (Mobile)
+        bodyEl.addEventListener('touchstart', function(e) {
+            if (e.touches && e.touches.length === 1) {
+                handleStart(e.touches[0].clientX, e.touches[0].clientY);
+            }
+        }, { passive: true });
+
+        bodyEl.addEventListener('touchmove', function(e) {
+            if (e.touches && e.touches.length === 1) {
+                handleMove(e.touches[0].clientX, e.touches[0].clientY);
+            }
+        }, { passive: true });
+
+        bodyEl.addEventListener('touchend', function() {
+            handleEnd();
+        }, { passive: true });
+
+        bodyEl.addEventListener('touchcancel', function() {
+            handleEnd();
+        }, { passive: true });
+
+        // Mouse drag events (Desktop / Devtools)
+        bodyEl.addEventListener('mousedown', function(e) {
+            if (e.button !== 0) return;
+            if (e.target.closest('.beranda-lightbox-nav') || e.target.closest('.beranda-lightbox-close')) return;
+            isMouseDown = true;
+            handleStart(e.clientX, e.clientY);
+        });
+
+        window.addEventListener('mousemove', function(e) {
+            if (!isMouseDown) return;
+            handleMove(e.clientX, e.clientY);
+        });
+
+        window.addEventListener('mouseup', function() {
+            if (!isMouseDown) return;
+            isMouseDown = false;
+            handleEnd();
+        });
+    })();
+    </script>
 </main>
 
 <?php include 'components/footer.php'; ?>

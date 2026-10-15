@@ -215,6 +215,9 @@ $subPageTitle = 'kontak';
             font-size: 0.95rem;
             margin-bottom: 18px;
             box-shadow: 4px 4px 0 #000;
+            box-sizing: border-box;
+            max-width: 100%;
+            word-break: break-word;
         }
         .notif-sukses { background-color: #DCFCE7; color: #166534; }
         .notif-gagal  { background-color: #FEE2E2; color: #991B1B; }

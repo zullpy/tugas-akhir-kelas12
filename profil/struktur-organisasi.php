@@ -51,9 +51,6 @@ $subPageTitle = 'struktur-organisasi';
                 <img src="../assets/struktur.png" alt="Bagan Struktur Organisasi SMKS SUKAPURA" class="struktur-img">
             </div>
             <div class="struktur-card-footer">
-                <a href="../assets/struktur.png" download class="struktur-download-btn" id="btn-download-struktur">
-                    <i class="ph-bold ph-download-simple"></i> Unduh Bagan
-                </a>
                 <a href="../assets/struktur.png" target="_blank" class="struktur-view-btn" id="btn-view-struktur">
                     <i class="ph-bold ph-arrows-out"></i> Lihat Penuh
                 </a>

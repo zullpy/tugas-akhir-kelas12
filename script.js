@@ -26,7 +26,7 @@ if (!window.scriptInitialized) {
             if (link) {
                 link.addEventListener('click', (e) => {
                     // If on mobile view, toggle sub-menu on click
-                    if (window.innerWidth <= 992) {
+                    if (window.innerWidth <= 1080) {
                         e.preventDefault();
                         e.stopPropagation();
                         

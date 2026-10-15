@@ -45,6 +45,13 @@ $current_script_path = $_SERVER['SCRIPT_NAME'] ?? '';
 }
 
 /* Container for Header & Navbar (Full Width) */
+.header-wrapper,
+.header-wrapper *,
+.header-wrapper *::before,
+.header-wrapper *::after {
+    box-sizing: border-box;
+}
+
 .header-wrapper {
     width: 100%;
     max-width: 100%;
@@ -335,13 +342,15 @@ $current_script_path = $_SERVER['SCRIPT_NAME'] ?? '';
         align-items: stretch;
         gap: 10px;
         margin-top: 14px;
-        padding-top: 14px;
-        padding-bottom: 12px;
+        padding: 14px 8px 24px 8px;
         border-top: var(--border-thin);
         width: 100%;
         max-height: calc(85vh - 70px);
         overflow-y: auto;
+        overflow-x: hidden;
         -webkit-overflow-scrolling: touch;
+        box-sizing: border-box;
+        scrollbar-width: thin;
     }
 
     .nav-links.show-links {
@@ -351,9 +360,14 @@ $current_script_path = $_SERVER['SCRIPT_NAME'] ?? '';
     .nav-link {
         width: 100%;
         justify-content: space-between;
-        padding: 12px 16px;
+        padding: 12px 14px;
         min-height: 44px;
         touch-action: manipulation;
+        box-sizing: border-box;
+    }
+
+    .nav-link.active {
+        transform: translate(-1px, -1px);
     }
 
     .sub-menu {
@@ -363,19 +377,30 @@ $current_script_path = $_SERVER['SCRIPT_NAME'] ?? '';
         transform: none;
         box-shadow: none;
         border: var(--border-thin);
+        border-radius: 10px;
         background-color: var(--nb-bg);
-        margin-top: 6px;
-        margin-left: 8px;
+        margin: 8px 8px 10px 8px;
         display: none;
         padding: 6px;
+        box-sizing: border-box;
+        width: auto;
+        min-width: 0;
+        max-width: 100%;
     }
 
     .sub-menu a {
-        padding: 11px 14px;
-        min-height: 44px;
+        padding: 10px 14px;
+        min-height: 42px;
         display: flex;
         align-items: center;
         touch-action: manipulation;
+        box-sizing: border-box;
+        white-space: normal;
+    }
+
+    .sub-menu a:hover,
+    .sub-menu a.active {
+        transform: translate(-1px, -1px);
     }
 
     .nav-item.open .sub-menu {
