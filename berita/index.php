@@ -37,8 +37,22 @@ require_once __DIR__ . '/data-berita.php';
 
     <main class="berita-main">
 
+        <!-- JIKA BELUM ADA BERITA -->
+        <?php if (empty($berita)): ?>
+            <div style="text-align:center; padding:60px 20px; background:#fff; border:3px solid #000; border-radius:14px; box-shadow:6px 6px 0px #000; margin:40px 0;">
+                <div style="width:64px; height:64px; background:#FEF9C3; border:2px solid #000; border-radius:12px; margin:0 auto 16px; display:flex; align-items:center; justify-content:center; font-size:2rem; box-shadow:3px 3px 0px #000;">
+                    <i class="ph-bold ph-newspaper-clipping"></i>
+                </div>
+                <h3 style="font-family:'Space Grotesk', sans-serif; font-size:1.4rem; font-weight:800; margin-bottom:8px;">Belum Ada Berita Diterbitkan</h3>
+                <p style="color:#64748B; max-width:440px; margin:0 auto;">Saat ini belum ada artikel berita yang dipublikasikan. Silakan kunjungi kembali di lain waktu.</p>
+            </div>
+        <?php else: ?>
+
         <!-- BERITA UTAMA (featured) -->
-        <?php if (!empty($berita)): $featured = $berita[0]; ?>
+        <?php 
+        $featured = $berita[0]; 
+        $otherBerita = array_slice($berita, 1);
+        ?>
         <section class="berita-featured-section">
             <div class="berita-section-badge"><i class="ph-bold ph-star"></i> BERITA TERKINI</div>
             <div class="berita-featured-card">
@@ -65,13 +79,13 @@ require_once __DIR__ . '/data-berita.php';
                 </div>
             </div>
         </section>
-        <?php endif; ?>
 
         <!-- SEMUA BERITA -->
+        <?php if (!empty($otherBerita)): ?>
         <section class="berita-list-section">
             <div class="berita-section-badge"><i class="ph-bold ph-list-bullets"></i> SEMUA BERITA</div>
             <div class="berita-grid">
-                <?php foreach (array_slice($berita, 1) as $item): ?>
+                <?php foreach ($otherBerita as $item): ?>
                 <?php
                 $kat = $item['kategori'];
                 $bg  = $kategori_warna[$kat] ?? '#FFE600';
@@ -95,6 +109,8 @@ require_once __DIR__ . '/data-berita.php';
                 <?php endforeach; ?>
             </div>
         </section>
+        <?php endif; ?>
+        <?php endif; ?>
 
     </main>
 

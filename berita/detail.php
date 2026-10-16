@@ -18,8 +18,14 @@ foreach ($berita as $item) {
 }
 
 // Jika berita tidak ditemukan, pakai berita pertama sebagai fallback
-if (!$article) {
+if (!$article && !empty($berita)) {
     $article = $berita[0];
+}
+
+// Jika tetap tidak ada artikel, redirect ke index berita
+if (!$article) {
+    header("Location: index.php");
+    exit;
 }
 
 $kat = $article['kategori'];
@@ -74,9 +80,13 @@ $bg  = $kategori_warna[$kat] ?? '#FFE600';
 
             <!-- Content Paragraphs -->
             <div class="berita-detail-content">
-                <?php foreach ($article['konten'] as $paragraph): ?>
-                    <p><?php echo htmlspecialchars($paragraph); ?></p>
-                <?php endforeach; ?>
+                <?php if (is_array($article['konten'])): ?>
+                    <?php foreach ($article['konten'] as $paragraph): ?>
+                        <p><?php echo htmlspecialchars($paragraph); ?></p>
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <p><?php echo nl2br(htmlspecialchars($article['konten'])); ?></p>
+                <?php endif; ?>
             </div>
 
             <!-- Footer / Share & Back -->

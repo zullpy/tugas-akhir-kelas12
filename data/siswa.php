@@ -77,6 +77,19 @@ $data_siswa = [
     ["no" => "60", "nis" => "39.10.060", "nisn" => "0078413020", "nama" => "Wanda Hara", "jk" => "P", "tingkat" => "X", "jurusan" => "TJKT", "kelas" => "X TJKT 2", "status" => "Aktif"],
 ];
 
+// Ambil data dinamis dari database (jika tersedia), dengan fallback ke array bawaan
+try {
+    if (file_exists(__DIR__ . '/../spmb/config.php')) {
+        require_once __DIR__ . '/../spmb/config.php';
+        if (function_exists('get_all_siswa')) {
+            $dbSiswa = get_all_siswa(true);
+            if (!empty($dbSiswa)) {
+                $data_siswa = $dbSiswa;
+            }
+        }
+    }
+} catch (Exception $e) {}
+
 // Count Statistics
 $total_siswa = count($data_siswa);
 $total_x = count(array_filter($data_siswa, fn($s) => $s['tingkat'] === 'X'));

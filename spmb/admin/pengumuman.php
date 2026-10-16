@@ -354,8 +354,8 @@ foreach ($pengumumanList as $p) {
 $flash = $_SESSION['flash_msg'] ?? null;
 unset($_SESSION['flash_msg']);
 
-$adminPageTitle   = 'Manajemen Pengumuman & Popup Website';
-$adminPageHeading = 'Pengumuman Website &amp; Popup Masuk';
+$adminPageTitle   = 'Kelola Pengumuman Sekolah';
+$adminPageHeading = 'Pengumuman Sekolah';
 require_once __DIR__ . '/header.php';
 ?>
 
@@ -563,6 +563,8 @@ input:checked + .nb-slider:before {
 }
 </style>
 
+
+
 <!-- TAB NAVIGATION -->
 <div class="peng-tab-nav">
     <a href="?tab=beranda" class="peng-tab-btn <?php echo $activeTab === 'beranda' ? 'active' : ''; ?>">
@@ -579,88 +581,85 @@ input:checked + .nb-slider:before {
     </a>
 </div>
 
+<!-- TOP ACTION HEADER -->
+<div class="adm-section-header" style="margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+    <div>
+        <h2 style="font-family: var(--font-heading); font-size: 1.6rem; font-weight: 800; color: var(--adm-black); margin-bottom: 4px; display: flex; align-items: center; gap: 10px;">
+            <i class="ph-bold ph-megaphone-simple" style="color: var(--adm-navy);"></i> Kelola Pengumuman Sekolah
+        </h2>
+        <p style="color: #64748B; font-size: 0.92rem;">Kelola informasi dan edaran resmi yang ditampilkan di Beranda utama.</p>
+    </div>
+    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+        <button type="button" class="adm-btn adm-btn-yellow" onclick="openTambahModal()" style="font-weight: 800; display: inline-flex; align-items: center; gap: 8px;">
+            <i class="ph-bold ph-plus-circle" style="font-size: 1.25rem;"></i> Tambah Pengumuman Baru
+        </button>
+        <a href="../../index.php#pengumuman" target="_blank" class="adm-btn adm-btn-white" style="font-weight: 700; display: inline-flex; align-items: center; gap: 8px;" title="Lihat Seksi Pengumuman di Beranda Web">
+            <i class="ph-bold ph-arrow-square-out"></i> Lihat di Web
+        </a>
+    </div>
+</div>
+
 <!-- =========================================================================
      TAB 1: PENGUMUMAN BERANDA (DI BAWAH SAMBUTAN KEPALA SEKOLAH)
      ========================================================================= -->
 <?php if ($activeTab === 'beranda'): ?>
 
-    <!-- STATS ROW -->
-    <div class="peng-stat-grid">
-        <div class="peng-stat-card">
-            <div class="peng-stat-icon" style="background:#FEF9C3; color:#CA8A04;">
+    <!-- STATS ROW (Standard Neubrutalism) -->
+    <div class="adm-stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); margin-bottom: 24px;">
+        <div class="adm-stat-card">
+            <div>
+                <div class="adm-stat-val" style="color: var(--adm-navy-dark);"><?php echo $totalPengumuman; ?></div>
+                <div class="adm-stat-title">Total Pengumuman</div>
+            </div>
+            <div class="adm-stat-icon-wrap" style="background:#FEF9C3; color:#CA8A04;">
                 <i class="ph-bold ph-megaphone"></i>
             </div>
-            <div>
-                <div style="font-size:0.8rem; font-weight:700; color:#64748B;">TOTAL PENGUMUMAN</div>
-                <div style="font-family:var(--font-heading); font-size:1.6rem; font-weight:800; line-height:1.1;"><?php echo $totalPengumuman; ?></div>
-            </div>
         </div>
 
-        <div class="peng-stat-card">
-            <div class="peng-stat-icon" style="background:#DCFCE7; color:#16A34A;">
+        <div class="adm-stat-card" style="border: 2.5px solid var(--adm-black); background: #F0FDF4;">
+            <div>
+                <div class="adm-stat-val" style="color: #15803D;"><?php echo $activeCount; ?></div>
+                <div class="adm-stat-title" style="font-weight: 800; color: #166534;">Tampil di Beranda</div>
+            </div>
+            <div class="adm-stat-icon-wrap" style="background:#DCFCE7; border-color: #16A34A; color:#16A34A;">
                 <i class="ph-bold ph-check-circle"></i>
             </div>
-            <div>
-                <div style="font-size:0.8rem; font-weight:700; color:#64748B;">TAMPIL DI BERANDA</div>
-                <div style="font-family:var(--font-heading); font-size:1.6rem; font-weight:800; line-height:1.1; color:#16A34A;"><?php echo $activeCount; ?></div>
-            </div>
         </div>
 
-        <div class="peng-stat-card">
-            <div class="peng-stat-icon" style="background:#FEE2E2; color:#DC2626;">
+        <div class="adm-stat-card">
+            <div>
+                <div class="adm-stat-val" style="color: #DC2626;"><?php echo $pinnedCount; ?></div>
+                <div class="adm-stat-title">Disematkan (Pinned)</div>
+            </div>
+            <div class="adm-stat-icon-wrap" style="background:#FEE2E2; color:#DC2626;">
                 <i class="ph-bold ph-push-pin"></i>
             </div>
-            <div>
-                <div style="font-size:0.8rem; font-weight:700; color:#64748B;">DISEMATKAN (PINNED)</div>
-                <div style="font-family:var(--font-heading); font-size:1.6rem; font-weight:800; line-height:1.1;"><?php echo $pinnedCount; ?></div>
-            </div>
         </div>
 
-        <div class="peng-stat-card">
-            <div class="peng-stat-icon" style="background:#E0F2FE; color:#0284C7;">
+        <div class="adm-stat-card" style="background: #FFFDF0;">
+            <div>
+                <div class="adm-stat-val" style="font-size:1.3rem; line-height:1.3; color:#0A4D68;">
+                    <?php echo $popupConfig['aktif'] ? '<span style="color:#16A34A; font-size:1.15rem; display:flex; align-items:center; gap:6px;"><i class="ph-bold ph-check-circle"></i> Sinkron</span>' : '<span style="color:#DC2626; font-size:1.15rem; display:flex; align-items:center; gap:6px;"><i class="ph-bold ph-x-circle"></i> Nonaktif</span>'; ?>
+                </div>
+                <div class="adm-stat-title" style="font-weight: 800; color: #0A4D68;">Popup Masuk Web</div>
+            </div>
+            <div class="adm-stat-icon-wrap" style="background:#E0F2FE; color:#0284C7;">
                 <i class="ph-bold ph-bell-ringing"></i>
             </div>
-            <div>
-                <div style="font-size:0.8rem; font-weight:700; color:#64748B;">POPUP MASUK WEB</div>
-                <div style="font-weight:800; font-size:0.95rem; color:#0A4D68;">
-                    <?php echo $popupConfig['aktif'] ? '<span style="color:#16A34A;">● Sinkron Otomatis</span>' : '<span style="color:#DC2626;">● Nonaktif</span>'; ?>
-                </div>
-            </div>
         </div>
     </div>
 
-    <!-- INFO BANNER SINKRONISASI OTOMATIS -->
-    <div class="sync-banner">
-        <i class="ph-bold ph-info" style="font-size:1.5rem; color:#2563EB; flex-shrink:0;"></i>
-        <div style="font-size:0.88rem; color:#1E3A8A; line-height:1.45;">
-            <strong>Pengumuman Popup Tersinkronisasi Otomatis!</strong> Anda cukup membuat pengumuman sekali di bawah ini. Pengumuman utama/pinned atau pengumuman yang ditandai dengan ikon lonceng <i class="ph-bold ph-bell-ringing" style="color:#D97706;"></i> akan otomatis tampil sebagai <strong>Popup Masuk Web</strong> tanpa perlu mengisi ulang.
-        </div>
-    </div>
-
-    <!-- ACTION BAR -->
-    <div class="adm-card" style="margin-bottom: 24px; padding: 18px 24px;">
-        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px;">
-            <div>
-                <h3 style="font-family:var(--font-heading); font-size:1.25rem; font-weight:800; margin-bottom:4px;">
-                    Daftar Pengumuman Sekolah
-                </h3>
-                <p style="font-size:0.88rem; color:#475569;">
-                    Kelola informasi dan edaran resmi yang ditampilkan di Beranda utama tepat di bawah sambutan kepala sekolah.
-                </p>
-            </div>
-            <div style="display:flex; gap:10px; flex-wrap:wrap;">
-                <a href="../../index.php#pengumuman" target="_blank" class="adm-btn adm-btn-secondary" style="display:inline-flex; align-items:center; gap:8px;">
-                    <i class="ph-bold ph-arrow-square-out"></i> Lihat di Web
-                </a>
-                <button type="button" class="adm-btn adm-btn-primary" onclick="openTambahModal()" style="display:inline-flex; align-items:center; gap:8px;">
-                    <i class="ph-bold ph-plus-circle"></i> Tambah Pengumuman Baru
-                </button>
+    <!-- TABLE PENGUMUMAN CARD -->
+    <div class="adm-card" style="margin-bottom: 30px;">
+        <div class="adm-card-header">
+            <h3 class="adm-card-title">
+                <i class="ph-bold ph-list-dashes"></i> Daftar Pengumuman Sekolah
+                <span style="font-size: 0.8rem; background: var(--adm-yellow); color: #000; padding: 2px 8px; border-radius: 10px; border: 1px solid #000; font-weight: 800;"><?php echo count($pengumumanList); ?></span>
+            </h3>
+            <div style="font-size: 0.82rem; color: #64748B;">
+                Klik pin <i class="ph-bold ph-push-pin" style="color: #DC2626;"></i> untuk menyematkan ke posisi utama Beranda
             </div>
         </div>
-    </div>
-
-    <!-- TABLE PENGUMUMAN -->
-    <div class="adm-card" style="padding:0; overflow:hidden;">
         <?php if (empty($pengumumanList)): ?>
             <div style="padding: 48px 20px; text-align:center;">
                 <div style="font-size: 3rem; color:#94A3B8; margin-bottom:12px;"><i class="ph-bold ph-megaphone-simple-slash"></i></div>
@@ -704,7 +703,7 @@ input:checked + .nb-slider:before {
                                         <input type="hidden" name="action" value="toggle_pinned">
                                         <input type="hidden" name="id" value="<?php echo $item['id']; ?>">
                                         <button type="submit" title="<?php echo ($item['is_pinned'] == 1) ? 'Lepaskan Pin' : 'Sematkan ke Atas Beranda'; ?>" style="background:<?php echo ($item['is_pinned'] == 1) ? 'var(--adm-red)' : '#F1F5F9'; ?>; color:<?php echo ($item['is_pinned'] == 1) ? '#fff' : '#64748B'; ?>; border:1.5px solid var(--adm-black); border-radius:6px; width:32px; height:32px; display:inline-flex; align-items:center; justify-content:center; cursor:pointer; box-shadow:2px 2px 0px var(--adm-black);">
-                                            <i class="ph-bold ph-push-pin<?php echo ($item['is_pinned'] == 1) ? '-simple-fill' : ''; ?>"></i>
+                                            <i class="<?php echo ($item['is_pinned'] == 1) ? 'ph-fill ph-push-pin' : 'ph-bold ph-push-pin'; ?>"></i>
                                         </button>
                                     </form>
                                 </td>

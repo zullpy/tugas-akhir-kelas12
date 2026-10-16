@@ -534,6 +534,19 @@ $data_kelas = [
     ]
 ];
 
+// Ambil data dinamis dari database (jika tersedia), dengan fallback ke array bawaan
+try {
+    if (file_exists(__DIR__ . '/../spmb/config.php')) {
+        require_once __DIR__ . '/../spmb/config.php';
+        if (function_exists('get_all_kelas')) {
+            $dbKelas = get_all_kelas(true);
+            if (!empty($dbKelas)) {
+                $data_kelas = $dbKelas;
+            }
+        }
+    }
+} catch (Exception $e) {}
+
 // Perhitungan Statistik
 $total_kelas = count($data_kelas);
 $total_kelas_x = count(array_filter($data_kelas, fn($k) => $k['tingkat'] === 'X'));
@@ -699,6 +712,22 @@ $total_kelas_xii = count(array_filter($data_kelas, fn($k) => $k['tingkat'] === '
                             </div>
                         </div>
                     </div>
+
+                    <!-- CAPACITY & GENDER BREAKDOWN -->
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:14px; padding-top:12px; border-top:1.5px dashed #CBD5E1; font-size:0.8rem; font-weight:700;">
+                        <span style="color:#475569; display:inline-flex; align-items:center; gap:5px;">
+                            <i class="ph-bold ph-door" style="color:var(--nb-navy);"></i> <?php echo htmlspecialchars($item['ruang'] ?? '-'); ?>
+                        </span>
+                        <div style="display:flex; align-items:center; gap:6px;">
+                            <span style="display:inline-flex; align-items:center; gap:4px; background:#DCFCE7; color:#166534; padding:2px 8px; border-radius:10px; border:1px solid #86EFAC;">
+                                <i class="ph-bold ph-users"></i> <?php echo (int)($item['jumlah_siswa'] ?? 0); ?> Siswa
+                            </span>
+                            <?php if (!empty($item['siswa_l']) || !empty($item['siswa_p'])): ?>
+                                <span style="background:#E0F2FE; color:#0369A1; padding:2px 7px; border-radius:6px; font-size:0.75rem; border:1px solid #BAE6FD;" title="Siswa Laki-laki">L: <?php echo (int)($item['siswa_l'] ?? 0); ?></span>
+                                <span style="background:#FCE7F3; color:#BE185D; padding:2px 7px; border-radius:6px; font-size:0.75rem; border:1px solid #FBCFE8;" title="Siswa Perempuan">P: <?php echo (int)($item['siswa_p'] ?? 0); ?></span>
+                            <?php endif; ?>
+                        </div>
+                    </div>
                 </div>
                 <?php endforeach; ?>
             </div>
@@ -724,6 +753,7 @@ $total_kelas_xii = count(array_filter($data_kelas, fn($k) => $k['tingkat'] === '
                             <th>Tingkat</th>
                             <th>Nama Wali Kelas</th>
                             <th>Mapel / Bidang Guru</th>
+                            <th style="text-align:center;">Jumlah Siswa</th>
                         </tr>
                     </thead>
                     <tbody id="kelas-table-body">
@@ -764,6 +794,19 @@ $total_kelas_xii = count(array_filter($data_kelas, fn($k) => $k['tingkat'] === '
                                 <span class="subject-pill">
                                     <i class="ph-bold ph-book-open"></i> <?php echo htmlspecialchars($item['mapel_walikelas']); ?>
                                 </span>
+                            </td>
+                            <td style="text-align:center;">
+                                <div style="display:inline-flex; flex-direction:column; align-items:center; gap:4px;">
+                                    <span style="background:#DCFCE7; color:#166534; font-weight:800; font-size:0.82rem; padding:2px 8px; border-radius:10px; border:1px solid #86EFAC;">
+                                        <?php echo (int)($item['jumlah_siswa'] ?? 0); ?> Siswa
+                                    </span>
+                                    <?php if (!empty($item['siswa_l']) || !empty($item['siswa_p'])): ?>
+                                        <div style="display:flex; gap:4px; font-size:0.72rem; font-weight:800;">
+                                            <span style="background:#E0F2FE; color:#0369A1; padding:1px 6px; border-radius:4px; border:1px solid #BAE6FD;" title="Siswa Laki-laki">L: <?php echo (int)($item['siswa_l'] ?? 0); ?></span>
+                                            <span style="background:#FCE7F3; color:#BE185D; padding:1px 6px; border-radius:4px; border:1px solid #FBCFE8;" title="Siswa Perempuan">P: <?php echo (int)($item['siswa_p'] ?? 0); ?></span>
+                                        </div>
+                                    <?php endif; ?>
+                                </div>
                             </td>
                         </tr>
                         <?php endforeach; ?>

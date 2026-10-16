@@ -96,6 +96,19 @@ $data_guru = [
     ["no" => "88", "nama" => "Surman Nurjaman", "peran" => "Satpam", "mapel" => ["Satpam / Keamanan"], "kategori" => "staf"],
     ["no" => "89", "nama" => "Jajang", "peran" => "Caraka", "mapel" => ["Caraka / Kebersihan"], "kategori" => "staf"]
 ];
+
+// Ambil data dinamis dari database (jika tersedia), dengan fallback ke array bawaan
+try {
+    if (file_exists(__DIR__ . '/../spmb/config.php')) {
+        require_once __DIR__ . '/../spmb/config.php';
+        if (function_exists('get_all_guru')) {
+            $dbGuru = get_all_guru(true);
+            if (!empty($dbGuru)) {
+                $data_guru = $dbGuru;
+            }
+        }
+    }
+} catch (Exception $e) {}
 ?>
 <!DOCTYPE html>
 <html lang="id">

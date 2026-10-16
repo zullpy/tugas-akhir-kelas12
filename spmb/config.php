@@ -254,6 +254,8 @@ function get_db_connection() {
     return $pdo;
 }
 
+require_once __DIR__ . '/data_sekolah_init.php';
+
 /**
  * Inisialisasi Tabel dan Data Awal SPMB
  */
@@ -376,9 +378,38 @@ function init_spmb_tables(PDO $pdo) {
         }
     } catch (Exception $e) {}
 
+    // Tabel Berita Sekolah
+    $pdo->exec("CREATE TABLE IF NOT EXISTS `berita` (
+        `id` INT AUTO_INCREMENT PRIMARY KEY,
+        `judul` VARCHAR(255) NOT NULL,
+        `slug` VARCHAR(255) DEFAULT NULL,
+        `kategori` VARCHAR(100) NOT NULL DEFAULT 'UMUM',
+        `tanggal` VARCHAR(50) NOT NULL,
+        `penulis` VARCHAR(100) NOT NULL DEFAULT 'Humas SMKS Sukapura',
+        `ringkasan` TEXT NOT NULL,
+        `konten` LONGTEXT NOT NULL,
+        `gambar` VARCHAR(500) NOT NULL DEFAULT 'assets/berita/1.webp',
+        `warna` VARCHAR(50) DEFAULT 'card-yellow',
+        `is_featured` TINYINT(1) NOT NULL DEFAULT 0,
+        `is_aktif` TINYINT(1) NOT NULL DEFAULT 1,
+        `views` INT NOT NULL DEFAULT 0,
+        `urutan` INT NOT NULL DEFAULT 0,
+        `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+        `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        INDEX idx_berita_aktif (`is_aktif`),
+        INDEX idx_berita_kategori (`kategori`),
+        INDEX idx_berita_featured (`is_featured`),
+        INDEX idx_berita_urutan (`urutan`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+
     // Sinkronisasi otomatis foto galeri bawaan jika tabel masih kosong
     if (function_exists('sync_existing_gallery_photos')) {
         sync_existing_gallery_photos($pdo);
+    }
+
+    // Inisialisasi & sinkronisasi data sekolah (guru, siswa, kelas, ekskul)
+    if (function_exists('init_data_sekolah_tables')) {
+        init_data_sekolah_tables($pdo);
     }
 
     // Seed default admin jika belum ada
@@ -487,6 +518,152 @@ function init_spmb_tables(PDO $pdo) {
                 $ann['is_pinned'],
                 $ann['is_aktif'],
                 $ann['urutan']
+            ]);
+        }
+    }
+
+    // Seed data berita awal jika masih kosong
+    $stmtBerita = $pdo->query("SELECT COUNT(*) FROM `berita`");
+    if ($stmtBerita->fetchColumn() == 0) {
+        $seedBerita = [
+            [
+                'id'          => 1,
+                'judul'       => 'Siswa SMKS Sukapura Raih Juara 1 LKS Tingkat Kabupaten Tasikmalaya',
+                'slug'        => 'siswa-smks-sukapura-raih-juara-1-lks-tingkat-kabupaten-tasikmalaya',
+                'kategori'    => 'PRESTASI',
+                'tanggal'     => '28 Juli 2026',
+                'penulis'     => 'Humas SMKS Sukapura',
+                'ringkasan'   => 'Tim siswa SMKS Sukapura berhasil meraih juara pertama dalam Lomba Kompetensi Siswa (LKS) tingkat Kabupaten Tasikmalaya kategori Teknologi Informasi dan Komunikasi.',
+                'gambar'      => 'assets/berita/1.webp',
+                'warna'       => 'card-yellow',
+                'is_featured' => 1,
+                'is_aktif'    => 1,
+                'urutan'      => 1,
+                'konten'      => json_encode([
+                    'Prestasi membanggakan kembali diraih oleh siswa-siswi SMKS Sukapura Kabupaten Tasikmalaya. Dalam ajang Lomba Kompetensi Siswa (LKS) tingkat Kabupaten Tasikmalaya tahun 2026, tim perwakilan SMKS Sukapura berhasil menyabet Juara 1 pada bidang lomba Teknologi Informasi & Jaringan.',
+                    'Kompetisi yang berlangsung selama tiga hari di Tasikmalaya ini diikuti oleh puluhan peserta dari berbagai SMK se-Kabupaten Tasikmalaya. Siswa perwakilan SMKS Sukapura menunjukkan keunggulan teknis, ketenangan, serta kecepatan solutif dalam menyelesaikan tantangan konfigurasi jaringan dan keamanan siber.',
+                    'Kepala SMKS Sukapura menyampaikan apresiasi yang setinggi-tingginya kepada para siswa peserta dan guru pembimbing yang telah bekerja keras mempersiapkan diri selama lebih dari dua bulan. Dengan kemenangan ini, perwakilan SMKS Sukapura berhak melaju ke LKS tingkat Provinsi Jawa Barat yang akan digelar pada bulan mendatang.',
+                    'Kemenangan ini membuktikan kualitas pendidikan vokasi di SMKS Sukapura yang berorientasi pada standar kompetensi industri dan daya saing tinggi.'
+                ], JSON_UNESCAPED_UNICODE)
+            ],
+            [
+                'id'          => 2,
+                'judul'       => 'Pelaksanaan Magang Industri Class Angkatan Pertama Resmi Dimulai',
+                'slug'        => 'pelaksanaan-magang-industri-class-angkatan-pertama-resmi-dimulai',
+                'kategori'    => 'KEGIATAN',
+                'tanggal'     => '20 Juli 2026',
+                'penulis'     => 'Tim Industri Class',
+                'ringkasan'   => 'Program Industri Class SMKS Sukapura melepas angkatan pertama siswa untuk memulai program magang 6 bulan di berbagai perusahaan mitra yang telah bekerjasama.',
+                'gambar'      => 'assets/berita/1.webp',
+                'warna'       => 'card-blue',
+                'is_featured' => 0,
+                'is_aktif'    => 1,
+                'urutan'      => 2,
+                'konten'      => json_encode([
+                    'SMKS Sukapura secara resmi melepas sebanyak 45 siswa angkatan pertama dari program Industri Class untuk memulai kegiatan Praktik Kerja Lapangan (PKL) / Magang Industri selama 6 bulan di berbagai perusahaan mitra terkemuka.',
+                    'Acara pelepasan berlangsung khidmat di Aula Utama SMKS Sukapura dan dihadiri oleh perwakilan manajemen dari 8 perusahaan mitra, orang tua siswa, serta segenap civitas akademika sekolah.',
+                    'Program magang ini dirancang secara khusus dengan kurikulum berbasis industri. Selama magang, para siswa tidak hanya mengaplikasikan ilmu akademik, tetapi juga dibimbing langsung oleh praktisi industri profesional.',
+                    'Diharapkan setelah menyelesaikan program magang ini, para siswa memiliki kualifikasi kerja yang matang dan siap diserap langsung oleh industri mitra.'
+                ], JSON_UNESCAPED_UNICODE)
+            ],
+            [
+                'id'          => 3,
+                'judul'       => 'SMKS Sukapura Terima Akreditasi A dari BAN-SM Tahun 2026',
+                'slug'        => 'smks-sukapura-terima-akreditasi-a-dari-ban-sm-tahun-2026',
+                'kategori'    => 'AKADEMIK',
+                'tanggal'     => '15 Juli 2026',
+                'penulis'     => 'Tim Penjamin Mutu',
+                'ringkasan'   => 'Badan Akreditasi Nasional Sekolah/Madrasah (BAN-SM) resmi memberikan predikat Akreditasi A kepada SMKS Sukapura sebagai bentuk pengakuan kualitas pendidikan.',
+                'gambar'      => 'assets/berita/1.webp',
+                'warna'       => 'card-green',
+                'is_featured' => 0,
+                'is_aktif'    => 1,
+                'urutan'      => 3,
+                'konten'      => json_encode([
+                    'SMKS Sukapura Tasikmalaya resmi menerima Surat Keputusan Penetapan Hasil Akreditasi dari Badan Akreditasi Nasional Sekolah/Madrasah (BAN-SM) dengan perolehan peringkat Unggul (Akreditasi A).',
+                    'Penilaian akreditasi ini mencakup 4 komponen utama, yaitu Mutu Lulusan, Proses Pembelajaran, Mutu Guru, dan Manajemen Sekolah. SMKS Sukapura berhasil mencatatkan nilai tinggi pada seluruh indikator penilaian.',
+                    'Hasil ini merupakan wujud komitmen seluruh civitas akademika SMKS Sukapura dalam menjaga mutu pembelajaran, melengkapi sarana prasarana modern, serta membangun kemitraan erat dengan dunia kerja.',
+                    'Pencapaian Akreditasi A ini diharapkan semakin memperkuat kepercayaan masyarakat dan dunia industri terhadap kualitas lulusan SMKS Sukapura.'
+                ], JSON_UNESCAPED_UNICODE)
+            ],
+            [
+                'id'          => 4,
+                'judul'       => 'Penerimaan Peserta Didik Baru (PPDB) Tahun Pelajaran 2026/2027 Dibuka',
+                'slug'        => 'penerimaan-peserta-didik-baru-ppdb-tahun-pelajaran-2026-2027-dibuka',
+                'kategori'    => 'PENERIMAAN SISWA',
+                'tanggal'     => '5 Juli 2026',
+                'penulis'     => 'Panitia PPDB',
+                'ringkasan'   => 'SMKS Sukapura membuka pendaftaran Peserta Didik Baru tahun pelajaran 2026/2027. Pendaftaran dapat dilakukan secara online maupun langsung ke sekolah.',
+                'gambar'      => 'assets/berita/1.webp',
+                'warna'       => 'card-pink',
+                'is_featured' => 0,
+                'is_aktif'    => 1,
+                'urutan'      => 4,
+                'konten'      => json_encode([
+                    'Pendaftaran Peserta Didik Baru (PPDB) SMKS Sukapura Kabupaten Tasikmalaya untuk Tahun Pelajaran 2026/2027 resmi dibuka mulai bulan Juli ini.',
+                    'Sekolah menyediakan beberapa jalur pendaftaran, di antaranya Jalur Prestasi Akademik/Non-Akademik (termasuk Excellent Class & Atlet Class), Jalur Industri Class, serta Jalur Reguler.',
+                    'Calon siswa dapat melakukan pendaftaran secara langsung melalui Sekretariat PPDB di kampus SMKS Sukapura atau mendaftar secara mandiri melalui portal resmi sekolah.',
+                    'Bagi calon siswa yang berminat pada program unggulan seperti Excellent Class, Atlet Class, atau Industri Class, seleksi wawancara dan tes kompetensi akan dijadwalkan secara berkala.'
+                ], JSON_UNESCAPED_UNICODE)
+            ],
+            [
+                'id'          => 5,
+                'judul'       => 'Atlet Class SMKS Sukapura Wakili Kabupaten di Popda Jawa Barat 2026',
+                'slug'        => 'atlet-class-smks-sukapura-wakili-kabupaten-di-popda-jawa-barat-2026',
+                'kategori'    => 'OLAHRAGA',
+                'tanggal'     => '28 Juni 2026',
+                'penulis'     => 'Koordinator Atlet Class',
+                'ringkasan'   => 'Lima siswa dari program Atlet Class SMKS Sukapura berhasil lolos seleksi untuk mewakili Kabupaten Tasikmalaya pada Pekan Olahraga Pelajar Daerah (Popda) Jawa Barat.',
+                'gambar'      => 'assets/berita/1.webp',
+                'warna'       => 'card-purple',
+                'is_featured' => 0,
+                'is_aktif'    => 1,
+                'urutan'      => 5,
+                'konten'      => json_encode([
+                    'Prestasi gemilang di bidang olahraga kembali diukir oleh para siswa program Atlet Class SMKS Sukapura. Sebanyak 5 atlet pelajar dari cabang olahraga Atletik dan Pencak Silat berhasil lolos seleksi kontingen Kabupaten Tasikmalaya.',
+                    'Para atlet pelajar ini akan bertanding membela nama daerah pada ajang Pekan Olahraga Pelajar Daerah (Popda) Jawa Barat 2026 yang diselenggarakan di Bandung.',
+                    'Program Atlet Class SMKS Sukapura memberikan fleksibilitas jadwal bimbingan belajar dan pendampingan akademik intensif sehingga siswa atlet tetap dapat menjaga performa fisik dan akademiknya seimbang.',
+                    'Pihak sekolah mendoakan hasil terbaik bagi para siswa yang bertanding dan mengapresiasi dedikasi para pelatih serta pembimbing.'
+                ], JSON_UNESCAPED_UNICODE)
+            ],
+            [
+                'id'          => 6,
+                'judul'       => 'Excellent Class SMKS Sukapura Gelar Seminar Nasional Pendidikan Vokasi',
+                'slug'        => 'excellent-class-smks-sukapura-gelar-seminar-nasional-pendidikan-vokasi',
+                'kategori'    => 'PROGRAM',
+                'tanggal'     => '15 Juni 2026',
+                'penulis'     => 'Humas SMKS Sukapura',
+                'ringkasan'   => 'Program Excellent Class menyelenggarakan seminar nasional bertema "Masa Depan Pendidikan Vokasi di Era Digital" yang dihadiri ratusan siswa dan guru dari berbagai sekolah.',
+                'gambar'      => 'assets/berita/1.webp',
+                'warna'       => 'card-orange',
+                'is_featured' => 0,
+                'is_aktif'    => 1,
+                'urutan'      => 6,
+                'konten'      => json_encode([
+                    'Program Excellent Class SMKS Sukapura sukses menggelar Seminar Nasional Pendidikan Vokasi bertajuk "Strategi dan Kesiapan Generasi Muda Mengoperasikan Teknologi Digital di Dunia Kerja".',
+                    'Kegiatan yang diselenggarakan di Gedung Serbaguna SMKS Sukapura ini menghadirkan pembicara dari kementerian pendidikan, praktisi teknologi terkemuka, serta tokoh industri.',
+                    'Lebih dari 300 peserta yang terdiri dari siswa, guru pembimbing, serta tamu undangan dari berbagai sekolah di Jawa Barat antusias mengikuti setiap sesi diskusi interaktif.',
+                    'Melalui seminar ini, siswa diajak untuk memahami perkembangan kebutuhan skill di era transformasi digital serta menyiapkan portofolio karya sejak di bangku sekolah.'
+                ], JSON_UNESCAPED_UNICODE)
+            ]
+        ];
+
+        $insBerita = $pdo->prepare("INSERT INTO `berita` (`id`, `judul`, `slug`, `kategori`, `tanggal`, `penulis`, `ringkasan`, `konten`, `gambar`, `warna`, `is_featured`, `is_aktif`, `urutan`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        foreach ($seedBerita as $b) {
+            $insBerita->execute([
+                $b['id'],
+                $b['judul'],
+                $b['slug'],
+                $b['kategori'],
+                $b['tanggal'],
+                $b['penulis'],
+                $b['ringkasan'],
+                $b['konten'],
+                $b['gambar'],
+                $b['warna'],
+                $b['is_featured'],
+                $b['is_aktif'],
+                $b['urutan']
             ]);
         }
     }
@@ -1857,4 +2034,171 @@ function update_popup_pengumuman_config($data) {
         }
     }
     return true;
+}
+
+// ============================================================================
+// HELPER MANAJEMEN BERITA SEKOLAH
+// ============================================================================
+
+/**
+ * Mengambil daftar berita sekolah (semua atau hanya yang aktif)
+ */
+function get_all_berita($kategori = null, $onlyActive = false, $search = null) {
+    $pdo = get_db_connection();
+    try {
+        $sql = "SELECT * FROM `berita` WHERE 1=1";
+        $params = [];
+
+        if ($onlyActive) {
+            $sql .= " AND `is_aktif` = 1";
+        }
+        if (!empty($kategori) && $kategori !== 'semua') {
+            $sql .= " AND `kategori` = ?";
+            $params[] = $kategori;
+        }
+        if (!empty($search)) {
+            $sql .= " AND (`judul` LIKE ? OR `ringkasan` LIKE ? OR `penulis` LIKE ?)";
+            $params[] = "%$search%";
+            $params[] = "%$search%";
+            $params[] = "%$search%";
+        }
+
+        $sql .= " ORDER BY `is_featured` DESC, `urutan` ASC, `id` DESC";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute($params);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch (Exception $e) {
+        return [];
+    }
+}
+
+/**
+ * Mengambil satu berita berdasarkan ID
+ */
+function get_berita_by_id($id) {
+    $pdo = get_db_connection();
+    try {
+        $stmt = $pdo->prepare("SELECT * FROM `berita` WHERE `id` = ? LIMIT 1");
+        $stmt->execute([(int)$id]);
+        return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+    } catch (Exception $e) {
+        return null;
+    }
+}
+
+/**
+ * Tambah berita baru
+ */
+function add_berita($data) {
+    $pdo = get_db_connection();
+    $slug = !empty($data['slug']) ? $data['slug'] : strtolower(trim(preg_replace('/[^A-Za-z0-9-]+/', '-', $data['judul']), '-'));
+    
+    // Jika dijadikan featured, reset yang lain
+    if (!empty($data['is_featured']) && $data['is_featured'] == 1) {
+        $pdo->exec("UPDATE `berita` SET `is_featured` = 0");
+    }
+
+    $stmt = $pdo->prepare("INSERT INTO `berita` 
+        (`judul`, `slug`, `kategori`, `tanggal`, `penulis`, `ringkasan`, `konten`, `gambar`, `warna`, `is_featured`, `is_aktif`, `urutan`) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+    
+    return $stmt->execute([
+        $data['judul'],
+        $slug,
+        $data['kategori'] ?? 'UMUM',
+        $data['tanggal'] ?? date('d F Y'),
+        $data['penulis'] ?? 'Humas SMKS Sukapura',
+        $data['ringkasan'] ?? '',
+        is_array($data['konten']) ? json_encode($data['konten'], JSON_UNESCAPED_UNICODE) : $data['konten'],
+        $data['gambar'] ?? 'assets/berita/1.webp',
+        $data['warna'] ?? 'card-yellow',
+        !empty($data['is_featured']) ? 1 : 0,
+        isset($data['is_aktif']) ? (int)$data['is_aktif'] : 1,
+        (int)($data['urutan'] ?? 0)
+    ]);
+}
+
+/**
+ * Update berita
+ */
+function update_berita($id, $data) {
+    $pdo = get_db_connection();
+    
+    if (isset($data['is_featured']) && $data['is_featured'] == 1) {
+        $reset = $pdo->prepare("UPDATE `berita` SET `is_featured` = 0 WHERE `id` != ?");
+        $reset->execute([(int)$id]);
+    }
+
+    $fields = [];
+    $params = [];
+    
+    $allowed = ['judul', 'slug', 'kategori', 'tanggal', 'penulis', 'ringkasan', 'konten', 'gambar', 'warna', 'is_featured', 'is_aktif', 'urutan'];
+    foreach ($allowed as $field) {
+        if (array_key_exists($field, $data)) {
+            $fields[] = "`$field` = ?";
+            if ($field === 'konten' && is_array($data[$field])) {
+                $params[] = json_encode($data[$field], JSON_UNESCAPED_UNICODE);
+            } else {
+                $params[] = $data[$field];
+            }
+        }
+    }
+
+    if (empty($fields)) return false;
+
+    $params[] = (int)$id;
+    $sql = "UPDATE `berita` SET " . implode(', ', $fields) . " WHERE `id` = ?";
+    $stmt = $pdo->prepare($sql);
+    return $stmt->execute($params);
+}
+
+/**
+ * Hapus berita beserta file gambar upload jika ada
+ */
+function delete_berita($id) {
+    $pdo = get_db_connection();
+    $curr = get_berita_by_id($id);
+    if ($curr && !empty($curr['gambar'])) {
+        if (strpos($curr['gambar'], 'assets/berita/uploads/') !== false) {
+            $f = dirname(__DIR__) . '/' . ltrim($curr['gambar'], '/');
+            if (file_exists($f)) @unlink($f);
+        }
+    }
+    $del = $pdo->prepare("DELETE FROM `berita` WHERE `id` = ?");
+    return $del->execute([(int)$id]);
+}
+
+/**
+ * Toggle status aktif/draf berita
+ */
+function toggle_berita_aktif($id, $status = null) {
+    $pdo = get_db_connection();
+    if ($status === null) {
+        $stmt = $pdo->prepare("SELECT `is_aktif` FROM `berita` WHERE `id` = ?");
+        $stmt->execute([(int)$id]);
+        $curr = (int)$stmt->fetchColumn();
+        $status = ($curr === 1) ? 0 : 1;
+    }
+    $update = $pdo->prepare("UPDATE `berita` SET `is_aktif` = ? WHERE `id` = ?");
+    $update->execute([(int)$status, (int)$id]);
+    return (int)$status;
+}
+
+/**
+ * Toggle berita featured / utama
+ */
+function toggle_berita_featured($id, $status = null) {
+    $pdo = get_db_connection();
+    if ($status === null) {
+        $stmt = $pdo->prepare("SELECT `is_featured` FROM `berita` WHERE `id` = ?");
+        $stmt->execute([(int)$id]);
+        $curr = (int)$stmt->fetchColumn();
+        $status = ($curr === 1) ? 0 : 1;
+    }
+    if ($status == 1) {
+        $pdo->exec("UPDATE `berita` SET `is_featured` = 0");
+    }
+    $update = $pdo->prepare("UPDATE `berita` SET `is_featured` = ? WHERE `id` = ?");
+    $update->execute([(int)$status, (int)$id]);
+    return (int)$status;
 }

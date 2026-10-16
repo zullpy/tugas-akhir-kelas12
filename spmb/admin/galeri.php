@@ -438,7 +438,7 @@ foreach ($distinctKat as $dk) {
             <a href="galeri.php?beranda=1&kategori=<?php echo urlencode($filterKategori); ?>&q=<?php echo urlencode($searchQuery); ?>" 
                class="adm-btn <?php echo ($filterBeranda === 1) ? 'adm-btn-yellow' : 'adm-btn-white'; ?>" 
                style="padding: 7px 14px; font-size: 0.85rem;">
-               <i class="ph-bold ph-star-fill"></i> Tampil di Beranda (<?php echo $statBeranda; ?>)
+               <i class="ph-fill ph-star"></i> Tampil di Beranda (<?php echo $statBeranda; ?>)
             </a>
             <a href="galeri.php?beranda=0&kategori=<?php echo urlencode($filterKategori); ?>&q=<?php echo urlencode($searchQuery); ?>" 
                class="adm-btn <?php echo ($filterBeranda === 0) ? 'adm-btn-navy' : 'adm-btn-white'; ?>" 
@@ -539,7 +539,7 @@ foreach ($distinctKat as $dk) {
 
                     <!-- Beranda Indicator Ribbon -->
                     <div id="beranda-ribbon-<?php echo $f['id']; ?>" style="display: <?php echo $isBeranda ? 'flex' : 'none'; ?>; position: absolute; bottom: 10px; left: 12px; background: var(--adm-yellow); color: var(--adm-black); font-size: 0.72rem; font-weight: 800; padding: 4px 9px; border-radius: 6px; border: 1.5px solid var(--adm-black); box-shadow: 2px 2px 0px var(--adm-black); align-items: center; gap: 4px;">
-                        <i class="ph-bold ph-star-fill"></i> TAMPIL DI BERANDA
+                        <i class="ph-fill ph-star"></i> TAMPIL DI BERANDA
                     </div>
                 </div>
 
@@ -807,7 +807,7 @@ foreach ($distinctKat as $dk) {
             <div class="adm-toggle-card" onclick="document.getElementById('edit_tampilkan_beranda').click()">
                 <div class="adm-toggle-info">
                     <div class="adm-toggle-icon">
-                        <i class="ph-bold ph-star-fill"></i>
+                        <i class="ph-fill ph-star"></i>
                     </div>
                     <div>
                         <div class="adm-toggle-label">Tampilkan di Halaman Beranda</div>
@@ -1046,7 +1046,7 @@ function buildPhotoCard(f, isCloudinary) {
                 <i class="ph-bold ${isCloudinary ? 'ph-cloud-check' : 'ph-hard-drive'}"></i> ${isCloudinary ? 'Cloud' : 'Lokal'}
             </span>
             <div id="beranda-ribbon-${f.id}" style="display: ${isBeranda ? 'flex' : 'none'}; position: absolute; bottom: 10px; left: 12px; background: var(--adm-yellow); color: var(--adm-black); font-size: 0.72rem; font-weight: 800; padding: 4px 9px; border-radius: 6px; border: 1.5px solid var(--adm-black); box-shadow: 2px 2px 0px var(--adm-black); align-items: center; gap: 4px;">
-                <i class="ph-bold ph-star-fill"></i> TAMPIL DI BERANDA
+                <i class="ph-fill ph-star"></i> TAMPIL DI BERANDA
             </div>
         </div>
         <div style="padding: 16px; flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between;">

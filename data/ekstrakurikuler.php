@@ -182,6 +182,19 @@ $data_ekstrakurikuler = [
     ]
 ];
 
+// Ambil data dinamis dari database (jika tersedia), dengan fallback ke array bawaan
+try {
+    if (file_exists(__DIR__ . '/../spmb/config.php')) {
+        require_once __DIR__ . '/../spmb/config.php';
+        if (function_exists('get_all_ekskul')) {
+            $dbEkskul = get_all_ekskul(true);
+            if (!empty($dbEkskul)) {
+                $data_ekstrakurikuler = $dbEkskul;
+            }
+        }
+    }
+} catch (Exception $e) {}
+
 $total_ekstra = count($data_ekstrakurikuler);
 $total_olahraga = count(array_filter($data_ekstrakurikuler, fn($e) => $e['kategori'] === 'olahraga'));
 $total_kebangsaan = count(array_filter($data_ekstrakurikuler, fn($e) => $e['kategori'] === 'kebangsaan'));
