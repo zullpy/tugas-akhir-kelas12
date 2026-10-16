@@ -44,6 +44,244 @@ if (!empty($keyword)) {
     <link rel="stylesheet" href="spmb.css">
     <link rel="shortcut icon" href="<?php echo $base_url; ?>assets/favicon.ico" type="image/x-icon">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+    /* Responsive Styling Khusus Cek Status */
+    .status-search-card {
+        background: var(--nb-white);
+        border: var(--border-thick);
+        border-radius: var(--radius-card);
+        box-shadow: var(--shadow-lg);
+        padding: 30px;
+        margin-bottom: 35px;
+    }
+
+    .status-result-card {
+        background: var(--nb-white);
+        border: var(--border-thick);
+        border-radius: var(--radius-card);
+        box-shadow: var(--shadow-xl);
+        overflow: hidden;
+    }
+
+    .status-card-header {
+        padding: 22px 28px;
+        background: var(--nb-gray-bg);
+        border-bottom: var(--border-md);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 16px;
+    }
+
+    .status-card-body {
+        padding: 30px;
+    }
+
+    .status-jadwal-box {
+        background: var(--nb-yellow-light);
+        border: var(--border-md);
+        border-radius: var(--radius-btn);
+        padding: 18px 20px;
+        margin-bottom: 28px;
+    }
+
+    .status-jadwal-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+    }
+
+    .status-biodata-grid {
+        display: grid;
+        grid-template-columns: 1fr 140px;
+        gap: 24px;
+        align-items: start;
+        margin-bottom: 30px;
+    }
+
+    .status-biodata-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.95rem;
+    }
+
+    .status-biodata-table td {
+        padding: 8px 0;
+        vertical-align: top;
+        line-height: 1.5;
+    }
+
+    .status-biodata-table td.status-label {
+        font-weight: 700;
+        width: 170px;
+        color: #374151;
+        padding-right: 10px;
+    }
+
+    .status-biodata-table td.status-val {
+        color: var(--nb-black);
+        word-break: break-word;
+        overflow-wrap: break-word;
+    }
+
+    .status-photo-wrap {
+        text-align: center;
+    }
+
+    .status-photo-frame {
+        width: 125px;
+        height: 160px;
+        border: var(--border-md);
+        border-radius: 8px;
+        overflow: hidden;
+        background: #f0f0f0;
+        margin: 0 auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .status-photo-frame img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+    }
+
+    .status-photo-badge {
+        display: none;
+    }
+
+    .status-action-btns {
+        display: flex;
+        gap: 14px;
+        flex-wrap: wrap;
+        align-items: center;
+    }
+
+    @media (max-width: 768px) {
+        .spmb-container.status-main {
+            padding: 24px 12px 60px !important;
+            width: 100% !important;
+            max-width: 100% !important;
+        }
+
+        .status-search-card {
+            padding: 20px 16px !important;
+            margin-bottom: 24px !important;
+            box-shadow: var(--shadow-md) !important;
+            border-radius: 12px !important;
+        }
+
+        .status-result-card {
+            box-shadow: var(--shadow-md) !important;
+            border-radius: 12px !important;
+        }
+
+        .status-card-header {
+            padding: 16px !important;
+            flex-direction: column !important;
+            align-items: flex-start !important;
+            gap: 12px !important;
+        }
+
+        .status-card-header h2 {
+            font-size: 1.25rem !important;
+        }
+
+        .status-card-body {
+            padding: 18px 14px !important;
+        }
+
+        .status-jadwal-box {
+            padding: 14px !important;
+            margin-bottom: 20px !important;
+        }
+
+        .status-jadwal-grid {
+            grid-template-columns: 1fr !important;
+            gap: 10px !important;
+        }
+
+        /* Foto ditaruh di atas tabel di mobile agar tabel bisa 100% lebar layar */
+        .status-biodata-grid {
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: center !important;
+            gap: 18px !important;
+            margin-bottom: 24px !important;
+        }
+
+        .status-photo-wrap {
+            order: -1 !important;
+            width: 100% !important;
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: center !important;
+            background: #F8FAFC !important;
+            border: 1.5px solid #E2E8F0 !important;
+            border-radius: 12px !important;
+            padding: 16px 12px 14px !important;
+        }
+
+        .status-photo-frame {
+            width: 110px !important;
+            height: 142px !important;
+            box-shadow: 2.5px 2.5px 0px var(--nb-black) !important;
+        }
+
+        .status-photo-badge {
+            display: inline-flex !important;
+            align-items: center !important;
+            gap: 5px !important;
+            margin-top: 10px !important;
+            font-size: 0.76rem !important;
+            font-weight: 800 !important;
+            color: var(--nb-navy-dark) !important;
+            background: var(--nb-yellow) !important;
+            border: var(--border-thin) !important;
+            padding: 3px 12px !important;
+            border-radius: var(--radius-pill) !important;
+            box-shadow: 2px 2px 0px var(--nb-black) !important;
+            text-transform: uppercase !important;
+            letter-spacing: 0.5px !important;
+        }
+
+        .status-biodata-table {
+            font-size: 0.88rem !important;
+        }
+
+        .status-biodata-table td {
+            padding: 7px 0 !important;
+        }
+
+        .status-biodata-table td.status-label {
+            width: 120px !important;
+            min-width: 110px !important;
+            font-size: 0.84rem !important;
+            padding-right: 6px !important;
+        }
+
+        .status-biodata-table td.status-val {
+            font-size: 0.88rem !important;
+        }
+
+        .status-action-btns {
+            flex-direction: column !important;
+            width: 100% !important;
+            gap: 10px !important;
+        }
+
+        .status-action-btns .spmb-btn {
+            width: 100% !important;
+            justify-content: center !important;
+            text-align: center !important;
+            padding: 12px 16px !important;
+        }
+    }
+    </style>
 </head>
 <body>
     <?php include '../components/navbar.php'; ?>
@@ -60,7 +298,7 @@ if (!empty($keyword)) {
         </div>
     </div>
 
-    <main class="spmb-container" style="padding: 40px 15px 70px;">
+    <main class="spmb-container status-main" style="padding: 40px 15px 70px;">
         <div style="max-width: 800px; margin: 0 auto;">
 
             <?php if (isset($_GET['msg']) && $_GET['msg'] === 'edited'): ?>
@@ -74,7 +312,7 @@ if (!empty($keyword)) {
             <?php endif; ?>
 
             <!-- SEARCH BOX -->
-            <div style="background:var(--nb-white); border:var(--border-thick); border-radius:var(--radius-card); box-shadow:var(--shadow-lg); padding:30px; margin-bottom:35px;">
+            <div class="status-search-card">
                 <form action="cek-status.php" method="GET" style="display:flex; gap:12px; flex-wrap:wrap;">
                     <div style="flex:1; min-width:240px;">
                         <input type="text" name="no" class="spmb-input" placeholder="Masukkan Nomor Registrasi / NISN / No. WhatsApp..." value="<?php echo htmlspecialchars($keyword); ?>" required style="font-size:1.05rem; padding:14px 18px;">
@@ -109,10 +347,10 @@ if (!empty($keyword)) {
 
             <!-- RESULT: FOUND -->
             <?php if ($pendaftar): ?>
-                <div style="background:var(--nb-white); border:var(--border-thick); border-radius:var(--radius-card); box-shadow:var(--shadow-xl); overflow:hidden;">
+                <div class="status-result-card">
                     
                     <!-- Card Top Header with Status -->
-                    <div style="padding:25px 30px; background:var(--nb-gray-bg); border-bottom:var(--border-md); display:flex; justify-content:space-between; align-items:center; flex-wrap:gap; gap:16px;">
+                    <div class="status-card-header">
                         <div>
                             <span style="font-size:0.85rem; font-weight:700; color:#666; text-transform:uppercase;">Nomor Registrasi</span>
                             <h2 style="font-family:var(--font-heading); font-size:1.5rem; font-weight:800; color:var(--nb-navy-dark); margin-top:2px;">
@@ -124,7 +362,7 @@ if (!empty($keyword)) {
                         </div>
                     </div>
 
-                    <div style="padding:30px;">
+                    <div class="status-card-body">
                         
                         <!-- Catatan Status Alert -->
                         <div style="margin-bottom:28px;">
@@ -216,11 +454,11 @@ if (!empty($keyword)) {
 
                         <!-- Jadwal Ujian / Tes jika ada -->
                         <?php if (!empty($pendaftar['jadwal_tes']) || !empty($pendaftar['ruang_tes'])): ?>
-                            <div style="background:var(--nb-yellow-light); border:var(--border-md); border-radius:var(--radius-btn); padding:18px; margin-bottom:28px;">
+                            <div class="status-jadwal-box">
                                 <h4 style="font-family:var(--font-heading); font-weight:800; font-size:1.1rem; margin-bottom:10px; display:flex; align-items:center; gap:8px;">
                                     <i class="ph-bold ph-calendar"></i> Informasi Tes Minat &amp; Bakat
                                 </h4>
-                                <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+                                <div class="status-jadwal-grid">
                                     <div>
                                         <span style="font-size:0.85rem; font-weight:700; color:#555;">Jadwal / Waktu:</span><br>
                                         <strong><?php echo htmlspecialchars($pendaftar['jadwal_tes'] ?: 'Akan diumumkan'); ?></strong>
@@ -238,65 +476,67 @@ if (!empty($keyword)) {
                             Rincian Biodata Calon Siswa
                         </h3>
 
-                        <div style="display:grid; grid-template-columns:1fr 140px; gap:20px; align-items:start; margin-bottom:30px;">
-                            <table style="width:100%; border-collapse:collapse; font-size:0.95rem;">
-                                <tr>
-                                    <td style="padding:7px 0; font-weight:700; width:170px;">Nama Lengkap</td>
-                                    <td style="padding:7px 0;">: <strong><?php echo htmlspecialchars($pendaftar['nama_lengkap']); ?></strong></td>
-                                </tr>
-                                <tr>
-                                    <td style="padding:7px 0; font-weight:700;">NISN</td>
-                                    <td style="padding:7px 0;">: <?php echo htmlspecialchars($pendaftar['nisn']); ?></td>
-                                </tr>
-                                <tr>
-                                    <td style="padding:7px 0; font-weight:700;">Jenis Kelamin</td>
-                                    <td style="padding:7px 0;">: <?php echo $pendaftar['jenis_kelamin'] === 'L' ? 'Laki-laki' : 'Perempuan'; ?></td>
-                                </tr>
-                                <tr>
-                                    <td style="padding:7px 0; font-weight:700;">Tempat, Tgl Lahir</td>
-                                    <td style="padding:7px 0;">: <?php echo htmlspecialchars($pendaftar['tempat_lahir']) . ', ' . tgl_indo($pendaftar['tanggal_lahir']); ?></td>
-                                </tr>
-                                <tr>
-                                    <td style="padding:7px 0; font-weight:700;">Asal Sekolah</td>
-                                    <td style="padding:7px 0;">: <?php echo htmlspecialchars($pendaftar['asal_sekolah']); ?></td>
-                                </tr>
-                                <tr>
-                                    <td style="padding:7px 0; font-weight:700;">Pilihan Jurusan 1</td>
-                                    <td style="padding:7px 0;">: <strong><?php echo htmlspecialchars($pendaftar['jurusan_1']); ?></strong> - <?php echo htmlspecialchars($DAFTAR_JURUSAN[$pendaftar['jurusan_1']]['nama'] ?? ''); ?></td>
-                                </tr>
-                                <?php if (!empty($pendaftar['jurusan_2'])): ?>
-                                <tr>
-                                    <td style="padding:7px 0; font-weight:700;">Pilihan Jurusan 2</td>
-                                    <td style="padding:7px 0;">: <?php echo htmlspecialchars($pendaftar['jurusan_2']); ?> - <?php echo htmlspecialchars($DAFTAR_JURUSAN[$pendaftar['jurusan_2']]['nama'] ?? ''); ?></td>
-                                </tr>
-                                <?php endif; ?>
-                                <?php if ($pendaftar['status'] === 'Diterima'): 
-                                    $jDiterimaRow = !empty($pendaftar['jurusan_diterima']) ? $pendaftar['jurusan_diterima'] : $pendaftar['jurusan_1'];
-                                ?>
-                                <tr style="background:#F0FDF4;">
-                                    <td style="padding:8px 4px; font-weight:800; color:#15803D;">Jurusan Diterima</td>
-                                    <td style="padding:8px 4px;">
-                                        <div style="display:inline-flex; align-items:center; gap:8px;">
-                                            <img src="../assets/jurusan/<?php echo strtolower($jDiterimaRow); ?>.png" alt="<?php echo $jDiterimaRow; ?>" style="width:22px; height:22px; object-fit:contain;">
-                                            <strong style="color:#15803D; font-size:1.02rem;">: <?php echo htmlspecialchars($jDiterimaRow); ?> - <?php echo htmlspecialchars($DAFTAR_JURUSAN[$jDiterimaRow]['nama'] ?? ''); ?></strong>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <?php endif; ?>
-                                <tr>
-                                    <td style="padding:7px 0; font-weight:700;">Jalur Pendaftaran</td>
-                                    <td style="padding:7px 0;">: <?php echo get_jalur_badge_html($pendaftar['jalur']); ?></td>
-                                </tr>
-                                <tr>
-                                    <td style="padding:7px 0; font-weight:700;">Tanggal Mendaftar</td>
-                                    <td style="padding:7px 0;">: <?php echo tgl_indo($pendaftar['tanggal_daftar']); ?></td>
-                                </tr>
-                            </table>
+                        <div class="status-biodata-grid">
+                            <div class="status-table-wrap">
+                                <table class="status-biodata-table">
+                                    <tr>
+                                        <td class="status-label">Nama Lengkap</td>
+                                        <td class="status-val">: <strong><?php echo htmlspecialchars($pendaftar['nama_lengkap']); ?></strong></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="status-label">NISN</td>
+                                        <td class="status-val">: <?php echo htmlspecialchars($pendaftar['nisn']); ?></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="status-label">Jenis Kelamin</td>
+                                        <td class="status-val">: <?php echo $pendaftar['jenis_kelamin'] === 'L' ? 'Laki-laki' : 'Perempuan'; ?></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="status-label">Tempat, Tgl Lahir</td>
+                                        <td class="status-val">: <?php echo htmlspecialchars($pendaftar['tempat_lahir']) . ', ' . tgl_indo($pendaftar['tanggal_lahir']); ?></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="status-label">Asal Sekolah</td>
+                                        <td class="status-val">: <?php echo htmlspecialchars($pendaftar['asal_sekolah']); ?></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="status-label">Pilihan Jurusan 1</td>
+                                        <td class="status-val">: <strong><?php echo htmlspecialchars($pendaftar['jurusan_1']); ?></strong> - <?php echo htmlspecialchars($DAFTAR_JURUSAN[$pendaftar['jurusan_1']]['nama'] ?? ''); ?></td>
+                                    </tr>
+                                    <?php if (!empty($pendaftar['jurusan_2'])): ?>
+                                    <tr>
+                                        <td class="status-label">Pilihan Jurusan 2</td>
+                                        <td class="status-val">: <?php echo htmlspecialchars($pendaftar['jurusan_2']); ?> - <?php echo htmlspecialchars($DAFTAR_JURUSAN[$pendaftar['jurusan_2']]['nama'] ?? ''); ?></td>
+                                    </tr>
+                                    <?php endif; ?>
+                                    <?php if ($pendaftar['status'] === 'Diterima'): 
+                                        $jDiterimaRow = !empty($pendaftar['jurusan_diterima']) ? $pendaftar['jurusan_diterima'] : $pendaftar['jurusan_1'];
+                                    ?>
+                                    <tr style="background:#F0FDF4;">
+                                        <td class="status-label" style="color:#15803D; font-weight:800;">Jurusan Diterima</td>
+                                        <td class="status-val" style="color:#15803D;">
+                                            <div style="display:inline-flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                                                <img src="../assets/jurusan/<?php echo strtolower($jDiterimaRow); ?>.png" alt="<?php echo $jDiterimaRow; ?>" style="width:22px; height:22px; object-fit:contain; flex-shrink:0;">
+                                                <strong style="font-size:1.02rem;">: <?php echo htmlspecialchars($jDiterimaRow); ?> - <?php echo htmlspecialchars($DAFTAR_JURUSAN[$jDiterimaRow]['nama'] ?? ''); ?></strong>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <?php endif; ?>
+                                    <tr>
+                                        <td class="status-label">Jalur Pendaftaran</td>
+                                        <td class="status-val">: <?php echo get_jalur_badge_html($pendaftar['jalur']); ?></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="status-label">Tanggal Mendaftar</td>
+                                        <td class="status-val">: <?php echo tgl_indo($pendaftar['tanggal_daftar']); ?></td>
+                                    </tr>
+                                </table>
+                            </div>
 
-                            <div style="text-align:center;">
-                                <div style="width:120px; height:150px; border:var(--border-md); border-radius:8px; overflow:hidden; background:#f0f0f0; margin:0 auto; display:flex; align-items:center; justify-content:center; box-shadow:var(--shadow-sm);">
+                            <div class="status-photo-wrap">
+                                <div class="status-photo-frame">
                                     <?php if (!empty($pendaftar['foto']) && file_exists(__DIR__ . '/uploads/' . $pendaftar['foto'])): ?>
-                                        <img src="uploads/<?php echo htmlspecialchars($pendaftar['foto']); ?>" alt="Foto Calon Siswa" style="width:100%; height:100%; object-fit:cover;">
+                                        <img src="uploads/<?php echo htmlspecialchars($pendaftar['foto']); ?>" alt="Foto Calon Siswa">
                                     <?php else: ?>
                                         <div style="color:#777; font-size:0.85rem; font-weight:700;">
                                             <i class="ph-bold ph-user" style="font-size:2rem; display:block; margin-bottom:4px;"></i>
@@ -304,11 +544,12 @@ if (!empty($keyword)) {
                                         </div>
                                     <?php endif; ?>
                                 </div>
+                                <span class="status-photo-badge"><i class="ph-bold ph-user-circle"></i> Pas Foto Calon Siswa</span>
                             </div>
                         </div>
 
                         <!-- Action buttons -->
-                        <div style="display:flex; gap:14px; flex-wrap:wrap; align-items:center;">
+                        <div class="status-action-btns">
                             <?php if ($pendaftar['status'] === 'Perlu Perbaikan'): ?>
                                 <a href="edit.php?no=<?php echo urlencode($pendaftar['no_pendaftaran']); ?>&nisn=<?php echo urlencode($pendaftar['nisn']); ?>" class="spmb-btn" style="background:#F59E0B; color:#0F172A; font-weight:800; border:2px solid #000; box-shadow:2px 2px 0 #000;">
                                     <i class="ph-bold ph-pencil-simple-line"></i> Perbaiki Formulir &amp; Berkas

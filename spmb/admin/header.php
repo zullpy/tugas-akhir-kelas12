@@ -93,6 +93,24 @@ $pendingCount = $pdo->query("SELECT COUNT(*) FROM `spmb_pendaftar` WHERE `status
                     <?php endif; ?>
                 </a>
             </li>
+            <li class="adm-menu-item <?php echo (!$isSetting && $currAdminFile === 'pengumuman.php') ? 'active' : ''; ?>">
+                <a href="<?php echo $adminPath; ?>pengumuman.php" style="display:flex; justify-content:space-between;">
+                    <div style="display:flex; align-items:center; gap:12px;">
+                        <i class="ph-bold ph-megaphone-simple"></i>
+                        <span>Pengumuman</span>
+                    </div>
+                    <?php 
+                    try {
+                        $activeAnnounceCount = (int)$pdo->query("SELECT COUNT(*) FROM `pengumuman` WHERE `is_aktif` = 1")->fetchColumn();
+                        if ($activeAnnounceCount > 0):
+                    ?>
+                        <span style="background:var(--adm-yellow); color:var(--adm-black); font-size:0.72rem; padding:2px 7px; border-radius:10px; border:1px solid var(--adm-black); font-weight:800;" title="<?php echo $activeAnnounceCount; ?> pengumuman aktif"><?php echo $activeAnnounceCount; ?></span>
+                    <?php 
+                        endif;
+                    } catch (Exception $e) {}
+                    ?>
+                </a>
+            </li>
 
             <li class="adm-menu-label" style="margin-top:10px;">Pengaturan Sistem</li>
             <li class="adm-menu-item <?php echo ($isSetting && ($currAdminFile === 'index.php' || $currAdminFile === 'pengaturan.php')) ? 'active' : ''; ?>">

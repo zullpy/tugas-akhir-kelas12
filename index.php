@@ -26,6 +26,17 @@ $spmbGelombang = $spmbSettings['gelombang'] ?? 'Gelombang 1';
 $spmbPeriode = $spmbSettings['periode_gelombang'] ?? '';
 $spmbJudul = !empty($spmbSettings['pengumuman_header']) ? $spmbSettings['pengumuman_header'] : 'Pendaftaran Peserta Didik Baru (SPMB)';
 
+// Ambil pengumuman aktif untuk ditampilkan di bawah sambutan kepala sekolah
+$pengumumanList = [];
+if (function_exists('get_active_pengumuman')) {
+    $pengumumanList = get_active_pengumuman(6);
+}
+
+// Ambil konfigurasi popup pengumuman masuk web
+$popupConfig = function_exists('get_popup_pengumuman_config') ? get_popup_pengumuman_config() : [
+    'aktif' => false
+];
+
 // Ambil foto galeri yang dipilih admin untuk tampil di Beranda
 $berandaPhotos = [];
 if (function_exists('get_galeri_photos')) {
@@ -215,6 +226,120 @@ if (function_exists('get_galeri_photos')) {
                 </div>
             </div>
         </div>
+    </section>
+
+    <!-- =========================================================================
+         SECTION PENGUMUMAN RESMI SEKOLAH (DIBAWAH SAMBUTAN KEPALA SEKOLAH)
+         ========================================================================= -->
+    <section class="pengumuman-section" id="pengumuman">
+        <div class="section-header reveal">
+            <div class="section-header-flex">
+                <div>
+                    <span class="section-badge badge-red">
+                        <i class="ph-bold ph-megaphone-simple"></i> INFORMASI RESMI
+                    </span>
+                    <h2 class="section-title">Pengumuman Sekolah</h2>
+                    <p class="section-subtitle">Pemberitahuan terkini, agenda penting, dan edaran resmi SMKS Sukapura</p>
+                </div>
+            </div>
+        </div>
+
+        <?php if (empty($pengumumanList)): ?>
+            <div class="pengumuman-empty reveal">
+                <div class="pengumuman-empty-icon"><i class="ph-bold ph-bell-slash"></i></div>
+                <h3 class="pengumuman-empty-title">Belum Ada Pengumuman Baru</h3>
+                <p class="pengumuman-empty-desc">Saat ini belum ada pengumuman resmi yang dipublikasikan. Silakan periksa kembali di lain waktu.</p>
+            </div>
+        <?php else: ?>
+            <?php 
+            $pinnedItem = null;
+            $regularItems = [];
+            foreach ($pengumumanList as $item) {
+                if ($item['is_pinned'] == 1 && $pinnedItem === null) {
+                    $pinnedItem = $item;
+                } else {
+                    $regularItems[] = $item;
+                }
+            }
+            ?>
+
+            <?php if ($pinnedItem): 
+                $pinnedCatSlug = strtolower(preg_replace('/[^a-zA-Z0-9]/', '', $pinnedItem['kategori']));
+            ?>
+                <div class="pengumuman-pinned-card reveal">
+                    <div class="pinned-card-main">
+                        <div class="pengumuman-card-meta" style="margin-bottom:10px;">
+                            <span class="cat-pill cat-pill-<?php echo $pinnedCatSlug; ?>">
+                                <?php echo htmlspecialchars($pinnedItem['kategori']); ?>
+                            </span>
+                            <span class="meta-date">
+                                <i class="ph-bold ph-calendar-blank"></i> <?php echo format_tanggal_indonesia($pinnedItem['tanggal'], true); ?>
+                            </span>
+                        </div>
+                        <h3 class="pinned-card-title"><?php echo htmlspecialchars($pinnedItem['judul']); ?></h3>
+                        <div class="pinned-card-desc">
+                            <?php echo nl2br(htmlspecialchars(mb_substr(strip_tags($pinnedItem['isi']), 0, 240))); ?><?php echo (mb_strlen($pinnedItem['isi']) > 240) ? '...' : ''; ?>
+                        </div>
+                        <div class="pengumuman-card-actions">
+                            <button type="button" class="pengumuman-btn pengumuman-btn-primary" onclick='openDetailPengumuman(<?php echo json_encode($pinnedItem, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>)'>
+                                <i class="ph-bold ph-eye"></i> Baca Selengkapnya
+                            </button>
+                            <?php if (!empty($pinnedItem['file_lampiran'])): ?>
+                                <a href="<?php echo htmlspecialchars(ltrim($pinnedItem['file_lampiran'], '/')); ?>" target="_blank" class="pengumuman-btn pengumuman-btn-secondary">
+                                    <i class="ph-bold ph-file-arrow-down"></i> Unduh Berkas
+                                </a>
+                            <?php elseif (!empty($pinnedItem['link_tautan']) && $pinnedItem['link_tautan'] !== '#'): ?>
+                                <a href="<?php echo htmlspecialchars(ltrim($pinnedItem['link_tautan'], '/')); ?>" class="pengumuman-btn pengumuman-btn-secondary">
+                                    <?php echo htmlspecialchars($pinnedItem['teks_tautan'] ?: 'Buka Tautan'); ?> <i class="ph-bold ph-arrow-right"></i>
+                                </a>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                </div>
+            <?php endif; ?>
+
+            <?php if (!empty($regularItems)): ?>
+                <div class="pengumuman-grid">
+                    <?php foreach ($regularItems as $pItem): 
+                        $catSlug = strtolower(preg_replace('/[^a-zA-Z0-9]/', '', $pItem['kategori']));
+                    ?>
+                        <article class="pengumuman-card reveal">
+                            <div class="pengumuman-card-top">
+                                <div class="pengumuman-card-meta">
+                                    <span class="cat-pill cat-pill-<?php echo $catSlug; ?>">
+                                        <?php echo htmlspecialchars($pItem['kategori']); ?>
+                                    </span>
+                                    <span class="meta-date">
+                                        <i class="ph-bold ph-calendar-blank"></i> <?php echo format_tanggal_indonesia($pItem['tanggal']); ?>
+                                    </span>
+                                </div>
+                                <?php if ($pItem['is_pinned'] == 1): ?>
+                                    <span class="pinned-indicator-pill"><i class="ph-bold ph-push-pin"></i> Pinned</span>
+                                <?php endif; ?>
+                            </div>
+
+                            <h3 class="pengumuman-card-title"><?php echo htmlspecialchars($pItem['judul']); ?></h3>
+
+                            <div class="pengumuman-card-excerpt">
+                                <?php echo htmlspecialchars(mb_substr(strip_tags($pItem['isi']), 0, 140)); ?>...
+                            </div>
+
+                            <div class="pengumuman-card-footer">
+                                <button type="button" class="pengumuman-link-btn" onclick='openDetailPengumuman(<?php echo json_encode($pItem, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>)'>
+                                    <span>Baca Detail</span>
+                                    <i class="ph-bold ph-arrow-right"></i>
+                                </button>
+                                <?php if (!empty($pItem['file_lampiran'])): ?>
+                                    <a href="<?php echo htmlspecialchars(ltrim($pItem['file_lampiran'], '/')); ?>" target="_blank" class="pengumuman-file-tag" title="Unduh Berkas Lampiran">
+                                        <i class="ph-bold ph-file-pdf"></i>
+                                    </a>
+                                <?php endif; ?>
+                            </div>
+                        </article>
+                    <?php endforeach; ?>
+                </div>
+            <?php endif; ?>
+        <?php endif; ?>
     </section>
 
     <section class="prestasi-section">
@@ -857,6 +982,227 @@ if (function_exists('get_galeri_photos')) {
     })();
     </script>
 </main>
+
+<!-- =========================================================================
+     MODAL DETAIL PENGUMUMAN SEKOLAH (LIGHTBOX)
+     ========================================================================= -->
+<div id="modal-pengumuman-detail" class="detail-modal-overlay" onclick="if(event.target===this) closeDetailPengumuman();" style="display:none;" role="dialog" aria-modal="true">
+    <div class="detail-modal-card">
+        <div class="detail-modal-header">
+            <div class="detail-modal-meta">
+                <span id="detail-kategori" class="cat-pill cat-pill-umum">Umum</span>
+                <span id="detail-tanggal" class="meta-date"></span>
+            </div>
+            <button type="button" class="detail-modal-close" onclick="closeDetailPengumuman()" aria-label="Tutup Pengumuman">
+                <i class="ph-bold ph-x"></i>
+            </button>
+        </div>
+
+        <div class="detail-modal-body">
+            <div id="detail-gambar-container" style="display:none; margin-bottom:16px;">
+                <img id="detail-gambar" src="" alt="Banner Pengumuman" style="width:100%; max-height:260px; object-fit:cover; border-radius:10px; border:2.5px solid #000;">
+            </div>
+            <h3 id="detail-judul" class="detail-modal-title"></h3>
+            <div id="detail-isi" class="detail-modal-text"></div>
+        </div>
+
+        <div class="detail-modal-footer">
+            <div id="detail-actions" class="detail-modal-actions"></div>
+            <button type="button" class="pengumuman-btn pengumuman-btn-secondary" onclick="closeDetailPengumuman()">
+                Tutup
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+// Fungsi Modal Detail Pengumuman
+function openDetailPengumuman(item) {
+    if (!item) return;
+    const modal = document.getElementById('modal-pengumuman-detail');
+    if (!modal) return;
+
+    // Kategori
+    const katEl = document.getElementById('detail-kategori');
+    katEl.textContent = item.kategori || 'Umum';
+    katEl.className = 'cat-pill cat-pill-' + (item.kategori ? item.kategori.toLowerCase().replace(/[^a-z0-9]/g, '') : 'umum');
+
+    // Tanggal
+    const tglEl = document.getElementById('detail-tanggal');
+    if (item.tanggal) {
+        tglEl.innerHTML = '<i class="ph-bold ph-calendar-blank"></i> ' + item.tanggal;
+    } else {
+        tglEl.innerHTML = '';
+    }
+
+    // Judul & Isi
+    document.getElementById('detail-judul').textContent = item.judul || '';
+    document.getElementById('detail-isi').textContent = item.isi || '';
+
+    // Gambar banner
+    const gContainer = document.getElementById('detail-gambar-container');
+    const gImg = document.getElementById('detail-gambar');
+    if (item.gambar) {
+        gImg.src = item.gambar.replace(/^\/+/, '');
+        gContainer.style.display = 'block';
+    } else {
+        gContainer.style.display = 'none';
+        gImg.src = '';
+    }
+
+    // Tombol Tindakan
+    const actContainer = document.getElementById('detail-actions');
+    actContainer.innerHTML = '';
+
+    if (item.file_lampiran) {
+        const btnLampiran = document.createElement('a');
+        btnLampiran.href = item.file_lampiran.replace(/^\/+/, '');
+        btnLampiran.target = '_blank';
+        btnLampiran.className = 'pengumuman-btn pengumuman-btn-primary';
+        btnLampiran.innerHTML = '<i class="ph-bold ph-file-arrow-down"></i> Unduh Berkas Lampiran';
+        actContainer.appendChild(btnLampiran);
+    }
+
+    if (item.link_tautan && item.link_tautan !== '#') {
+        const btnLink = document.createElement('a');
+        btnLink.href = item.link_tautan.replace(/^\/+/, '');
+        btnLink.className = 'pengumuman-btn pengumuman-btn-primary';
+        btnLink.innerHTML = (item.teks_tautan || 'Buka Tautan') + ' <i class="ph-bold ph-arrow-right"></i>';
+        actContainer.appendChild(btnLink);
+    }
+
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+}
+
+function closeDetailPengumuman() {
+    const modal = document.getElementById('modal-pengumuman-detail');
+    if (modal) {
+        modal.style.display = 'none';
+        document.body.style.overflow = '';
+    }
+}
+
+window.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        closeDetailPengumuman();
+    }
+});
+</script>
+
+<?php if (!empty($popupConfig['aktif'])): ?>
+<!-- =========================================================================
+     POPUP PENGUMUMAN MASUK WEB (DISENTING OLEH ADMIN)
+     ========================================================================= -->
+<div id="popup-sekolah-modal" class="popup-sekolah-overlay" role="dialog" aria-modal="true" aria-labelledby="popup-sekolah-title" style="display:none;">
+    <div class="popup-sekolah-backdrop" onclick="closeWebPopup()"></div>
+    <div class="popup-sekolah-wrapper">
+        <div class="popup-sekolah-card">
+            <!-- Header Strip -->
+            <div class="popup-sekolah-header">
+                <div class="popup-sekolah-badge">
+                    <i class="ph-bold ph-megaphone-simple"></i>
+                    <span><?php echo htmlspecialchars($popupConfig['badge'] ?: 'PENGUMUMAN RESMI'); ?></span>
+                </div>
+                <button type="button" class="popup-sekolah-close" onclick="closeWebPopup()" aria-label="Tutup Pengumuman">
+                    <i class="ph-bold ph-x"></i>
+                </button>
+            </div>
+
+            <!-- Optional Banner Image -->
+            <?php if (!empty($popupConfig['gambar'])): ?>
+                <div class="popup-sekolah-media">
+                    <img src="<?php echo htmlspecialchars(ltrim($popupConfig['gambar'], '/')); ?>" alt="<?php echo htmlspecialchars($popupConfig['judul']); ?>">
+                </div>
+            <?php endif; ?>
+
+            <!-- Body Content -->
+            <div class="popup-sekolah-body">
+                <h3 class="popup-sekolah-title" id="popup-sekolah-title">
+                    <?php echo htmlspecialchars($popupConfig['judul']); ?>
+                </h3>
+                <div class="popup-sekolah-text">
+                    <?php echo nl2br(htmlspecialchars($popupConfig['isi'])); ?>
+                </div>
+            </div>
+
+            <!-- Footer Actions -->
+            <div class="popup-sekolah-footer">
+                <label class="popup-sekolah-check">
+                    <input type="checkbox" id="popup-dont-show-checkbox">
+                    <span>Jangan tampilkan lagi hari ini</span>
+                </label>
+                <div class="popup-sekolah-actions">
+                    <button type="button" class="popup-btn-dismiss" onclick="closeWebPopup()">
+                        Tutup
+                    </button>
+                    <?php if (!empty($popupConfig['tombol_link'])): ?>
+                        <a href="<?php echo htmlspecialchars(ltrim($popupConfig['tombol_link'], '/')); ?>" 
+                           target="<?php echo htmlspecialchars($popupConfig['target'] ?: '_self'); ?>" 
+                           class="popup-btn-action" 
+                           onclick="recordPopupAction()">
+                            <span><?php echo htmlspecialchars($popupConfig['tombol_teks'] ?: 'Lihat Detail'); ?></span>
+                            <i class="ph-bold ph-arrow-right"></i>
+                        </a>
+                    <?php endif; ?>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Logika Popup Pengumuman Masuk Web
+(function() {
+    const popupMode = <?php echo json_encode($popupConfig['mode'] ?? 'sekali_sehari'); ?>;
+    const todayStr  = new Date().toISOString().slice(0, 10);
+    const modalEl   = document.getElementById('popup-sekolah-modal');
+    const checkEl   = document.getElementById('popup-dont-show-checkbox');
+
+    if (!modalEl) return;
+
+    let shouldShow = true;
+    if (popupMode === 'sekali_sehari') {
+        const dismissedDate = localStorage.getItem('popup_sekolah_dismissed_date');
+        if (dismissedDate === todayStr) {
+            shouldShow = false;
+        }
+    } else if (popupMode === 'sekali_sesi') {
+        const seenInSession = sessionStorage.getItem('popup_sekolah_seen_session');
+        if (seenInSession === '1') {
+            shouldShow = false;
+        }
+    }
+
+    if (shouldShow) {
+        setTimeout(function() {
+            modalEl.style.display = 'flex';
+            sessionStorage.setItem('popup_sekolah_seen_session', '1');
+        }, 400);
+    }
+
+    window.closeWebPopup = function() {
+        if (checkEl && checkEl.checked) {
+            localStorage.setItem('popup_sekolah_dismissed_date', todayStr);
+        }
+        modalEl.style.display = 'none';
+    };
+
+    window.recordPopupAction = function() {
+        if (checkEl && checkEl.checked) {
+            localStorage.setItem('popup_sekolah_dismissed_date', todayStr);
+        }
+        closeWebPopup();
+    };
+
+    window.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && modalEl.style.display === 'flex') {
+            closeWebPopup();
+        }
+    });
+})();
+</script>
+<?php endif; ?>
 
 <?php include 'components/footer.php'; ?>
 

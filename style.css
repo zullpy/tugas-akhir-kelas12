@@ -2398,3 +2398,674 @@ body {
         justify-content: center;
     }
 }
+
+/* ==========================================================================
+   PENGUMUMAN SECTION & POPUP MASUK WEB (NEUBRUTALISM PREMIUM)
+   ========================================================================== */
+
+/* Pengumuman Section Wrapper */
+.pengumuman-section {
+    margin: 80px 0 100px 0;
+    position: relative;
+}
+
+.section-header-flex {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 28px;
+}
+
+.pengumuman-header-badge {
+    margin-bottom: 4px;
+}
+
+.pengumuman-badge-count {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background-color: var(--nb-white);
+    color: var(--nb-black);
+    border: var(--border-medium);
+    border-radius: var(--radius-pill);
+    padding: 6px 16px;
+    font-family: var(--font-heading);
+    font-size: 0.85rem;
+    font-weight: 800;
+    box-shadow: var(--shadow-sm);
+}
+
+.pengumuman-badge-count i {
+    color: var(--nb-red);
+    font-size: 1.1rem;
+}
+
+/* Empty State */
+.pengumuman-empty {
+    background-color: var(--nb-white);
+    border: var(--border-thick);
+    border-radius: var(--radius-box);
+    box-shadow: var(--shadow-md);
+    padding: 48px 24px;
+    text-align: center;
+}
+
+.pengumuman-empty-icon {
+    font-size: 3rem;
+    color: #94A3B8;
+    margin-bottom: 12px;
+}
+
+.pengumuman-empty-title {
+    font-family: var(--font-heading);
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: var(--nb-black);
+    margin-bottom: 6px;
+}
+
+.pengumuman-empty-desc {
+    color: #64748B;
+    font-size: 0.95rem;
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+/* Pinned / Spotlight Announcement Card */
+.pengumuman-pinned-card {
+    background: linear-gradient(135deg, #FFFDF0 0%, #FFF9C4 100%);
+    border: var(--border-thick);
+    border-radius: var(--radius-box);
+    box-shadow: var(--shadow-lg);
+    padding: 28px 32px;
+    margin-bottom: 32px;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.pengumuman-pinned-card:hover {
+    transform: translate(-3px, -3px);
+    box-shadow: 10px 10px 0px var(--nb-black);
+}
+
+.pinned-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background-color: var(--nb-red);
+    color: var(--nb-white);
+    font-family: var(--font-heading);
+    font-size: 0.8rem;
+    font-weight: 800;
+    letter-spacing: 1px;
+    padding: 4px 12px;
+    border-radius: var(--radius-pill);
+    border: var(--border-thin);
+    box-shadow: 2px 2px 0px var(--nb-black);
+    margin-bottom: 14px;
+}
+
+.pinned-card-title {
+    font-family: var(--font-heading);
+    font-size: 1.65rem;
+    font-weight: 800;
+    line-height: 1.25;
+    color: var(--nb-black);
+    margin: 10px 0 12px 0;
+}
+
+.pinned-card-desc {
+    font-family: var(--font-body);
+    font-size: 1rem;
+    color: #334155;
+    line-height: 1.6;
+    margin-bottom: 22px;
+}
+
+/* Announcement Cards Grid */
+.pengumuman-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 24px;
+}
+
+.pengumuman-card {
+    background-color: var(--nb-white);
+    border: var(--border-thick);
+    border-radius: var(--radius-box);
+    box-shadow: var(--shadow-md);
+    padding: 22px 24px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+    position: relative;
+}
+
+.pengumuman-card:hover {
+    transform: translate(-3px, -3px);
+    box-shadow: 8px 8px 0px var(--nb-black);
+}
+
+.pengumuman-card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.pengumuman-card-meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+/* Category Pills */
+.cat-pill {
+    display: inline-block;
+    font-family: var(--font-heading);
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    padding: 3px 9px;
+    border-radius: 6px;
+    border: var(--border-thin);
+    box-shadow: 1.5px 1.5px 0px var(--nb-black);
+}
+.cat-pill-spmb { background-color: var(--nb-navy); color: var(--nb-white); }
+.cat-pill-akademik { background-color: #8B5CF6; color: var(--nb-white); }
+.cat-pill-kegiatan { background-color: #F97316; color: var(--nb-white); }
+.cat-pill-prestasi { background-color: var(--nb-yellow); color: var(--nb-black); }
+.cat-pill-libur { background-color: var(--nb-red); color: var(--nb-white); }
+.cat-pill-umum { background-color: #E2E8F0; color: var(--nb-black); }
+
+.meta-date {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: #64748B;
+}
+
+.meta-date i {
+    color: var(--nb-navy);
+}
+
+.pinned-indicator-pill {
+    background-color: var(--nb-yellow);
+    color: var(--nb-black);
+    font-size: 0.7rem;
+    font-weight: 800;
+    padding: 2px 7px;
+    border-radius: 4px;
+    border: var(--border-thin);
+}
+
+.pengumuman-card-title {
+    font-family: var(--font-heading);
+    font-size: 1.15rem;
+    font-weight: 800;
+    line-height: 1.35;
+    color: var(--nb-black);
+    margin-bottom: 10px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.pengumuman-card-excerpt {
+    font-size: 0.9rem;
+    color: #475569;
+    line-height: 1.55;
+    margin-bottom: 20px;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    flex-grow: 1;
+}
+
+.pengumuman-card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 14px;
+    border-top: 2px dashed #E2E8F0;
+}
+
+.pengumuman-link-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: none;
+    border: none;
+    font-family: var(--font-heading);
+    font-size: 0.9rem;
+    font-weight: 800;
+    color: var(--nb-navy);
+    cursor: pointer;
+    padding: 0;
+    transition: gap 0.2s ease, color 0.2s ease;
+}
+
+.pengumuman-link-btn:hover {
+    color: var(--nb-red);
+    gap: 10px;
+}
+
+.pengumuman-file-tag {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    background-color: #E0F2FE;
+    color: #0369A1;
+    border: 1.5px solid var(--nb-black);
+    font-size: 1.1rem;
+    text-decoration: none;
+    box-shadow: 2px 2px 0px var(--nb-black);
+    transition: transform 0.2s ease;
+}
+
+.pengumuman-file-tag:hover {
+    transform: translate(-1px, -1px);
+    background-color: var(--nb-yellow);
+    color: var(--nb-black);
+}
+
+/* Button Variants */
+.pengumuman-card-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.pengumuman-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--font-heading);
+    font-size: 0.9rem;
+    font-weight: 800;
+    padding: 9px 18px;
+    border-radius: var(--radius-btn);
+    border: var(--border-medium);
+    box-shadow: var(--shadow-sm);
+    text-decoration: none;
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.pengumuman-btn:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 4px 4px 0px var(--nb-black);
+}
+
+.pengumuman-btn-primary {
+    background-color: var(--nb-yellow);
+    color: var(--nb-black);
+}
+
+.pengumuman-btn-secondary {
+    background-color: var(--nb-white);
+    color: var(--nb-black);
+}
+
+/* ==========================================================================
+   DETAIL MODAL PENGUMUMAN
+   ========================================================================== */
+.detail-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(10, 77, 104, 0.65);
+    backdrop-filter: blur(5px);
+    z-index: 99998;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    overflow-y: auto;
+}
+
+.detail-modal-card {
+    background-color: #FFFDF0;
+    border: 3.5px solid var(--nb-black);
+    border-radius: 16px;
+    box-shadow: 10px 10px 0px var(--nb-black);
+    width: 100%;
+    max-width: 620px;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    position: relative;
+    animation: modalScaleIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes modalScaleIn {
+    from { opacity: 0; transform: scale(0.9); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+.detail-modal-header {
+    background-color: var(--nb-yellow);
+    border-bottom: 3px solid var(--nb-black);
+    padding: 16px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.detail-modal-meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.detail-modal-close {
+    background-color: var(--nb-white);
+    border: 2px solid var(--nb-black);
+    border-radius: 8px;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: var(--nb-black);
+    cursor: pointer;
+    box-shadow: 2px 2px 0px var(--nb-black);
+    transition: transform 0.15s ease;
+}
+
+.detail-modal-close:hover {
+    transform: translate(-1px, -1px);
+    background-color: var(--nb-red);
+    color: var(--nb-white);
+}
+
+.detail-modal-body {
+    padding: 24px;
+    overflow-y: auto;
+    font-family: var(--font-body);
+}
+
+.detail-modal-title {
+    font-family: var(--font-heading);
+    font-size: 1.45rem;
+    font-weight: 800;
+    line-height: 1.3;
+    color: var(--nb-black);
+    margin-bottom: 16px;
+}
+
+.detail-modal-text {
+    font-size: 0.98rem;
+    color: #334155;
+    line-height: 1.7;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+.detail-modal-footer {
+    background-color: var(--nb-white);
+    border-top: 2.5px solid var(--nb-black);
+    padding: 14px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.detail-modal-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+/* ==========================================================================
+   POPUP PENGUMUMAN MASUK WEB (FIRST ENTRY POPUP)
+   ========================================================================== */
+.popup-sekolah-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 99999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    overflow-y: auto;
+}
+
+.popup-sekolah-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(10, 77, 104, 0.7);
+    backdrop-filter: blur(6px);
+    z-index: 1;
+}
+
+.popup-sekolah-wrapper {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    max-width: 560px;
+}
+
+.popup-sekolah-card {
+    background-color: #FFFDF0;
+    border: 3.5px solid var(--nb-black);
+    border-radius: 18px;
+    box-shadow: 12px 12px 0px var(--nb-black);
+    overflow: hidden;
+    position: relative;
+    animation: popupBounceIn 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes popupBounceIn {
+    0% { opacity: 0; transform: scale(0.85) translateY(20px); }
+    100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.popup-sekolah-header {
+    background-color: var(--nb-navy);
+    color: var(--nb-white);
+    border-bottom: 3px solid var(--nb-black);
+    padding: 14px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.popup-sekolah-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background-color: var(--nb-yellow);
+    color: var(--nb-black);
+    border: 2px solid var(--nb-black);
+    border-radius: var(--radius-pill);
+    padding: 4px 14px;
+    font-family: var(--font-heading);
+    font-size: 0.8rem;
+    font-weight: 800;
+    box-shadow: 2px 2px 0px var(--nb-black);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.popup-sekolah-close {
+    background-color: var(--nb-white);
+    border: 2px solid var(--nb-black);
+    border-radius: 8px;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: var(--nb-black);
+    cursor: pointer;
+    box-shadow: 2px 2px 0px var(--nb-black);
+    transition: transform 0.15s ease, background-color 0.15s ease;
+}
+
+.popup-sekolah-close:hover {
+    transform: translate(-1px, -1px);
+    background-color: var(--nb-red);
+    color: var(--nb-white);
+}
+
+.popup-sekolah-media {
+    width: 100%;
+    max-height: 220px;
+    overflow: hidden;
+    border-bottom: 3px solid var(--nb-black);
+}
+
+.popup-sekolah-media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.popup-sekolah-body {
+    padding: 24px 24px 18px 24px;
+    max-height: 52vh;
+    overflow-y: auto;
+}
+
+.popup-sekolah-title {
+    font-family: var(--font-heading);
+    font-size: 1.35rem;
+    font-weight: 800;
+    line-height: 1.3;
+    color: var(--nb-black);
+    margin-bottom: 14px;
+}
+
+.popup-sekolah-text {
+    font-family: var(--font-body);
+    font-size: 0.95rem;
+    color: #334155;
+    line-height: 1.65;
+    word-break: break-word;
+}
+
+.popup-sekolah-footer {
+    background-color: var(--nb-white);
+    border-top: 2.5px solid var(--nb-black);
+    padding: 14px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.popup-sekolah-check {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: #64748B;
+    cursor: pointer;
+    user-select: none;
+}
+
+.popup-sekolah-check input {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+}
+
+.popup-sekolah-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.popup-btn-dismiss {
+    background-color: var(--nb-white);
+    color: var(--nb-black);
+    border: 2px solid var(--nb-black);
+    border-radius: var(--radius-btn);
+    padding: 8px 16px;
+    font-family: var(--font-heading);
+    font-size: 0.85rem;
+    font-weight: 800;
+    cursor: pointer;
+    box-shadow: 2px 2px 0px var(--nb-black);
+    transition: transform 0.15s ease;
+}
+
+.popup-btn-dismiss:hover {
+    transform: translate(-1px, -1px);
+    background-color: #F1F5F9;
+}
+
+.popup-btn-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background-color: var(--nb-yellow);
+    color: var(--nb-black);
+    border: 2px solid var(--nb-black);
+    border-radius: var(--radius-btn);
+    padding: 8px 18px;
+    font-family: var(--font-heading);
+    font-size: 0.88rem;
+    font-weight: 800;
+    text-decoration: none;
+    cursor: pointer;
+    box-shadow: 2px 2px 0px var(--nb-black);
+    transition: transform 0.15s ease;
+}
+
+.popup-btn-action:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 4px 4px 0px var(--nb-black);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .pengumuman-section {
+        margin: 50px 0 70px 0;
+    }
+    .pinned-card-title {
+        font-size: 1.35rem;
+    }
+    .pengumuman-pinned-card {
+        padding: 20px 18px;
+    }
+    .popup-sekolah-card {
+        box-shadow: 7px 7px 0px var(--nb-black);
+    }
+    .popup-sekolah-title {
+        font-size: 1.18rem;
+    }
+    .popup-sekolah-footer {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .popup-sekolah-actions {
+        justify-content: flex-end;
+    }
+}

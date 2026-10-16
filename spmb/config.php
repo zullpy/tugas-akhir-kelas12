@@ -345,6 +345,37 @@ function init_spmb_tables(PDO $pdo) {
         INDEX idx_beranda (`tampilkan_beranda`)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
 
+    // Tabel Pengumuman Sekolah (Bawah Sambutan & Popup Masuk Web)
+    $pdo->exec("CREATE TABLE IF NOT EXISTS `pengumuman` (
+        `id` INT AUTO_INCREMENT PRIMARY KEY,
+        `judul` VARCHAR(255) NOT NULL,
+        `kategori` VARCHAR(50) NOT NULL DEFAULT 'Umum',
+        `isi` TEXT NOT NULL,
+        `tanggal` DATE NOT NULL,
+        `file_lampiran` VARCHAR(500) DEFAULT NULL,
+        `link_tautan` VARCHAR(500) DEFAULT NULL,
+        `teks_tautan` VARCHAR(100) DEFAULT 'Lihat Detail',
+        `gambar` VARCHAR(500) DEFAULT NULL,
+        `is_pinned` TINYINT(1) NOT NULL DEFAULT 0,
+        `is_popup` TINYINT(1) NOT NULL DEFAULT 0,
+        `is_aktif` TINYINT(1) NOT NULL DEFAULT 1,
+        `urutan` INT NOT NULL DEFAULT 0,
+        `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+        `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        INDEX idx_aktif (`is_aktif`),
+        INDEX idx_tanggal (`tanggal`),
+        INDEX idx_pinned (`is_pinned`),
+        INDEX idx_popup (`is_popup`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+
+    // Pastikan kolom is_popup ada jika tabel sudah dibuat sebelumnya
+    try {
+        $checkCol = $pdo->query("SHOW COLUMNS FROM `pengumuman` LIKE 'is_popup'");
+        if ($checkCol && $checkCol->rowCount() === 0) {
+            $pdo->exec("ALTER TABLE `pengumuman` ADD COLUMN `is_popup` TINYINT(1) NOT NULL DEFAULT 0 AFTER `is_pinned`");
+        }
+    } catch (Exception $e) {}
+
     // Sinkronisasi otomatis foto galeri bawaan jika tabel masih kosong
     if (function_exists('sync_existing_gallery_photos')) {
         sync_existing_gallery_photos($pdo);
@@ -369,7 +400,17 @@ function init_spmb_tables(PDO $pdo) {
         'hotline_wa' => '081234567890',
         'email_spmb' => 'spmb@smksukapura.sch.id',
         'biaya_pendaftaran' => "• Hanya 100.000 (Reguler)\n• 50.000 (Prestasi)\n• Gratis (Yatim/Piatu) + Mendapatkan Baju Putih Abu",
-        'pengumuman_header' => 'Penerimaan Siswa Baru SMKS Sukapura TA 2027-2028 Segera Dibuka!'
+        'pengumuman_header' => 'Penerimaan Siswa Baru SMKS Sukapura TA 2027-2028 Segera Dibuka!',
+        // Konfigurasi Popup Pengumuman Masuk Web
+        'popup_pengumuman_aktif' => '1',
+        'popup_pengumuman_judul' => 'Penerimaan Peserta Didik Baru (SPMB) TA 2027/2028 Telah Dibuka!',
+        'popup_pengumuman_badge' => 'PENGUMUMAN RESMI',
+        'popup_pengumuman_isi' => "Selamat datang di Website Resmi SMKS Sukapura!\n\nPendaftaran Peserta Didik Baru (SPMB) Tahun Ajaran 2027/2028 telah dibuka. Tersedia 6 program keahlian unggulan dengan fasilitas laboratorium modern, program beasiswa siswa berprestasi, dan fasilitas seragam gratis bagi yatim/piatu.\n\nSegera amankan kuota jurusan pilihanmu!",
+        'popup_pengumuman_gambar' => '',
+        'popup_pengumuman_tombol_teks' => 'Daftar SPMB Online',
+        'popup_pengumuman_tombol_link' => 'spmb/daftar.php',
+        'popup_pengumuman_target' => '_self',
+        'popup_pengumuman_mode' => 'sekali_sehari'
     ];
 
     global $DAFTAR_JURUSAN;
@@ -384,6 +425,69 @@ function init_spmb_tables(PDO $pdo) {
         $checkSetting->execute([$k]);
         if ($checkSetting->fetchColumn() == 0) {
             $insertSetting->execute([$k, $v]);
+        }
+    }
+
+    // Seed data pengumuman awal jika masih kosong
+    $stmtPengumuman = $pdo->query("SELECT COUNT(*) FROM `pengumuman`");
+    if ($stmtPengumuman->fetchColumn() == 0) {
+        $seedAnnouncements = [
+            [
+                'judul'         => 'Penerimaan Peserta Didik Baru (SPMB) TA 2027/2028 Resmi Dibuka',
+                'kategori'      => 'SPMB',
+                'isi'           => "SMKS Sukapura secara resmi membuka Pendaftaran Peserta Didik Baru (SPMB) Gelombang 1 untuk Tahun Ajaran 2027/2028. Dapatkan beasiswa khusus bagi siswa berprestasi serta fasilitas seragam sekolah gratis bagi siswa yatim/piatu. Kuota kuota jurusan terbatas, segera registrasi online atau hubungi panitia sekolah.",
+                'tanggal'       => date('Y-m-d'),
+                'file_lampiran' => null,
+                'link_tautan'   => 'spmb/daftar.php',
+                'teks_tautan'   => 'Daftar SPMB Online',
+                'gambar'        => null,
+                'is_pinned'     => 1,
+                'is_aktif'      => 1,
+                'urutan'        => 1
+            ],
+            [
+                'judul'         => 'Jadwal Asesmen Sumatif Akhir Semester (ASAS) Ganjil Berbasis Komputer',
+                'kategori'      => 'Akademik',
+                'isi'           => "Diberitahukan kepada seluruh siswa-siswi kelas X, XI, dan XII SMKS Sukapura bahwa pelaksanaan Asesmen Sumatif Akhir Semester Ganjil akan dilaksanakan berbasis CBT di laboratorium komputer sekolah. Harap mengecek kelengkapan administrasi dan kartu peserta ujian.",
+                'tanggal'       => date('Y-m-d', strtotime('-2 days')),
+                'file_lampiran' => null,
+                'link_tautan'   => '#',
+                'teks_tautan'   => 'Lihat Jadwal Ujian',
+                'gambar'        => null,
+                'is_pinned'     => 0,
+                'is_aktif'      => 1,
+                'urutan'        => 2
+            ],
+            [
+                'judul'         => 'Sosialisasi Penempatan Praktik Kerja Lapangan (PKL) Mitra Industri Sukapura',
+                'kategori'      => 'Kegiatan',
+                'isi'           => "Pelaksanaan pembekalan dan sosialisasi penempatan PKL bagi siswa tingkat XI dengan 50+ mitra industri nasional (Telkom, Astra, Bank BJB, dll) akan diselenggarakan di Aula Graha Sukapura. Kehadiran orang tua/wali sangat dianjurkan.",
+                'tanggal'       => date('Y-m-d', strtotime('-5 days')),
+                'file_lampiran' => null,
+                'link_tautan'   => '#',
+                'teks_tautan'   => 'Daftar Mitra Industri',
+                'gambar'        => null,
+                'is_pinned'     => 0,
+                'is_aktif'      => 1,
+                'urutan'        => 3
+            ]
+        ];
+
+        $insAnn = $pdo->prepare("INSERT INTO `pengumuman` (`judul`, `kategori`, `isi`, `tanggal`, `file_lampiran`, `link_tautan`, `teks_tautan`, `gambar`, `is_pinned`, `is_aktif`, `urutan`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        foreach ($seedAnnouncements as $ann) {
+            $insAnn->execute([
+                $ann['judul'],
+                $ann['kategori'],
+                $ann['isi'],
+                $ann['tanggal'],
+                $ann['file_lampiran'],
+                $ann['link_tautan'],
+                $ann['teks_tautan'],
+                $ann['gambar'],
+                $ann['is_pinned'],
+                $ann['is_aktif'],
+                $ann['urutan']
+            ]);
         }
     }
 
@@ -1387,4 +1491,370 @@ function delete_galeri_photo($id) {
 
     $del = $pdo->prepare("DELETE FROM `galeri_foto` WHERE `id` = ?");
     return $del->execute([$id]);
+}
+
+/**
+ * =========================================================================
+ * HELPER MANAJEMEN PENGUMUMAN & POPUP WEB
+ * =========================================================================
+ */
+
+/**
+ * Format tanggal Indonesia ramah pengguna (contoh: 16 Oktober 2026)
+ */
+if (!function_exists('format_tanggal_indonesia')) {
+    function format_tanggal_indonesia($dateStr, $withDay = false) {
+        if (empty($dateStr) || $dateStr === '0000-00-00') {
+            return '-';
+        }
+        $timestamp = strtotime($dateStr);
+        if (!$timestamp) return $dateStr;
+
+        $hariArr = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+        $bulanArr = [
+            1 => 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+            'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+        ];
+
+        $dayIndex = (int)date('w', $timestamp);
+        $d = (int)date('j', $timestamp);
+        $m = (int)date('n', $timestamp);
+        $y = date('Y', $timestamp);
+
+        $bulan = $bulanArr[$m] ?? date('F', $timestamp);
+        $res = "$d $bulan $y";
+
+        if ($withDay) {
+            $hari = $hariArr[$dayIndex] ?? '';
+            $res = "$hari, $res";
+        }
+        return $res;
+    }
+}
+
+/**
+ * Mengambil daftar pengumuman aktif untuk ditampilkan di web depan (bawah sambutan kepala sekolah)
+ */
+function get_active_pengumuman($limit = null) {
+    try {
+        $pdo = get_db_connection();
+        $sql = "SELECT * FROM `pengumuman` WHERE `is_aktif` = 1 ORDER BY `is_pinned` DESC, `urutan` ASC, `tanggal` DESC, `id` DESC";
+        if ($limit !== null && (int)$limit > 0) {
+            $sql .= " LIMIT " . (int)$limit;
+        }
+        $stmt = $pdo->query($sql);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch (Exception $e) {
+        return [];
+    }
+}
+
+/**
+ * Mengambil seluruh daftar pengumuman untuk panel admin
+ */
+function get_all_pengumuman($kategori = null) {
+    try {
+        $pdo = get_db_connection();
+        $sql = "SELECT * FROM `pengumuman` WHERE 1=1";
+        $params = [];
+        if (!empty($kategori) && $kategori !== 'semua') {
+            $sql .= " AND `kategori` = ?";
+            $params[] = $kategori;
+        }
+        $sql .= " ORDER BY `is_pinned` DESC, `urutan` ASC, `tanggal` DESC, `id` DESC";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute($params);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch (Exception $e) {
+        return [];
+    }
+}
+
+/**
+ * Ambil single pengumuman berdasarkan ID
+ */
+function get_pengumuman_by_id($id) {
+    try {
+        $pdo = get_db_connection();
+        $stmt = $pdo->prepare("SELECT * FROM `pengumuman` WHERE `id` = ? LIMIT 1");
+        $stmt->execute([(int)$id]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    } catch (Exception $e) {
+        return null;
+    }
+}
+
+/**
+ * Toggle status aktif/nonaktif pengumuman
+ */
+function toggle_pengumuman_aktif($id, $status = null) {
+    $pdo = get_db_connection();
+    if ($status === null) {
+        $stmt = $pdo->prepare("SELECT `is_aktif` FROM `pengumuman` WHERE `id` = ?");
+        $stmt->execute([(int)$id]);
+        $curr = $stmt->fetchColumn();
+        $newStatus = ($curr == 1) ? 0 : 1;
+    } else {
+        $newStatus = $status ? 1 : 0;
+    }
+    $update = $pdo->prepare("UPDATE `pengumuman` SET `is_aktif` = ? WHERE `id` = ?");
+    $update->execute([$newStatus, (int)$id]);
+    return $newStatus;
+}
+
+/**
+ * Toggle status pin pengumuman
+ */
+function toggle_pengumuman_pinned($id, $status = null) {
+    $pdo = get_db_connection();
+    if ($status === null) {
+        $stmt = $pdo->prepare("SELECT `is_pinned` FROM `pengumuman` WHERE `id` = ?");
+        $stmt->execute([(int)$id]);
+        $curr = $stmt->fetchColumn();
+        $newStatus = ($curr == 1) ? 0 : 1;
+    } else {
+        $newStatus = $status ? 1 : 0;
+    }
+    $update = $pdo->prepare("UPDATE `pengumuman` SET `is_pinned` = ? WHERE `id` = ?");
+    $update->execute([$newStatus, (int)$id]);
+    return $newStatus;
+}
+
+/**
+ * Toggle status popup pengumuman
+ * Mengatur pengumuman beranda ini sebagai Popup Masuk Web
+ */
+function toggle_pengumuman_popup($id, $status = null) {
+    $pdo = get_db_connection();
+    if ($status === null) {
+        $stmt = $pdo->prepare("SELECT `is_popup` FROM `pengumuman` WHERE `id` = ?");
+        $stmt->execute([(int)$id]);
+        $curr = $stmt->fetchColumn();
+        $newStatus = ($curr == 1) ? 0 : 1;
+    } else {
+        $newStatus = $status ? 1 : 0;
+    }
+
+    if ($newStatus == 1) {
+        // Reset pengumuman lain agar hanya satu yang ditandai khusus sebagai popup
+        $pdo->exec("UPDATE `pengumuman` SET `is_popup` = 0");
+        $update = $pdo->prepare("UPDATE `pengumuman` SET `is_popup` = 1 WHERE `id` = ?");
+        $update->execute([(int)$id]);
+        $ins = $pdo->prepare("INSERT INTO `spmb_pengaturan` (`kunci`, `nilai`) VALUES ('popup_pengumuman_id', ?) ON DUPLICATE KEY UPDATE `nilai` = VALUES(`nilai`)");
+        $ins->execute([(string)$id]);
+    } else {
+        $update = $pdo->prepare("UPDATE `pengumuman` SET `is_popup` = 0 WHERE `id` = ?");
+        $update->execute([(int)$id]);
+        $ins = $pdo->prepare("INSERT INTO `spmb_pengaturan` (`kunci`, `nilai`) VALUES ('popup_pengumuman_id', 'auto') ON DUPLICATE KEY UPDATE `nilai` = VALUES(`nilai`)");
+        $ins->execute();
+    }
+    return $newStatus;
+}
+
+/**
+ * Tambah pengumuman baru
+ */
+function add_pengumuman($data) {
+    $pdo = get_db_connection();
+    $isPopup = !empty($data['is_popup']) ? 1 : 0;
+    if ($isPopup) {
+        $pdo->exec("UPDATE `pengumuman` SET `is_popup` = 0");
+    }
+    $stmt = $pdo->prepare("INSERT INTO `pengumuman` (
+        `judul`, `kategori`, `isi`, `tanggal`, `file_lampiran`, `link_tautan`, `teks_tautan`, `gambar`, `is_pinned`, `is_popup`, `is_aktif`, `urutan`
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+    $stmt->execute([
+        $data['judul'],
+        $data['kategori'] ?? 'Umum',
+        $data['isi'],
+        $data['tanggal'] ?? date('Y-m-d'),
+        $data['file_lampiran'] ?? null,
+        $data['link_tautan'] ?? null,
+        !empty($data['teks_tautan']) ? $data['teks_tautan'] : 'Lihat Detail',
+        $data['gambar'] ?? null,
+        !empty($data['is_pinned']) ? 1 : 0,
+        $isPopup,
+        isset($data['is_aktif']) ? (int)$data['is_aktif'] : 1,
+        (int)($data['urutan'] ?? 0)
+    ]);
+    $newId = $pdo->lastInsertId();
+    if ($isPopup) {
+        $ins = $pdo->prepare("INSERT INTO `spmb_pengaturan` (`kunci`, `nilai`) VALUES ('popup_pengumuman_id', ?) ON DUPLICATE KEY UPDATE `nilai` = VALUES(`nilai`)");
+        $ins->execute([(string)$newId]);
+    }
+    return $newId;
+}
+
+/**
+ * Update pengumuman
+ */
+function update_pengumuman($id, $data) {
+    $pdo = get_db_connection();
+    $isPopup = !empty($data['is_popup']) ? 1 : 0;
+    if ($isPopup) {
+        $pdo->prepare("UPDATE `pengumuman` SET `is_popup` = 0 WHERE `id` != ?")->execute([(int)$id]);
+        $ins = $pdo->prepare("INSERT INTO `spmb_pengaturan` (`kunci`, `nilai`) VALUES ('popup_pengumuman_id', ?) ON DUPLICATE KEY UPDATE `nilai` = VALUES(`nilai`)");
+        $ins->execute([(string)$id]);
+    }
+    $stmt = $pdo->prepare("UPDATE `pengumuman` SET 
+        `judul` = ?, `kategori` = ?, `isi` = ?, `tanggal` = ?, `file_lampiran` = ?, `link_tautan` = ?, `teks_tautan` = ?, `gambar` = ?, `is_pinned` = ?, `is_popup` = ?, `is_aktif` = ?, `urutan` = ?
+        WHERE `id` = ?");
+    return $stmt->execute([
+        $data['judul'],
+        $data['kategori'] ?? 'Umum',
+        $data['isi'],
+        $data['tanggal'] ?? date('Y-m-d'),
+        $data['file_lampiran'] ?? null,
+        $data['link_tautan'] ?? null,
+        !empty($data['teks_tautan']) ? $data['teks_tautan'] : 'Lihat Detail',
+        $data['gambar'] ?? null,
+        !empty($data['is_pinned']) ? 1 : 0,
+        $isPopup,
+        isset($data['is_aktif']) ? (int)$data['is_aktif'] : 1,
+        (int)($data['urutan'] ?? 0),
+        (int)$id
+    ]);
+}
+
+/**
+ * Hapus pengumuman
+ */
+function delete_pengumuman($id) {
+    $pdo = get_db_connection();
+    $stmt = $pdo->prepare("SELECT `file_lampiran`, `gambar` FROM `pengumuman` WHERE `id` = ?");
+    $stmt->execute([(int)$id]);
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+    if ($row) {
+        $root = dirname(__DIR__);
+        if (!empty($row['file_lampiran']) && strpos($row['file_lampiran'], 'assets/pengumuman/uploads/') !== false) {
+            $f = $root . '/' . ltrim($row['file_lampiran'], '/');
+            if (file_exists($f)) @unlink($f);
+        }
+        if (!empty($row['gambar']) && strpos($row['gambar'], 'assets/pengumuman/uploads/') !== false) {
+            $g = $root . '/' . ltrim($row['gambar'], '/');
+            if (file_exists($g)) @unlink($g);
+        }
+    }
+    $del = $pdo->prepare("DELETE FROM `pengumuman` WHERE `id` = ?");
+    return $del->execute([(int)$id]);
+}
+
+/**
+ * Ambil konfigurasi popup pengumuman
+ * Otomatis mengambil konten dari Pengumuman Beranda (Pinned / Terbaru / Ditandai)
+ * sehingga admin TIDAK PERLU mengisi ulang form terpisah!
+ */
+function get_popup_pengumuman_config() {
+    $settings = get_all_settings();
+    $isAktif = ($settings['popup_pengumuman_aktif'] ?? '1') === '1';
+    $popupMode = $settings['popup_pengumuman_mode'] ?? 'sekali_sehari';
+    $sourceId = $settings['popup_pengumuman_id'] ?? 'auto';
+
+    $item = null;
+    try {
+        $pdo = get_db_connection();
+
+        // 1. Jika admin memilih ID pengumuman tertentu
+        if ($sourceId !== 'auto' && is_numeric($sourceId) && (int)$sourceId > 0) {
+            $stmt = $pdo->prepare("SELECT * FROM `pengumuman` WHERE `id` = ? AND `is_aktif` = 1 LIMIT 1");
+            $stmt->execute([(int)$sourceId]);
+            $item = $stmt->fetch(PDO::FETCH_ASSOC);
+        }
+
+        // 2. Jika auto atau belum ditemukan, cari pengumuman yang ditandai is_popup = 1
+        if (!$item) {
+            $stmt = $pdo->query("SELECT * FROM `pengumuman` WHERE `is_popup` = 1 AND `is_aktif` = 1 LIMIT 1");
+            $item = $stmt->fetch(PDO::FETCH_ASSOC);
+        }
+
+        // 3. Jika belum ada, gunakan pengumuman utama beranda yang di-PIN (is_pinned = 1)
+        if (!$item) {
+            $stmt = $pdo->query("SELECT * FROM `pengumuman` WHERE `is_pinned` = 1 AND `is_aktif` = 1 ORDER BY `urutan` ASC, `tanggal` DESC, `id` DESC LIMIT 1");
+            $item = $stmt->fetch(PDO::FETCH_ASSOC);
+        }
+
+        // 4. Jika tidak ada yang di-PIN, gunakan pengumuman aktif terbaru dari beranda
+        if (!$item) {
+            $stmt = $pdo->query("SELECT * FROM `pengumuman` WHERE `is_aktif` = 1 ORDER BY `urutan` ASC, `tanggal` DESC, `id` DESC LIMIT 1");
+            $item = $stmt->fetch(PDO::FETCH_ASSOC);
+        }
+    } catch (Exception $e) {
+        $item = null;
+    }
+
+    if (!$item) {
+        return [
+            'aktif'         => false,
+            'source_type'   => 'none',
+            'id'            => 0,
+            'judul'         => 'Belum Ada Pengumuman Aktif',
+            'badge'         => 'PENGUMUMAN RESMI',
+            'kategori'      => 'Umum',
+            'tanggal'       => '',
+            'isi'           => '',
+            'gambar'        => '',
+            'file_lampiran' => '',
+            'link_tautan'   => '',
+            'tombol_teks'   => 'Lihat Detail',
+            'tombol_link'   => '#pengumuman',
+            'target'        => '_self',
+            'mode'          => $popupMode
+        ];
+    }
+
+    // Tentukan aksi tombol popup berdasarkan data pengumuman beranda
+    $tombolTeks = 'Lihat Detail';
+    $tombolLink = '#pengumuman';
+    $target = '_self';
+
+    if (!empty($item['link_tautan']) && $item['link_tautan'] !== '#') {
+        $tombolTeks = !empty($item['teks_tautan']) ? $item['teks_tautan'] : 'Buka Tautan';
+        $tombolLink = $item['link_tautan'];
+        if (strpos($item['link_tautan'], 'http') === 0) {
+            $target = '_blank';
+        }
+    } elseif (!empty($item['file_lampiran'])) {
+        $tombolTeks = !empty($item['teks_tautan']) && $item['teks_tautan'] !== 'Lihat Detail' ? $item['teks_tautan'] : 'Unduh Berkas Lampiran';
+        $tombolLink = $item['file_lampiran'];
+        $target = '_blank';
+    }
+
+    return [
+        'aktif'         => $isAktif,
+        'source_type'   => ($sourceId !== 'auto') ? 'custom' : (($item['is_popup'] ?? 0) ? 'flagged' : (($item['is_pinned'] ?? 0) ? 'pinned' : 'latest')),
+        'id'            => (int)$item['id'],
+        'judul'         => $item['judul'],
+        'badge'         => !empty($item['kategori']) ? strtoupper($item['kategori']) : 'PENGUMUMAN RESMI',
+        'kategori'      => $item['kategori'] ?? 'Umum',
+        'tanggal'       => $item['tanggal'] ?? '',
+        'isi'           => $item['isi'],
+        'gambar'        => $item['gambar'] ?? '',
+        'file_lampiran' => $item['file_lampiran'] ?? '',
+        'link_tautan'   => $item['link_tautan'] ?? '',
+        'tombol_teks'   => $tombolTeks,
+        'tombol_link'   => $tombolLink,
+        'target'        => $target,
+        'mode'          => $popupMode
+    ];
+}
+
+/**
+ * Simpan / perbarui konfigurasi pengaturan popup pengumuman
+ */
+function update_popup_pengumuman_config($data) {
+    $pdo = get_db_connection();
+    $ins = $pdo->prepare("INSERT INTO `spmb_pengaturan` (`kunci`, `nilai`) VALUES (?, ?) ON DUPLICATE KEY UPDATE `nilai` = VALUES(`nilai`)");
+    
+    $allowed = [
+        'popup_pengumuman_aktif',
+        'popup_pengumuman_mode',
+        'popup_pengumuman_id'
+    ];
+
+    foreach ($allowed as $k) {
+        if (isset($data[$k])) {
+            $ins->execute([$k, trim($data[$k])]);
+        }
+    }
+    return true;
 }
