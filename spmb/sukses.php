@@ -41,7 +41,7 @@ if (!$pendaftar) {
     <link rel="shortcut icon" href="<?php echo $base_url; ?>assets/favicon.ico" type="image/x-icon">
 </head>
 <body>
-    <?php include '../components/navbar.php'; ?>
+    <?php include __DIR__ . '/header_minimal.php'; ?>
 
     <main class="spmb-container" style="padding: 60px 15px;">
         <div style="max-width:700px; margin:0 auto; background:var(--nb-white); border:var(--border-thick); border-radius:var(--radius-card); box-shadow:var(--shadow-xl); padding:45px 35px; text-align:center;">
@@ -123,6 +123,6 @@ if (!$pendaftar) {
         </div>
     </main>
 
-    <?php include '../components/footer.php'; ?>
+    <?php include __DIR__ . '/footer_minimal.php'; ?>
 </body>
 </html>

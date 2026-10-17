@@ -401,7 +401,15 @@ function kirim_notifikasi_status_spmb($pdo, $pendaftar_id, $statusBaru, $opsi = 
                  . $infoKartuPeserta . "\n\n"
                  . "*Petunjuk Daftar Ulang:*\n"
                  . "1. Buka tautan di atas dan cetak Kartu Peserta dalam ukuran kertas A4/F4.\n"
-                 . "2. Hadir ke sekretariat SPMB SMKS Sukapura sesuai jadwal dengan membawa kartu peserta dan berkas fisik asli untuk verifikasi akhir.\n\n"
+                 . "2. Hadir ke sekretariat SPMB SMKS Sukapura sesuai jadwal dengan membawa kartu peserta dan kelengkapan berkas fisik persyaratan.\n\n"
+                 . "📄 *Persyaratan Berkas Dokumen (Dibawa Saat Daftar Ulang):*\n"
+                 . "1. Fotokopi Ijazah / Surat Keterangan Lulus (SKL) dari SMP/MTs yang telah dilegalisir (2 lembar).\n"
+                 . "2. Fotokopi Kartu Keluarga (KK) dan Akta Kelahiran calon peserta didik (2 lembar).\n"
+                 . "3. Nomor Induk Siswa Nasional (NISN) aktif yang terdaftar di Kemendikbudristek.\n"
+                 . "4. Pas Foto berwarna terbaru ukuran 3×4 (3 lembar) dengan latar belakang warna merah/biru.\n"
+                 . "5. Sertifikat piagam kejuaraan asli & fotokopi (khusus pendaftar Jalur Prestasi).\n\n"
+                 . "*Keterangan Pelaksanaan:*\n"
+                 . "Seluruh berkas fisik di atas *wajib dibawa dan diserahkan saat proses Daftar Ulang* ke sekretariat panitia SPMB di kampus SMKS Sukapura setelah dinyatakan lulus seleksi.\n\n"
                  . "Selamat bergabung dengan keluarga besar SMKS Sukapura!\n\n"
                  . "Salam hangat,\n*Panitia SPMB SMKS SUKAPURA*";
 

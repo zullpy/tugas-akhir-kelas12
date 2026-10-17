@@ -103,22 +103,12 @@ if (!empty($nisn) || isset($_REQUEST['nisn'])) {
         exit;
     }
 
-    // 2. Validasi struktur tahun kelahiran Kemendikbud (Digit 1-2 NISN adalah 2 digit tahun lahir)
-    $catatanKemdikbud = '';
-    if (!empty($tanggal_lahir) && strtotime($tanggal_lahir)) {
-        $thnLahir2Digit = date('y', strtotime($tanggal_lahir));
-        $prefixNisn = substr($nisn, 0, 2);
-        if ($prefixNisn !== $thnLahir2Digit) {
-            $catatanKemdikbud = "Catatan: Menurut standar Dapodik/Kemendikbud, 2 digit awal NISN ($prefixNisn) umumnya sama dengan 2 digit tahun kelahiran ($thnLahir2Digit). Pastikan sesuai ijazah/rapor.";
-        }
-    }
-
     echo json_encode([
         'status'         => 'available',
         'valid'          => true,
         'registered'     => false,
-        'message'        => '✓ Format NISN valid (10 digit) dan belum terdaftar di sistem.',
-        'note'           => $catatanKemdikbud,
+        'message'        => 'NISN valid &amp; belum terdaftar.',
+        'note'           => '',
         'kemdikbud_link' => 'https://nisn.data.kemendikdasmen.go.id/'
     ]);
     exit;

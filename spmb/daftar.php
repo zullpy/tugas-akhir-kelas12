@@ -7,6 +7,11 @@ $subPageTitle = 'daftar';
 
 require_once __DIR__ . '/config.php';
 require_once __DIR__ . '/fonnte.php';
+
+// Calon siswa wajib login akun SPMB terlebih dahulu sebelum mengisi formulir
+check_spmb_login(true);
+$currentUser = get_spmb_user();
+
 $pdo = get_db_connection();
 $settings = get_all_settings();
 
@@ -14,21 +19,29 @@ $settings = get_all_settings();
 $isBuka = is_spmb_open($settings);
 $statusInfo = get_spmb_status_info($settings);
 
-// Hitung batas usia dinamis PPDB (Maks 21 tahun per 1 Juli tahun ajaran, Min 13 tahun)
-$tahunAjaranStr = $settings['tahun_ajaran'] ?? date('Y');
-if (preg_match('/^(\d{4})/', $tahunAjaranStr, $m)) {
-    $refYear = (int)$m[1];
-} else {
-    $refYear = (int)date('Y');
-}
-$minBirthDate = ($refYear - 21) . '-07-01'; // Maksimal 21 tahun per 1 Juli
-$maxBirthDate = ($refYear - 13) . '-12-31'; // Minimal 13 tahun
+// Hitung batas usia PPDB (Maks 21 tahun per 1 Juli tahun berjalan, Min 13 tahun)
+$refYear = (int)date('Y'); // Tahun berjalan (2026 -> rentang kelahiran 2005 s.d. 2013)
+$minBirthDate = ($refYear - 21) . '-07-01'; // Maksimal 21 tahun per 1 Juli (2005-07-01)
+$maxBirthDate = ($refYear - 13) . '-12-31'; // Minimal 13 tahun (2013-12-31)
 
 $error = '';
 $success = '';
 
+// Data default otomatis dari akun calon siswa yang sedang login (tetap bisa diedit oleh pengguna)
+$valNamaLengkap  = $_POST['nama_lengkap'] ?? ($currentUser['nama_lengkap'] ?? '');
+$valNoHp         = $_POST['no_hp'] ?? ($currentUser['no_hp'] ?? '');
+$valTanggalLahir = $_POST['tanggal_lahir'] ?? ($currentUser['tanggal_lahir'] ?? '');
+
 // Pre-fill pilihan jurusan jika ada query string
 $selectedJurusan = sanitize_input($_GET['jurusan'] ?? '');
+
+// Cek apakah akun ini sudah pernah memiliki pendaftaran
+$existingForm = null;
+if (!empty($currentUser['id'])) {
+    $stmtExist = $pdo->prepare("SELECT * FROM `spmb_pendaftar` WHERE `id_akun` = ? ORDER BY `id` DESC LIMIT 1");
+    $stmtExist->execute([$currentUser['id']]);
+    $existingForm = $stmtExist->fetch();
+}
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!$isBuka) {
@@ -74,7 +87,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } elseif ($jurusan_1 === $jurusan_2) {
             $error = "Jurusan Pilihan 1 dan Pilihan 2 tidak boleh sama.";
         } elseif (!empty($tanggal_lahir) && ($tanggal_lahir < $minBirthDate || $tanggal_lahir > $maxBirthDate)) {
-            $error = "Tanggal lahir calon siswa tidak memenuhi ketentuan batas usia PPDB (rentang usia 13 s.d. 21 tahun per 1 Juli $refYear sesuai Permendikbud).";
+            if ($tanggal_lahir < $minBirthDate) {
+                $error = "Usia calon siswa melebihi 21 tahun. Berdasarkan ketentuan Permendikbud PPDB SMK, batas usia maksimal adalah 21 tahun per 1 Juli $refYear.";
+            } else {
+                $error = "Usia calon siswa kurang dari 13 tahun. Berdasarkan ketentuan Permendikbud PPDB SMK, batas usia minimal adalah 13 tahun.";
+            }
         } else {
             // Cek apakah NISN sudah pernah mendaftar
             $checkNisn = $pdo->prepare("SELECT `no_pendaftaran`, `nama_lengkap` FROM `spmb_pendaftar` WHERE `nisn` = ?");
@@ -194,18 +211,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 if (empty($error)) {
                     // Generate No Registrasi
                     $no_pendaftaran = generate_no_pendaftaran($pdo);
+                    $id_akun = $currentUser['id'] ?? null;
 
                     $insertStmt = $pdo->prepare("INSERT INTO `spmb_pendaftar` (
-                        `no_pendaftaran`, `nisn`, `nik`, `nama_lengkap`, `jenis_kelamin`, 
-                        `tempat_lahir`, `tanggal_lahir`, `agama`, `no_hp`, `alamat`, 
-                        `asal_sekolah`, `jurusan_1`, `jurusan_2`, `jalur`, `nama_ayah`, 
-                        `nama_ibu`, `pekerjaan_ortu`, `no_hp_ortu`, `penghasilan_ortu`, 
-                        `foto`, `berkas_kk`, `berkas_akta`, `berkas_ijazah`, `berkas_ktp_ortu`, `berkas_kip`, `berkas_prestasi`, 
+                        `id_akun`, `no_pendaftaran`, `nisn`, `nik`, `nama_lengkap`, `jenis_kelamin`,
+                        `tempat_lahir`, `tanggal_lahir`, `agama`, `no_hp`, `alamat`,
+                        `asal_sekolah`, `jurusan_1`, `jurusan_2`, `jalur`, `nama_ayah`,
+                        `nama_ibu`, `pekerjaan_ortu`, `no_hp_ortu`, `penghasilan_ortu`,
+                        `foto`, `berkas_kk`, `berkas_akta`, `berkas_ijazah`, `berkas_ktp_ortu`, `berkas_kip`, `berkas_prestasi`,
                         `status`, `catatan_admin`
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Menunggu Verifikasi', 'Pendaftaran berhasil dikirim. Menunggu verifikasi berkas oleh panitia.')");
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Menunggu Verifikasi', 'Pendaftaran berhasil dikirim. Menunggu verifikasi berkas oleh panitia.')");
 
                     $insertStmt->execute([
-                        $no_pendaftaran, $nisn, $nik, $nama_lengkap, $jenis_kelamin,
+                        $id_akun, $no_pendaftaran, $nisn, $nik, $nama_lengkap, $jenis_kelamin,
                         $tempat_lahir, $tanggal_lahir, $agama, $no_hp, $alamat,
                         $asal_sekolah, $jurusan_1, $jurusan_2 ?: null, $jalur, $nama_ayah,
                         $nama_ibu, $pekerjaan_ortu, $no_hp_ortu, $penghasilan_ortu,
@@ -239,7 +257,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link rel="shortcut icon" href="<?php echo $base_url; ?>assets/favicon.ico" type="image/x-icon">
 </head>
 <body>
-    <?php include '../components/navbar.php'; ?>
+    <?php include __DIR__ . '/header_minimal.php'; ?>
 
     <!-- SOFT MODERN SPMB HEADER -->
     <div style="background: linear-gradient(180deg, #FFFDF0 0%, #FFF9D2 100%); border-bottom: 2px solid #000; padding: 36px 0 32px; box-shadow: 0 3px 0px rgba(0,0,0,0.05);">
@@ -286,6 +304,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <div class="spmb-alert spmb-alert-danger" id="formAlertBox">
                         <i class="ph-bold ph-warning-circle" style="font-size:1.4rem;"></i>
                         <div><?php echo $error; ?></div>
+                    </div>
+                <?php endif; ?>
+
+                <?php if ($existingForm): ?>
+                    <div class="spmb-alert spmb-alert-info" style="margin-bottom: 24px; border: 2.5px solid var(--nb-black); box-shadow: var(--shadow-sm); background: #EFF6FF; padding: 18px 20px;">
+                        <i class="ph-bold ph-info" style="font-size: 1.8rem; color: #0A4D68; flex-shrink: 0;"></i>
+                        <div style="flex: 1;">
+                            <strong style="font-size: 1.05rem; color: #053B50;">Akun Anda Sudah Terdaftar!</strong><br>
+                            <span style="font-size: 0.92rem; color: #334155; line-height: 1.5;">
+                                Anda telah memiliki formulir pendaftaran dengan Nomor Registrasi <strong><?php echo htmlspecialchars($existingForm['no_pendaftaran']); ?></strong> (Status: <strong><?php echo htmlspecialchars($existingForm['status']); ?></strong>).
+                            </span>
+                            <div style="margin-top: 10px; display: flex; gap: 10px; flex-wrap: wrap;">
+                                <a href="cek-status.php" class="spmb-btn spmb-btn-sm spmb-btn-primary" style="padding: 8px 16px;">
+                                    <i class="ph-bold ph-magnifying-glass"></i> Cek Status Pendaftaran Anda
+                                </a>
+                                <a href="edit.php?no=<?php echo urlencode($existingForm['no_pendaftaran']); ?>&nisn=<?php echo urlencode($existingForm['nisn']); ?>" class="spmb-btn spmb-btn-sm spmb-btn-secondary" style="padding: 8px 16px;">
+                                    <i class="ph-bold ph-pencil-simple"></i> Perbaiki Formulir / Berkas
+                                </a>
+                            </div>
+                        </div>
                     </div>
                 <?php endif; ?>
 
@@ -500,7 +538,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <label class="spmb-label" for="nama_lengkap">
                                 Nama Lengkap Calon Siswa <span class="required">*</span>
                             </label>
-                            <input type="text" name="nama_lengkap" id="nama_lengkap" class="spmb-input" placeholder="Sesuai dengan ijazah SMP/MTs atau Akta Kelahiran" value="<?php echo htmlspecialchars($_POST['nama_lengkap'] ?? ''); ?>" required>
+                            <input type="text" name="nama_lengkap" id="nama_lengkap" class="spmb-input" placeholder="Sesuai dengan ijazah SMP/MTs atau Akta Kelahiran" value="<?php echo htmlspecialchars($valNamaLengkap); ?>" required>
+                            <div class="spmb-input-helper"><i class="ph-bold ph-info"></i> Otomatis terisi dari data akun Anda, masih dapat diedit jika diperlukan.</div>
                         </div>
 
                         <div class="spmb-form-row">
@@ -525,13 +564,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                     No. WhatsApp Calon Siswa <span class="required">*</span>
                                 </label>
                                 <div style="position:relative;">
-                                    <input type="tel" name="no_hp" id="no_hp" class="spmb-input" placeholder="Contoh: 081234567890" value="<?php echo htmlspecialchars($_POST['no_hp'] ?? ''); ?>" required autocomplete="tel">
+                                    <input type="tel" name="no_hp" id="no_hp" class="spmb-input" placeholder="Contoh: 081234567890" value="<?php echo htmlspecialchars($valNoHp); ?>" required autocomplete="tel">
                                     <span id="no_hp_spinner" style="position:absolute; right:12px; top:50%; transform:translateY(-50%); display:none; color:#0A4D68;">
                                         <i class="ph-bold ph-spinner" style="animation: spin 1s linear infinite; font-size:1.15rem; display:inline-block;"></i>
                                     </span>
                                 </div>
                                 <div id="no_hp_feedback" class="spmb-input-feedback"></div>
-                                <div class="spmb-input-helper">Untuk menerima notifikasi status kelulusan dan info seleksi.</div>
+                                <div class="spmb-input-helper">Untuk menerima notifikasi status kelulusan (otomatis terisi dari akun, masih dapat diedit).</div>
                             </div>
                         </div>
 
@@ -547,8 +586,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <label class="spmb-label" for="tanggal_lahir">
                                     Tanggal Lahir <span class="required">*</span>
                                 </label>
-                                <input type="date" name="tanggal_lahir" id="tanggal_lahir" class="spmb-input" value="<?php echo htmlspecialchars($_POST['tanggal_lahir'] ?? ''); ?>" min="<?php echo $minBirthDate; ?>" max="<?php echo $maxBirthDate; ?>" required>
-                                <div class="spmb-input-helper">Usia antara 13 s.d. 21 tahun per 1 Juli <?php echo $refYear; ?> (Sesuai Permendikbud PPDB).</div>
+                                <input type="date" name="tanggal_lahir" id="tanggal_lahir" class="spmb-input" value="<?php echo htmlspecialchars($valTanggalLahir); ?>" min="<?php echo $minBirthDate; ?>" max="<?php echo $maxBirthDate; ?>" required>
+                                <div id="tgl_lahir_feedback" class="spmb-input-feedback" style="margin-top: 6px;"></div>
+                                <div class="spmb-input-helper">Usia wajib 13 s.d. 21 tahun per 1 Juli <?php echo $refYear; ?> (sesuai ketentuan PPDB).</div>
                             </div>
                         </div>
 
@@ -953,29 +993,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
             }
 
-            const tglInput = document.getElementById('tanggal_lahir');
-            if (tglInput) {
-                const tglVal = tglInput.value;
-                const minD = tglInput.getAttribute('min');
-                const maxD = tglInput.getAttribute('max');
-                if (tglVal && minD && tglVal < minD) {
-                    Swal.fire({
-                        icon: 'warning',
-                        title: 'Batas Usia Terlewati',
-                        text: 'Calon siswa berusia lebih dari 21 tahun per 1 Juli tahun ajaran ini (sesuai Permendikbud PPDB SMA/SMK).',
-                        confirmButtonColor: '#0A4D68'
-                    });
-                    tglInput.focus();
-                    return false;
-                }
-                if (tglVal && maxD && tglVal > maxD) {
-                    Swal.fire({
-                        icon: 'warning',
-                        title: 'Usia Belum Memenuhi Syarat',
-                        text: 'Usia calon siswa minimal adalah 13 tahun untuk jenjang SMK.',
-                        confirmButtonColor: '#0A4D68'
-                    });
-                    tglInput.focus();
+            if (typeof validateTanggalLahir === 'function') {
+                if (!validateTanggalLahir(true)) {
+                    const tglInput = document.getElementById('tanggal_lahir');
+                    if (tglInput) tglInput.focus();
                     return false;
                 }
             }
@@ -1421,7 +1442,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             input.classList.remove('is-valid');
             input.classList.add('is-invalid');
             feedback.className = 'spmb-input-feedback danger';
-            feedback.innerHTML = '<i class="ph-bold ph-warning-circle" style="font-size:1.1rem; flex-shrink:0;"></i><span>NISN Kemendikbud harus berupa 10 digit angka valid.</span>';
+            feedback.innerHTML = '<i class="ph-bold ph-warning-circle" style="font-size:1.1rem; flex-shrink:0;"></i><span>NISN harus terdiri dari 10 digit angka.</span>';
             isNisnRegistered = false;
             return;
         }
@@ -1448,11 +1469,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     input.classList.remove('is-invalid');
                     input.classList.add('is-valid');
                     feedback.className = 'spmb-input-feedback success';
-                    let html = '<i class="ph-bold ph-check-circle" style="font-size:1.1rem; flex-shrink:0;"></i><span>' + data.message + '</span>';
-                    if (data.note) {
-                        html += '<div style="margin-top:5px; font-size:0.78rem; color:#92400E; background:#FEF3C7; padding:4px 8px; border-radius:5px;"><i class="ph-bold ph-info"></i> ' + data.note + '</div>';
-                    }
-                    feedback.innerHTML = html;
+                    feedback.innerHTML = '<i class="ph-bold ph-check-circle" style="font-size:1.1rem; flex-shrink:0;"></i><span>' + data.message + '</span>';
                 }
             })
             .catch(() => {
@@ -1549,10 +1566,102 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
 
+        // Listener Real-time Validasi Tanggal Lahir (13 s.d. 21 Tahun)
+        window.validateTanggalLahir = function(showAlert = true) {
+            const input = document.getElementById('tanggal_lahir');
+            const feedback = document.getElementById('tgl_lahir_feedback');
+            if (!input) return true;
+
+            const val = input.value;
+            const minD = input.getAttribute('min');
+            const maxD = input.getAttribute('max');
+
+            if (!val) {
+                if (feedback) {
+                    feedback.className = 'spmb-input-feedback';
+                    feedback.innerHTML = '';
+                }
+                input.classList.remove('is-invalid', 'is-valid');
+                return true;
+            }
+
+            // Hitung usia calon siswa
+            const birthDate = new Date(val);
+            const today = new Date();
+            let age = today.getFullYear() - birthDate.getFullYear();
+            const m = today.getMonth() - birthDate.getMonth();
+            if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+                age--;
+            }
+
+            if (minD && val < minD) {
+                input.classList.remove('is-valid');
+                input.classList.add('is-invalid');
+                if (feedback) {
+                    feedback.className = 'spmb-input-feedback danger';
+                    feedback.innerHTML = '<i class="ph-bold ph-warning-circle" style="font-size:1.1rem; flex-shrink:0;"></i><span>Batas usia terlewati: Usia calon siswa lebih dari 21 tahun (Maksimal 21 tahun per 1 Juli <?php echo $refYear; ?>).</span>';
+                }
+                if (showAlert && typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Usia Melebihi 21 Tahun',
+                        text: 'Berdasarkan ketentuan Permendikbud PPDB SMK, batas usia calon peserta didik maksimal adalah 21 tahun per 1 Juli <?php echo $refYear; ?>.',
+                        confirmButtonColor: '#0A4D68'
+                    });
+                }
+                return false;
+            }
+
+            if (maxD && val > maxD) {
+                input.classList.remove('is-valid');
+                input.classList.add('is-invalid');
+                if (feedback) {
+                    feedback.className = 'spmb-input-feedback danger';
+                    feedback.innerHTML = '<i class="ph-bold ph-warning-circle" style="font-size:1.1rem; flex-shrink:0;"></i><span>Usia belum mencukupi: Usia calon siswa kurang dari 13 tahun (Minimal 13 tahun).</span>';
+                }
+                if (showAlert && typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Usia Kurang Dari 13 Tahun',
+                        text: 'Berdasarkan ketentuan Permendikbud PPDB SMK, batas usia calon peserta didik minimal adalah 13 tahun.',
+                        confirmButtonColor: '#0A4D68'
+                    });
+                }
+                return false;
+            }
+
+            input.classList.remove('is-invalid');
+            input.classList.add('is-valid');
+            if (feedback) {
+                feedback.className = 'spmb-input-feedback success';
+                feedback.innerHTML = '<i class="ph-bold ph-check-circle" style="font-size:1.1rem; flex-shrink:0;"></i><span>Tanggal lahir valid' + (age > 0 ? ' (Usia ' + age + ' tahun)' : '') + '.</span>';
+            }
+            return true;
+        };
+
+        const tglInput = document.getElementById('tanggal_lahir');
+        if (tglInput) {
+            tglInput.addEventListener('change', function() {
+                validateTanggalLahir(true);
+            });
+            tglInput.addEventListener('input', function() {
+                validateTanggalLahir(false);
+            });
+            if (tglInput.value) {
+                validateTanggalLahir(false);
+            }
+        }
+
         // Validasi submit form final
         const formEl = document.getElementById('spmbForm');
         if (formEl) {
             formEl.addEventListener('submit', function(e) {
+                if (!validateTanggalLahir(true)) {
+                    e.preventDefault();
+                    goToStep(1);
+                    if (tglInput) tglInput.focus();
+                    return false;
+                }
                 if (isNisnRegistered) {
                     e.preventDefault();
                     Swal.fire({
@@ -1575,6 +1684,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     });
     </script>
 
-    <?php include '../components/footer.php'; ?>
+    <?php include __DIR__ . '/footer_minimal.php'; ?>
 </body>
 </html>

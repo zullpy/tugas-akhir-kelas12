@@ -531,6 +531,12 @@ $current_script_path = $_SERVER['SCRIPT_NAME'] ?? '';
                         <li><a href="<?php echo $base_url; ?>spmb/index.php" class="<?php echo ($current_page_file === 'index.php' && strpos($current_script_path, '/spmb/') !== false) ? 'active' : ''; ?>">Beranda SPMB</a></li>
                         <li><a href="<?php echo $base_url; ?>spmb/daftar.php" class="<?php echo ($current_page_file === 'daftar.php') ? 'active' : ''; ?>">Formulir Pendaftaran</a></li>
                         <li><a href="<?php echo $base_url; ?>spmb/cek-status.php" class="<?php echo ($current_page_file === 'cek-status.php') ? 'active' : ''; ?>">Cek Status Pendaftaran</a></li>
+                        <li style="border-top:1px dashed #CBD5E1; margin: 4px 0;"></li>
+                        <?php if (!empty($_SESSION['spmb_user_id'])): ?>
+                            <li><a href="<?php echo $base_url; ?>spmb/logout.php" style="color:var(--nb-red); font-weight:700;"><i class="ph-bold ph-sign-out"></i> Keluar (<?php echo htmlspecialchars(mb_strimwidth($_SESSION['spmb_user_nama'] ?? 'Akun', 0, 15, '...')); ?>)</a></li>
+                        <?php else: ?>
+                            <li><a href="<?php echo $base_url; ?>spmb/login.php" class="<?php echo ($current_page_file === 'login.php' || $current_page_file === 'register.php') ? 'active' : ''; ?>"><i class="ph-bold ph-user-circle"></i> Masuk / Daftar Akun</a></li>
+                        <?php endif; ?>
                     </ul>
                 </li>
             </ul>

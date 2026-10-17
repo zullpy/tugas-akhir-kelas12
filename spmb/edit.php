@@ -9,15 +9,10 @@ require_once __DIR__ . '/config.php';
 $pdo = get_db_connection();
 $settings = get_all_settings();
 
-// Hitung batas usia dinamis PPDB (Maks 21 tahun per 1 Juli tahun ajaran, Min 13 tahun)
-$tahunAjaranStr = $settings['tahun_ajaran'] ?? date('Y');
-if (preg_match('/^(\d{4})/', $tahunAjaranStr, $m)) {
-    $refYear = (int)$m[1];
-} else {
-    $refYear = (int)date('Y');
-}
-$minBirthDate = ($refYear - 21) . '-07-01';
-$maxBirthDate = ($refYear - 13) . '-12-31';
+// Hitung batas usia PPDB (Maks 21 tahun per 1 Juli tahun berjalan, Min 13 tahun)
+$refYear = (int)date('Y'); // Tahun berjalan (2026 -> rentang kelahiran 2005 s.d. 2013)
+$minBirthDate = ($refYear - 21) . '-07-01'; // Maksimal 21 tahun per 1 Juli (2005-07-01)
+$maxBirthDate = ($refYear - 13) . '-12-31'; // Minimal 13 tahun (2013-12-31)
 
 $error = '';
 $success = '';
@@ -38,8 +33,18 @@ if (!empty($noPendaftaran) && !empty($nisnInput)) {
         $error = "Data pendaftar dengan No. Registrasi <strong>" . htmlspecialchars($noPendaftaran) . "</strong> dan NISN tersebut tidak ditemukan. Silakan periksa kembali.";
     }
 }
+// Jika calon siswa sedang login dan parameter URL belum lengkap, otomatis gunakan data formulir akunnya
+$currentUser = function_exists('get_spmb_user') ? get_spmb_user() : null;
+if (!$p && $currentUser && empty($noPendaftaran) && empty($nisnInput)) {
+    $stmtAkun = $pdo->prepare("SELECT * FROM `spmb_pendaftar` WHERE `id_akun` = ? ORDER BY `id` DESC LIMIT 1");
+    $stmtAkun->execute([$currentUser['id']]);
+    $p = $stmtAkun->fetch();
+    if ($p) {
+        $noPendaftaran = $p['no_pendaftaran'];
+        $nisnInput     = $p['nisn'];
+    }
+}
 
-// Handle pesan sukses jika redirect
 $msg = sanitize_input($_GET['msg'] ?? '');
 
 // Proses Simpan Perubahan Form Edit
@@ -90,7 +95,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         } elseif ($jurusan_1 === $jurusan_2) {
             $error = "Jurusan Pilihan 1 dan Pilihan 2 tidak boleh sama.";
         } elseif (!empty($tanggal_lahir) && ($tanggal_lahir < $minBirthDate || $tanggal_lahir > $maxBirthDate)) {
-            $error = "Tanggal lahir calon siswa tidak memenuhi ketentuan batas usia PPDB (rentang usia 13 s.d. 21 tahun per 1 Juli $refYear).";
+            if ($tanggal_lahir < $minBirthDate) {
+                $error = "Usia calon siswa melebihi 21 tahun. Berdasarkan ketentuan Permendikbud PPDB SMK, batas usia maksimal adalah 21 tahun per 1 Juli $refYear.";
+            } else {
+                $error = "Usia calon siswa kurang dari 13 tahun. Berdasarkan ketentuan Permendikbud PPDB SMK, batas usia minimal adalah 13 tahun.";
+            }
         } else {
             // Cek jika NISN diganti dan ternyata bentrok dengan pendaftar lain
             if ($nisnBaru !== $p['nisn']) {
@@ -246,8 +255,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     </style>
 </head>
 <body class="spmb-body">
-
-    <?php include '../components/header.php'; ?>
+    <?php include __DIR__ . '/header_minimal.php'; ?>
 
     <main style="padding: 40px 0 80px;">
         <div class="spmb-container" style="max-width: 860px;">
@@ -440,7 +448,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                             <div class="spmb-form-group">
                                 <label class="spmb-label" for="tanggal_lahir">Tanggal Lahir <span class="required">*</span></label>
                                 <input type="date" name="tanggal_lahir" id="tanggal_lahir" class="spmb-input" value="<?php echo htmlspecialchars($p['tanggal_lahir']); ?>" min="<?php echo $minBirthDate; ?>" max="<?php echo $maxBirthDate; ?>" required>
-                                <div style="font-size:0.78rem; color:#64748B; margin-top:4px;">Rentang usia 13 s.d. 21 tahun per 1 Juli <?php echo $refYear; ?>.</div>
+                                <div id="tgl_lahir_feedback" class="spmb-input-feedback" style="margin-top:6px;"></div>
+                                <div style="font-size:0.78rem; color:#64748B; margin-top:4px;">Rentang usia wajib 13 s.d. 21 tahun per 1 Juli <?php echo $refYear; ?>.</div>
                             </div>
                         </div>
 
@@ -668,10 +677,101 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                 </form>
 
                 <script>
+                // Validasi Tanggal Lahir Calon Siswa (13 s.d. 21 Tahun)
+                function validateTanggalLahir(showAlert = true) {
+                    const input = document.getElementById('tanggal_lahir');
+                    const feedback = document.getElementById('tgl_lahir_feedback');
+                    if (!input) return true;
+
+                    const val = input.value;
+                    const minD = input.getAttribute('min');
+                    const maxD = input.getAttribute('max');
+
+                    if (!val) {
+                        if (feedback) {
+                            feedback.className = 'spmb-input-feedback';
+                            feedback.innerHTML = '';
+                        }
+                        input.classList.remove('is-invalid', 'is-valid');
+                        return true;
+                    }
+
+                    // Hitung usia calon siswa
+                    const birthDate = new Date(val);
+                    const today = new Date();
+                    let age = today.getFullYear() - birthDate.getFullYear();
+                    const m = today.getMonth() - birthDate.getMonth();
+                    if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+                        age--;
+                    }
+
+                    if (minD && val < minD) {
+                        input.classList.remove('is-valid');
+                        input.classList.add('is-invalid');
+                        if (feedback) {
+                            feedback.className = 'spmb-input-feedback danger';
+                            feedback.innerHTML = '<i class="ph-bold ph-warning-circle" style="font-size:1.1rem; flex-shrink:0;"></i><span>Batas usia terlewati: Usia calon siswa lebih dari 21 tahun (Maksimal 21 tahun per 1 Juli <?php echo $refYear; ?>).</span>';
+                        }
+                        if (showAlert && typeof Swal !== 'undefined') {
+                            Swal.fire({
+                                icon: 'warning',
+                                title: 'Usia Melebihi 21 Tahun',
+                                text: 'Berdasarkan ketentuan Permendikbud PPDB SMK, batas usia calon peserta didik maksimal adalah 21 tahun per 1 Juli <?php echo $refYear; ?>.',
+                                confirmButtonColor: '#F59E0B'
+                            });
+                        }
+                        return false;
+                    }
+
+                    if (maxD && val > maxD) {
+                        input.classList.remove('is-valid');
+                        input.classList.add('is-invalid');
+                        if (feedback) {
+                            feedback.className = 'spmb-input-feedback danger';
+                            feedback.innerHTML = '<i class="ph-bold ph-warning-circle" style="font-size:1.1rem; flex-shrink:0;"></i><span>Usia belum mencukupi: Usia calon siswa kurang dari 13 tahun (Minimal 13 tahun).</span>';
+                        }
+                        if (showAlert && typeof Swal !== 'undefined') {
+                            Swal.fire({
+                                icon: 'warning',
+                                title: 'Usia Kurang Dari 13 Tahun',
+                                text: 'Berdasarkan ketentuan Permendikbud PPDB SMK, batas usia calon peserta didik minimal adalah 13 tahun.',
+                                confirmButtonColor: '#F59E0B'
+                            });
+                        }
+                        return false;
+                    }
+
+                    input.classList.remove('is-invalid');
+                    input.classList.add('is-valid');
+                    if (feedback) {
+                        feedback.className = 'spmb-input-feedback success';
+                        feedback.innerHTML = '<i class="ph-bold ph-check-circle" style="font-size:1.1rem; flex-shrink:0;"></i><span>Tanggal lahir valid' + (age > 0 ? ' (Usia ' + age + ' tahun)' : '') + '.</span>';
+                    }
+                    return true;
+                }
+
+                const tglInput = document.getElementById('tanggal_lahir');
+                if (tglInput) {
+                    tglInput.addEventListener('change', function() {
+                        validateTanggalLahir(true);
+                    });
+                    tglInput.addEventListener('input', function() {
+                        validateTanggalLahir(false);
+                    });
+                    if (tglInput.value) {
+                        validateTanggalLahir(false);
+                    }
+                }
+
                 function konfirmasiSimpanPerbaikan() {
                     const form = document.getElementById('form-edit-spmb');
                     if (!form.checkValidity()) {
                         form.reportValidity();
+                        return;
+                    }
+
+                    if (!validateTanggalLahir(true)) {
+                        if (tglInput) tglInput.focus();
                         return;
                     }
 
@@ -715,6 +815,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         </div>
     </main>
 
-    <?php include '../components/footer.php'; ?>
+    <?php include __DIR__ . '/footer_minimal.php'; ?>
 </body>
 </html>

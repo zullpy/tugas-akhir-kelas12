@@ -49,8 +49,13 @@ $statusInfo = get_spmb_status_info($settings);
                     <div class="spmb-hero-actions">
                         <?php if ($statusInfo['isOpen']): ?>
                             <a href="daftar.php" class="spmb-btn spmb-btn-primary">
-                                <i class="ph-bold ph-pencil-simple-line"></i> Daftar Sekarang
+                                <i class="ph-bold ph-pencil-simple-line"></i> <?php echo !empty($_SESSION['spmb_user_id']) ? 'Lanjutkan Formulir' : 'Daftar Sekarang'; ?>
                             </a>
+                            <?php if (empty($_SESSION['spmb_user_id'])): ?>
+                                <a href="login.php" class="spmb-btn spmb-btn-warning">
+                                    <i class="ph-bold ph-user-circle"></i> Masuk Akun
+                                </a>
+                            <?php endif; ?>
                         <?php else: ?>
                             <a href="#alur" class="spmb-btn spmb-btn-secondary" style="background:#F1F5F9; color:#475569;">
                                 <i class="ph-bold ph-clock"></i> <?php echo htmlspecialchars($statusInfo['label']); ?>
@@ -59,7 +64,7 @@ $statusInfo = get_spmb_status_info($settings);
                         <a href="cek-status.php" class="spmb-btn spmb-btn-secondary">
                             <i class="ph-bold ph-magnifying-glass"></i> Cek Status Pendaftaran
                         </a>
-                        <a href="#alur" class="spmb-btn spmb-btn-warning">
+                        <a href="#alur" class="spmb-btn spmb-btn-secondary">
                             <i class="ph-bold ph-info"></i> Alur &amp; Syarat
                         </a>
                     </div>
@@ -118,12 +123,24 @@ $statusInfo = get_spmb_status_info($settings);
                                 </div>
                             </li>
                         </ul>
-                        <a href="daftar.php" class="spmb-btn spmb-btn-primary" style="width:100%; margin-bottom:10px;">
-                            <i class="ph-bold ph-pencil-simple"></i> Masuk Formulir Registrasi Baru
-                        </a>
-                            <a href="cek-status.php" class="spmb-btn spmb-btn-secondary" style="width:100%;">
-                                <i class="ph-bold ph-magnifying-glass"></i> Cek Status
+                        <?php if (!empty($_SESSION['spmb_user_id'])): ?>
+                            <div style="background: #EFF6FF; border: var(--border-thin); border-radius: 10px; padding: 10px 14px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; gap: 8px;">
+                                <div style="font-size: 0.84rem; color: #1E40AF; font-weight: 700; display: flex; align-items: center; gap: 6px;">
+                                    <i class="ph-bold ph-user-check"></i> <?php echo htmlspecialchars($_SESSION['spmb_user_nama'] ?? 'Akun Anda'); ?>
+                                </div>
+                                <a href="logout.php" style="color: #DC2626; font-size: 0.78rem; font-weight: 800; text-decoration: none;">Keluar</a>
+                            </div>
+                            <a href="daftar.php" class="spmb-btn spmb-btn-primary" style="width:100%; margin-bottom:10px;">
+                                <i class="ph-bold ph-pencil-simple"></i> Lanjutkan Formulir Pendaftaran
                             </a>
+                        <?php else: ?>
+                            <a href="daftar.php" class="spmb-btn spmb-btn-primary" style="width:100%; margin-bottom:10px;">
+                                <i class="ph-bold ph-pencil-simple"></i> Masuk Formulir Registrasi Baru
+                            </a>
+                        <?php endif; ?>
+                        <a href="cek-status.php" class="spmb-btn spmb-btn-secondary" style="width:100%;">
+                            <i class="ph-bold ph-magnifying-glass"></i> Cek Status
+                        </a>
                     </div>
                 </div>
             </div>

@@ -276,6 +276,19 @@ function init_spmb_tables(PDO $pdo) {
         `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
 
+    // Tabel Akun Calon Siswa (Auth SPMB)
+    $pdo->exec("CREATE TABLE IF NOT EXISTS `spmb_akun` (
+        `id` INT AUTO_INCREMENT PRIMARY KEY,
+        `nama_lengkap` VARCHAR(150) NOT NULL,
+        `email` VARCHAR(191) NOT NULL UNIQUE,
+        `no_hp` VARCHAR(25) NOT NULL,
+        `tanggal_lahir` DATE NOT NULL,
+        `password` VARCHAR(255) NOT NULL,
+        `otp_code` VARCHAR(10) DEFAULT NULL,
+        `otp_expires` DATETIME DEFAULT NULL,
+        `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+
     // Tabel Pendaftar
     $pdo->exec("CREATE TABLE IF NOT EXISTS `spmb_pendaftar` (
         `id` INT AUTO_INCREMENT PRIMARY KEY,
@@ -324,6 +337,15 @@ function init_spmb_tables(PDO $pdo) {
         $checkCol = $pdo->query("SHOW COLUMNS FROM `spmb_pendaftar` LIKE 'tenggat_perbaikan'");
         if ($checkCol && $checkCol->rowCount() === 0) {
             $pdo->exec("ALTER TABLE `spmb_pendaftar` ADD COLUMN `tenggat_perbaikan` DATETIME DEFAULT NULL AFTER `catatan_admin`");
+        }
+    } catch (Exception $e) {}
+
+    // Pastikan kolom id_akun ada untuk relasi ke spmb_akun
+    try {
+        $checkColAkun = $pdo->query("SHOW COLUMNS FROM `spmb_pendaftar` LIKE 'id_akun'");
+        if ($checkColAkun && $checkColAkun->rowCount() === 0) {
+            $pdo->exec("ALTER TABLE `spmb_pendaftar` ADD COLUMN `id_akun` INT DEFAULT NULL AFTER `id`");
+            $pdo->exec("CREATE INDEX idx_id_akun ON `spmb_pendaftar` (`id_akun`)");
         }
     } catch (Exception $e) {}
 
@@ -834,6 +856,107 @@ function check_admin_login($redirect = true, $loginUrl = null) {
 }
 
 /**
+ * Cek login calon siswa SPMB
+ */
+function check_spmb_login($redirect = true, $loginUrl = null) {
+    if (empty($_SESSION['spmb_user_id'])) {
+        if ($redirect) {
+            if ($loginUrl === null) {
+                $redirectParam = '';
+                if (!empty($_SERVER['REQUEST_URI'])) {
+                    $redirectParam = '?redirect=' . urlencode($_SERVER['REQUEST_URI']);
+                }
+                $loginUrl = 'login.php' . $redirectParam;
+            }
+            header("Location: " . $loginUrl);
+            exit;
+        }
+        return false;
+    }
+    return true;
+}
+
+/**
+ * Ambil data akun calon siswa yang sedang login
+ */
+function get_spmb_user() {
+    if (empty($_SESSION['spmb_user_id'])) {
+        return null;
+    }
+    $pdo = get_db_connection();
+    $stmt = $pdo->prepare("SELECT * FROM `spmb_akun` WHERE `id` = ? LIMIT 1");
+    $stmt->execute([$_SESSION['spmb_user_id']]);
+    return $stmt->fetch() ?: null;
+}
+
+/**
+ * Kirim OTP ke email via Brevo Transactional Email API
+ */
+function kirim_otp_brevo($email, $otp, $namaLengkap) {
+    $apiKey = env('BREVO_API_KEY', '');
+    if (empty($apiKey)) {
+        return ['success' => false, 'message' => 'Konfigurasi BREVO_API_KEY belum diatur di file .env'];
+    }
+
+    $senderEmail = env('BREVO_SENDER_EMAIL', 'noreply@smksukapura.sch.id');
+    $senderName  = env('BREVO_SENDER_NAME', 'SPMB SMKS Sukapura');
+
+    $payload = [
+        'sender' => [
+            'name' => $senderName,
+            'email' => $senderEmail
+        ],
+        'to' => [
+            ['email' => $email, 'name' => $namaLengkap]
+        ],
+        'subject' => 'Kode OTP Reset Password - SPMB SMKS Sukapura',
+        'htmlContent' => '<div style="font-family:Arial,sans-serif;max-width:520px;margin:0 auto;padding:28px;background:#ffffff;border:3px solid #000;border-radius:16px;box-shadow:6px 6px 0 #000;">'
+            . '<div style="background:#0A4D68;color:#ffffff;padding:16px 20px;border-radius:10px;margin-bottom:20px;border:2px solid #000;">'
+            . '<h2 style="margin:0;font-size:20px;font-weight:800;letter-spacing:0.5px;">SPMB SMKS SUKAPURA</h2>'
+            . '<p style="margin:4px 0 0;font-size:13px;opacity:0.9;">Penerimaan Peserta Didik Baru</p>'
+            . '</div>'
+            . '<h3 style="color:#0f172a;margin-top:0;font-size:18px;">Permintaan Reset Password</h3>'
+            . '<p style="color:#334155;font-size:14px;line-height:1.6;">Halo <strong>' . htmlspecialchars($namaLengkap) . '</strong>,</p>'
+            . '<p style="color:#334155;font-size:14px;line-height:1.6;">Kami menerima permintaan untuk mereset password akun pendaftaran SPMB Anda. Gunakan kode OTP di bawah ini untuk melanjutkan:</p>'
+            . '<div style="background:#FFE600;border:3px solid #000;border-radius:12px;padding:18px;text-align:center;margin:24px 0;box-shadow:4px 4px 0 #000;">'
+            . '<div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#000;margin-bottom:6px;">KODE VERIFIKASI (OTP)</div>'
+            . '<span style="font-size:36px;font-weight:900;letter-spacing:10px;color:#000;font-family:monospace;">' . $otp . '</span>'
+            . '</div>'
+            . '<p style="color:#64748B;font-size:13px;line-height:1.5;">Kode OTP ini hanya berlaku selama <strong>15 menit</strong>. Jangan pernah membagikan kode ini kepada pihak mana pun.</p>'
+            . '<hr style="border:none;border-top:2px dashed #CBD5E1;margin:24px 0;">'
+            . '<p style="color:#94A3B8;font-size:11px;margin:0;">Jika Anda tidak merasa melakukan permintaan ini, abaikan email ini atau hubungi panitia SPMB SMKS Sukapura.</p>'
+            . '</div>'
+    ];
+
+    $ch = curl_init('https://api.brevo.com/v3/smtp/email');
+    curl_setopt_array($ch, [
+        CURLOPT_POST => true,
+        CURLOPT_POSTFIELDS => json_encode($payload),
+        CURLOPT_HTTPHEADER => [
+            'accept: application/json',
+            'api-key: ' . $apiKey,
+            'content-type: application/json'
+        ],
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_TIMEOUT => 15
+    ]);
+    $response = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $curlErr = curl_error($ch);
+    curl_close($ch);
+
+    if (!empty($curlErr)) {
+        return ['success' => false, 'message' => 'Gagal menghubungi server email Brevo: ' . $curlErr];
+    }
+    if ($httpCode >= 200 && $httpCode < 300) {
+        return ['success' => true, 'message' => 'OTP berhasil dikirim ke email'];
+    }
+    $resData = json_decode($response, true);
+    $errDetail = $resData['message'] ?? "Kode respons HTTP $httpCode";
+    return ['success' => false, 'message' => 'Gagal mengirim email: ' . $errDetail];
+}
+
+/**
  * Helper Sanitasi Input
  */
 function sanitize_input($data) {
@@ -856,6 +979,13 @@ function normalize_phone_number($phone) {
         $clean = '0' . $clean;
     }
     return $clean;
+}
+
+/**
+ * Alias untuk normalize_phone_number
+ */
+function normalize_phone_wa($phone) {
+    return normalize_phone_number($phone);
 }
 
 /**
