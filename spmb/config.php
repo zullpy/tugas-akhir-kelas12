@@ -943,7 +943,9 @@ function kirim_otp_brevo($email, $otp, $namaLengkap) {
     $response = curl_exec($ch);
     $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
     $curlErr = curl_error($ch);
-    curl_close($ch);
+    if (PHP_VERSION_ID < 80500) {
+        @curl_close($ch);
+    }
 
     if (!empty($curlErr)) {
         return ['success' => false, 'message' => 'Gagal menghubungi server email Brevo: ' . $curlErr];
