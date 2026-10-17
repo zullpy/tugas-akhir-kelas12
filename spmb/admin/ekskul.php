@@ -164,9 +164,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['flash_msg'] = [
                 'type'  => 'success',
                 'title' => 'Ekskul Dihapus',
-                'text'  => 'Data ekstrakurikuler berhasil dihapus dari sistem.'
+                'text'  => 'Data ekstrakurikuler berhasil dihapus dan nomor ID diperbarui otomatis.'
             ];
         }
+        header("Location: ekskul.php");
+        exit;
+    }
+
+    // 5. RAPIKAN / URUTKAN ULANG NOMOR EKSKUL
+    if ($action === 'reorder') {
+        reorder_ekskul();
+        $_SESSION['flash_msg'] = [
+            'type'  => 'success',
+            'title' => 'Nomor ID Dirapikan!',
+            'text'  => 'Semua nomor ID ekstrakurikuler telah diurutkan ulang secara otomatis.'
+        ];
         header("Location: ekskul.php");
         exit;
     }
@@ -289,6 +301,12 @@ require_once __DIR__ . '/header.php';
         <button type="button" class="adm-btn adm-btn-yellow" onclick="openTambahModal()" style="font-weight: 800; display: inline-flex; align-items: center; gap: 8px;">
             <i class="ph-bold ph-plus-circle" style="font-size: 1.25rem;"></i> Tambah Ekskul Baru
         </button>
+        <form method="POST" action="ekskul.php" style="display:inline;">
+            <input type="hidden" name="action" value="reorder">
+            <button type="submit" class="adm-btn adm-btn-white" style="font-weight: 700; display: inline-flex; align-items: center; gap: 8px;" title="Urutkan & Rapikan Nomor ID Semua Ekskul">
+                <i class="ph-bold ph-arrows-down-up"></i> Rapikan Nomor
+            </button>
+        </form>
         <a href="../../data/ekstrakurikuler.php" target="_blank" class="adm-btn adm-btn-white" style="font-weight: 700; display: inline-flex; align-items: center; gap: 8px;" title="Lihat Halaman Ekskul di Web">
             <i class="ph-bold ph-arrow-square-out"></i> Halaman Publik
         </a>

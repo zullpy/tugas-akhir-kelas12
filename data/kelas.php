@@ -16,7 +16,6 @@ $data_kelas = [
         "jurusan_full" => "Akuntansi dan Keuangan Lembaga",
         "kode_walikelas" => "44",
         "nama_walikelas" => "Krisnawati, S.Pd.",
-        "mapel_walikelas" => "Seni Budaya / DKV",
         "jumlah_siswa" => 36,
         "ruang" => "R. 101 (Gedung A)"
     ],
@@ -28,7 +27,6 @@ $data_kelas = [
         "jurusan_full" => "Manajemen Perkantoran dan Layanan Bisnis",
         "kode_walikelas" => "39",
         "nama_walikelas" => "Abdul Ghopur, S.Kom.,Gr.",
-        "mapel_walikelas" => "Produktif TJKT",
         "jumlah_siswa" => 35,
         "ruang" => "R. 102 (Gedung A)"
     ],
@@ -40,7 +38,6 @@ $data_kelas = [
         "jurusan_full" => "Manajemen Perkantoran dan Layanan Bisnis",
         "kode_walikelas" => "36",
         "nama_walikelas" => "Asep Irfan Rahmatillah, S.Pd.,Gr.",
-        "mapel_walikelas" => "PAI / Tahfidz",
         "jumlah_siswa" => 36,
         "ruang" => "R. 103 (Gedung A)"
     ],
@@ -52,7 +49,6 @@ $data_kelas = [
         "jurusan_full" => "Bisnis Digital",
         "kode_walikelas" => "26",
         "nama_walikelas" => "Pujawati, S.Pd.,Gr.",
-        "mapel_walikelas" => "Produktif MP",
         "jumlah_siswa" => 34,
         "ruang" => "R. 104 (Gedung A)"
     ],
@@ -64,7 +60,6 @@ $data_kelas = [
         "jurusan_full" => "Teknik Jaringan Komputer dan Telekomunikasi",
         "kode_walikelas" => "64",
         "nama_walikelas" => "Sahrul Hasan",
-        "mapel_walikelas" => "Produktif TIK / BD",
         "jumlah_siswa" => 36,
         "ruang" => "R. Lab TJKT 1"
     ],
@@ -76,7 +71,6 @@ $data_kelas = [
         "jurusan_full" => "Teknik Jaringan Komputer dan Telekomunikasi",
         "kode_walikelas" => "47",
         "nama_walikelas" => "Ubaidillah Rosihin, S.Pd.,Gr.",
-        "mapel_walikelas" => "Bahasa Inggris",
         "jumlah_siswa" => 35,
         "ruang" => "R. Lab TJKT 2"
     ],
@@ -88,7 +82,6 @@ $data_kelas = [
         "jurusan_full" => "Teknik Jaringan Komputer dan Telekomunikasi",
         "kode_walikelas" => "61",
         "nama_walikelas" => "Rizki Andika Jatnika , S.Kom, Gr.",
-        "mapel_walikelas" => "Produktif PPLG",
         "jumlah_siswa" => 36,
         "ruang" => "R. Lab TJKT 3"
     ],
@@ -100,7 +93,6 @@ $data_kelas = [
         "jurusan_full" => "Teknik Jaringan Komputer (Kelas Atlet)",
         "kode_walikelas" => "22",
         "nama_walikelas" => "Ayu Febriani Amalia Putri, S.Pd., Gr.",
-        "mapel_walikelas" => "Bahasa Inggris",
         "jumlah_siswa" => 30,
         "ruang" => "R. Atlet Center"
     ],
@@ -112,7 +104,6 @@ $data_kelas = [
         "jurusan_full" => "Pengembangan Perangkat Lunak dan Gim",
         "kode_walikelas" => "27",
         "nama_walikelas" => "Jajang Gunawan, S.Kom.,Gr.",
-        "mapel_walikelas" => "Produktif TSM/TJKT/PPLG",
         "jumlah_siswa" => 36,
         "ruang" => "R. Lab PPLG"
     ],
@@ -124,7 +115,6 @@ $data_kelas = [
         "jurusan_full" => "Desain Komunikasi Visual",
         "kode_walikelas" => "62",
         "nama_walikelas" => "Herdiana",
-        "mapel_walikelas" => "Produktif DKV",
         "jumlah_siswa" => 35,
         "ruang" => "R. Studio DKV"
     ],
@@ -136,7 +126,6 @@ $data_kelas = [
         "jurusan_full" => "Desain dan Produksi Busana",
         "kode_walikelas" => "29",
         "nama_walikelas" => "Ai Sopa Nuraeni, S.Kom., Gr.",
-        "mapel_walikelas" => "Informatika",
         "jumlah_siswa" => 34,
         "ruang" => "R. Workshop Busana 1"
     ],
@@ -148,7 +137,6 @@ $data_kelas = [
         "jurusan_full" => "Desain dan Produksi Busana",
         "kode_walikelas" => "50",
         "nama_walikelas" => "Mina Kamilah, S.Pd.,Gr.",
-        "mapel_walikelas" => "Bahasa Indonesia",
         "jumlah_siswa" => 35,
         "ruang" => "R. Workshop Busana 2"
     ],
@@ -160,7 +148,6 @@ $data_kelas = [
         "jurusan_full" => "Kuliner / Tata Boga",
         "kode_walikelas" => "20",
         "nama_walikelas" => "Santi Nurhasanah, S.Pd., Gr.",
-        "mapel_walikelas" => "IPAS",
         "jumlah_siswa" => 34,
         "ruang" => "R. Dapur Kuliner"
     ],
@@ -172,7 +159,6 @@ $data_kelas = [
         "jurusan_full" => "Teknik Sepeda Motor",
         "kode_walikelas" => "22",
         "nama_walikelas" => "Ayu Febriani Amalia Putri, S.Pd., Gr.",
-        "mapel_walikelas" => "Bahasa Inggris",
         "jumlah_siswa" => 36,
         "ruang" => "R. Bengkel TSM 1"
     ],
@@ -184,7 +170,6 @@ $data_kelas = [
         "jurusan_full" => "Teknik Sepeda Motor",
         "kode_walikelas" => "24",
         "nama_walikelas" => "Yuni Nurmayasari, S.Pd., Gr.",
-        "mapel_walikelas" => "Bahasa Indonesia",
         "jumlah_siswa" => 36,
         "ruang" => "R. Bengkel TSM 2"
     ],
@@ -196,7 +181,6 @@ $data_kelas = [
         "jurusan_full" => "Teknik Sepeda Motor",
         "kode_walikelas" => "48",
         "nama_walikelas" => "Pupung Purnamasari, S.Pd.,Gr.",
-        "mapel_walikelas" => "PAI / Tahfidz",
         "jumlah_siswa" => 35,
         "ruang" => "R. Bengkel TSM 3"
     ],
@@ -212,7 +196,6 @@ $data_kelas = [
         "jurusan_full" => "Akuntansi dan Keuangan Lembaga",
         "kode_walikelas" => "55",
         "nama_walikelas" => "Siti Salis Lismayanti, S.Ak.,Gr.",
-        "mapel_walikelas" => "Produktif AK / IPAS",
         "jumlah_siswa" => 35,
         "ruang" => "R. 201 (Gedung B)"
     ],
@@ -224,7 +207,6 @@ $data_kelas = [
         "jurusan_full" => "Manajemen Perkantoran dan Layanan Bisnis",
         "kode_walikelas" => "30",
         "nama_walikelas" => "Riza Budi Abdul Barry, S.Pd., M.M., Gr.",
-        "mapel_walikelas" => "Produktif MP",
         "jumlah_siswa" => 36,
         "ruang" => "R. 202 (Gedung B)"
     ],
@@ -236,7 +218,6 @@ $data_kelas = [
         "jurusan_full" => "Bisnis Digital",
         "kode_walikelas" => "25",
         "nama_walikelas" => "Dede Romlah, A.Md.",
-        "mapel_walikelas" => "Bahasa Indonesia",
         "jumlah_siswa" => 34,
         "ruang" => "R. 203 (Gedung B)"
     ],
@@ -248,7 +229,6 @@ $data_kelas = [
         "jurusan_full" => "Teknik Jaringan Komputer dan Telekomunikasi",
         "kode_walikelas" => "50",
         "nama_walikelas" => "Mina Kamilah, S.Pd.,Gr.",
-        "mapel_walikelas" => "Bahasa Indonesia",
         "jumlah_siswa" => 36,
         "ruang" => "R. Lab TJKT 4"
     ],
@@ -260,7 +240,6 @@ $data_kelas = [
         "jurusan_full" => "Teknik Jaringan Komputer dan Telekomunikasi",
         "kode_walikelas" => "29",
         "nama_walikelas" => "Ai Sopa Nuraeni, S.Kom., Gr.",
-        "mapel_walikelas" => "Informatika",
         "jumlah_siswa" => 36,
         "ruang" => "R. Lab TJKT 5"
     ],
@@ -272,7 +251,6 @@ $data_kelas = [
         "jurusan_full" => "Teknik Jaringan Komputer dan Telekomunikasi",
         "kode_walikelas" => "19",
         "nama_walikelas" => "Esa Maulana Nugraha, S.Pd.,Gr.",
-        "mapel_walikelas" => "Penjaskes",
         "jumlah_siswa" => 35,
         "ruang" => "R. Lab TJKT 6"
     ],
@@ -284,7 +262,6 @@ $data_kelas = [
         "jurusan_full" => "Pengembangan Perangkat Lunak dan Gim",
         "kode_walikelas" => "63",
         "nama_walikelas" => "Muhamad Bentar Hambali",
-        "mapel_walikelas" => "Produktif DKV / Tahfidz",
         "jumlah_siswa" => 36,
         "ruang" => "R. Lab PPLG 2"
     ],
@@ -296,7 +273,6 @@ $data_kelas = [
         "jurusan_full" => "Desain Komunikasi Visual",
         "kode_walikelas" => "31",
         "nama_walikelas" => "Nugraha Romadhon, S.T.,Gr.",
-        "mapel_walikelas" => "Produktif DKV",
         "jumlah_siswa" => 35,
         "ruang" => "R. Studio DKV 2"
     ],
@@ -308,7 +284,6 @@ $data_kelas = [
         "jurusan_full" => "Desain dan Produksi Busana",
         "kode_walikelas" => "45",
         "nama_walikelas" => "Nurul Siti Rahmah, S.Pd.,Gr.",
-        "mapel_walikelas" => "Produktif MP / IPAS",
         "jumlah_siswa" => 34,
         "ruang" => "R. Workshop Busana 3"
     ],
@@ -320,7 +295,6 @@ $data_kelas = [
         "jurusan_full" => "Desain dan Produksi Busana",
         "kode_walikelas" => "59",
         "nama_walikelas" => "Risma Aulia Rachmi, S.Pd.",
-        "mapel_walikelas" => "Produktif DPB",
         "jumlah_siswa" => 35,
         "ruang" => "R. Workshop Busana 4"
     ],
@@ -332,7 +306,6 @@ $data_kelas = [
         "jurusan_full" => "Kuliner / Tata Boga",
         "kode_walikelas" => "40",
         "nama_walikelas" => "Enung Rismawati, S.Kom.,Gr.",
-        "mapel_walikelas" => "Produktif TJKT",
         "jumlah_siswa" => 34,
         "ruang" => "R. Dapur Praktik 2"
     ],
@@ -344,7 +317,6 @@ $data_kelas = [
         "jurusan_full" => "Teknik Sepeda Motor",
         "kode_walikelas" => "58",
         "nama_walikelas" => "Elpia Nurlaelasari, S.T",
-        "mapel_walikelas" => "Produktif TSM",
         "jumlah_siswa" => 36,
         "ruang" => "R. Bengkel TSM 4"
     ],
@@ -356,7 +328,6 @@ $data_kelas = [
         "jurusan_full" => "Teknik Sepeda Motor",
         "kode_walikelas" => "42",
         "nama_walikelas" => "Asep Mulyana",
-        "mapel_walikelas" => "Produktif TSM",
         "jumlah_siswa" => 36,
         "ruang" => "R. Bengkel TSM 5"
     ],
@@ -372,7 +343,6 @@ $data_kelas = [
         "jurusan_full" => "Akuntansi dan Keuangan Lembaga",
         "kode_walikelas" => "56",
         "nama_walikelas" => "Iman Setiawan, S.E., Gr.",
-        "mapel_walikelas" => "Produktif MP",
         "jumlah_siswa" => 35,
         "ruang" => "R. 301 (Gedung C)"
     ],
@@ -384,7 +354,6 @@ $data_kelas = [
         "jurusan_full" => "Manajemen Perkantoran dan Layanan Bisnis",
         "kode_walikelas" => "54",
         "nama_walikelas" => "Ade Hesti Khoerunnisa, S.Ak.,Gr.",
-        "mapel_walikelas" => "Produktif AK / IPAS",
         "jumlah_siswa" => 36,
         "ruang" => "R. 302 (Gedung C)"
     ],
@@ -396,7 +365,6 @@ $data_kelas = [
         "jurusan_full" => "Manajemen Perkantoran dan Layanan Bisnis",
         "kode_walikelas" => "43",
         "nama_walikelas" => "Maulida Fitria, S.Pd.",
-        "mapel_walikelas" => "PAI / Produktif DPB",
         "jumlah_siswa" => 36,
         "ruang" => "R. 303 (Gedung C)"
     ],
@@ -408,7 +376,6 @@ $data_kelas = [
         "jurusan_full" => "Bisnis Digital",
         "kode_walikelas" => "46",
         "nama_walikelas" => "Imang Hilman, S.Pd.,Gr.",
-        "mapel_walikelas" => "Bahasa Inggris",
         "jumlah_siswa" => 33,
         "ruang" => "R. 304 (Gedung C)"
     ],
@@ -420,7 +387,6 @@ $data_kelas = [
         "jurusan_full" => "Teknik Jaringan Komputer dan Telekomunikasi",
         "kode_walikelas" => "18",
         "nama_walikelas" => "Yuni Yon Supriantini, S.Pd., Gr.",
-        "mapel_walikelas" => "Matematika",
         "jumlah_siswa" => 36,
         "ruang" => "R. Lab TJKT 7"
     ],
@@ -432,7 +398,6 @@ $data_kelas = [
         "jurusan_full" => "Teknik Jaringan Komputer dan Telekomunikasi",
         "kode_walikelas" => "22",
         "nama_walikelas" => "Ayu Febriani Amalia Putri, S.Pd., Gr.",
-        "mapel_walikelas" => "Bahasa Inggris",
         "jumlah_siswa" => 36,
         "ruang" => "R. Lab TJKT 8"
     ],
@@ -444,7 +409,6 @@ $data_kelas = [
         "jurusan_full" => "Teknik Jaringan Komputer dan Telekomunikasi",
         "kode_walikelas" => "49",
         "nama_walikelas" => "Dini Agustiani, S.Psi.,Gr.",
-        "mapel_walikelas" => "BP / BK",
         "jumlah_siswa" => 35,
         "ruang" => "R. Lab TJKT 9"
     ],
@@ -456,7 +420,6 @@ $data_kelas = [
         "jurusan_full" => "Pengembangan Perangkat Lunak dan Gim",
         "kode_walikelas" => "41",
         "nama_walikelas" => "Ega Sukmadamayanti, S.Kom.,Gr.",
-        "mapel_walikelas" => "Produktif PPLG",
         "jumlah_siswa" => 36,
         "ruang" => "R. Lab PPLG 3"
     ],
@@ -468,7 +431,6 @@ $data_kelas = [
         "jurusan_full" => "Desain Komunikasi Visual",
         "kode_walikelas" => "29",
         "nama_walikelas" => "Ai Sopa Nuraeni, S.Kom., Gr.",
-        "mapel_walikelas" => "Informatika",
         "jumlah_siswa" => 35,
         "ruang" => "R. Studio DKV 3"
     ],
@@ -480,7 +442,6 @@ $data_kelas = [
         "jurusan_full" => "Desain dan Produksi Busana",
         "kode_walikelas" => "51",
         "nama_walikelas" => "Kurniasih",
-        "mapel_walikelas" => "Produktif DPB",
         "jumlah_siswa" => 34,
         "ruang" => "R. Workshop Busana 5"
     ],
@@ -492,7 +453,6 @@ $data_kelas = [
         "jurusan_full" => "Desain dan Produksi Busana",
         "kode_walikelas" => "22",
         "nama_walikelas" => "Ayu Febriani Amalia Putri, S.Pd., Gr.",
-        "mapel_walikelas" => "Bahasa Inggris",
         "jumlah_siswa" => 35,
         "ruang" => "R. Workshop Busana 6"
     ],
@@ -504,7 +464,6 @@ $data_kelas = [
         "jurusan_full" => "Kuliner / Tata Boga",
         "kode_walikelas" => "52",
         "nama_walikelas" => "Wilda Ratnaningsih, S.Pd., Gr.",
-        "mapel_walikelas" => "Produktif Kuliner",
         "jumlah_siswa" => 34,
         "ruang" => "R. Dapur Praktik 3"
     ],
@@ -516,7 +475,6 @@ $data_kelas = [
         "jurusan_full" => "Teknik Sepeda Motor",
         "kode_walikelas" => "25",
         "nama_walikelas" => "Dede Romlah, A.Md.",
-        "mapel_walikelas" => "Bahasa Indonesia",
         "jumlah_siswa" => 36,
         "ruang" => "R. Bengkel TSM 6"
     ],
@@ -528,7 +486,6 @@ $data_kelas = [
         "jurusan_full" => "Teknik Sepeda Motor",
         "kode_walikelas" => "52",
         "nama_walikelas" => "Wilda Ratnaningsih, S.Pd., Gr.",
-        "mapel_walikelas" => "Produktif Kuliner",
         "jumlah_siswa" => 36,
         "ruang" => "R. Bengkel TSM 7"
     ]
@@ -671,10 +628,10 @@ $total_kelas_xii = count(array_filter($data_kelas, fn($k) => $k['tingkat'] === '
                 <?php foreach ($data_kelas as $index => $item): 
                     $tag_class = 'tag-' . strtolower($item['jurusan']);
                     $tingkat_class = 'tingkat-' . strtolower($item['tingkat']);
-                    $search_meta = strtolower(htmlspecialchars($item['kelas'] . ' ' . $item['nama_walikelas'] . ' ' . $item['kode_walikelas'] . ' ' . $item['jurusan_full'] . ' ' . $item['mapel_walikelas'] . ' ' . $item['ruang']));
+                    $search_meta = strtolower(htmlspecialchars($item['kelas'] . ' ' . $item['nama_walikelas'] . ' ' . $item['kode_walikelas'] . ' ' . $item['jurusan_full'] . ' ' . $item['ruang']));
                 ?>
-                <div class="kelas-card reveal reveal-scale reveal-delay-<?php echo ($index % 5) + 1; ?>" 
-                     data-category="<?php echo $item['tingkat']; ?>" 
+                <div class="kelas-card reveal reveal-scale reveal-delay-<?php echo ($index % 5) + 1; ?>"
+                     data-category="<?php echo $item['tingkat']; ?>"
                      data-jurusan="<?php echo $item['jurusan']; ?>"
                      data-search="<?php echo $search_meta; ?>">
                     
@@ -708,7 +665,6 @@ $total_kelas_xii = count(array_filter($data_kelas, fn($k) => $k['tingkat'] === '
                             </div>
                             <div class="walikelas-detail-text">
                                 <span class="walikelas-fullname"><?php echo htmlspecialchars($item['nama_walikelas']); ?></span>
-                                <span class="walikelas-subdetail"><i class="ph-bold ph-book-bookmark"></i> <?php echo htmlspecialchars($item['mapel_walikelas']); ?></span>
                             </div>
                         </div>
                     </div>
@@ -752,15 +708,14 @@ $total_kelas_xii = count(array_filter($data_kelas, fn($k) => $k['tingkat'] === '
                             <th>Nama Kelas &amp; Jurusan</th>
                             <th>Tingkat</th>
                             <th>Nama Wali Kelas</th>
-                            <th>Mapel / Bidang Guru</th>
                             <th style="text-align:center;">Jumlah Siswa</th>
                         </tr>
                     </thead>
                     <tbody id="kelas-table-body">
-                        <?php foreach ($data_kelas as $index => $item): 
+                        <?php foreach ($data_kelas as $index => $item):
                             $tag_class = 'tag-' . strtolower($item['jurusan']);
                             $tingkat_class = 'tingkat-' . strtolower($item['tingkat']);
-                            $search_meta = strtolower(htmlspecialchars($item['kelas'] . ' ' . $item['nama_walikelas'] . ' ' . $item['kode_walikelas'] . ' ' . $item['jurusan_full'] . ' ' . $item['mapel_walikelas'] . ' ' . $item['ruang']));
+                            $search_meta = strtolower(htmlspecialchars($item['kelas'] . ' ' . $item['nama_walikelas'] . ' ' . $item['kode_walikelas'] . ' ' . $item['jurusan_full'] . ' ' . $item['ruang']));
                         ?>
                         <tr class="kelas-row" 
                             data-category="<?php echo $item['tingkat']; ?>" 
@@ -789,11 +744,6 @@ $total_kelas_xii = count(array_filter($data_kelas, fn($k) => $k['tingkat'] === '
                                     </div>
                                     <span class="teacher-name"><?php echo htmlspecialchars($item['nama_walikelas']); ?></span>
                                 </div>
-                            </td>
-                            <td>
-                                <span class="subject-pill">
-                                    <i class="ph-bold ph-book-open"></i> <?php echo htmlspecialchars($item['mapel_walikelas']); ?>
-                                </span>
                             </td>
                             <td style="text-align:center;">
                                 <div style="display:inline-flex; flex-direction:column; align-items:center; gap:4px;">

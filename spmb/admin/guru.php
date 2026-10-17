@@ -124,9 +124,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['flash_msg'] = [
                 'type'  => 'success',
                 'title' => 'Data Dihapus',
-                'text'  => 'Data guru telah berhasil dihapus dari sistem.'
+                'text'  => 'Data guru telah berhasil dihapus dan nomor urut diperbarui otomatis.'
             ];
         }
+        header("Location: guru.php");
+        exit;
+    }
+
+    // 5. RAPIKAN / URUTKAN ULANG NOMOR GURU
+    if ($action === 'reorder') {
+        reorder_guru();
+        $_SESSION['flash_msg'] = [
+            'type'  => 'success',
+            'title' => 'Nomor Urut Dirapikan!',
+            'text'  => 'Semua nomor guru & staf telah diurutkan ulang secara otomatis.'
+        ];
         header("Location: guru.php");
         exit;
     }
@@ -143,6 +155,7 @@ $statTotal   = (int)$pdo->query("SELECT COUNT(*) FROM `data_guru`")->fetchColumn
 $statGuru    = (int)$pdo->query("SELECT COUNT(*) FROM `data_guru` WHERE `kategori` = 'guru'")->fetchColumn();
 $statTU      = (int)$pdo->query("SELECT COUNT(*) FROM `data_guru` WHERE `kategori` IN ('tu', 'staf')")->fetchColumn();
 $statPembina = (int)$pdo->query("SELECT COUNT(*) FROM `data_guru` WHERE `kategori` = 'pembina'")->fetchColumn();
+$nextAutoNoGuru = sprintf('%02d', $statTotal + 1);
 
 $flash = $_SESSION['flash_msg'] ?? null;
 unset($_SESSION['flash_msg']);
@@ -259,6 +272,12 @@ require_once __DIR__ . '/header.php';
         <button type="button" class="adm-btn adm-btn-yellow" onclick="openTambahModal()" style="font-weight: 800; display: inline-flex; align-items: center; gap: 8px;">
             <i class="ph-bold ph-plus-circle" style="font-size: 1.25rem;"></i> Tambah Guru / Staff
         </button>
+        <form method="POST" action="guru.php" style="display:inline;">
+            <input type="hidden" name="action" value="reorder">
+            <button type="submit" class="adm-btn adm-btn-white" style="font-weight: 700; display: inline-flex; align-items: center; gap: 8px;" title="Urutkan & Rapikan Nomor Urut Semua Guru">
+                <i class="ph-bold ph-arrows-down-up"></i> Rapikan Nomor
+            </button>
+        </form>
         <a href="../../data/guru.php" target="_blank" class="adm-btn adm-btn-white" style="font-weight: 700; display: inline-flex; align-items: center; gap: 8px;" title="Lihat Halaman Guru di Web">
             <i class="ph-bold ph-arrow-square-out"></i> Halaman Publik
         </a>
@@ -445,7 +464,7 @@ require_once __DIR__ . '/header.php';
             <div style="display:grid; grid-template-columns: 100px 1fr; gap:14px; margin-bottom:16px;">
                 <div>
                     <label class="spmb-label">No. Urut</label>
-                    <input type="text" name="no_urut" placeholder="01" class="spmb-input" style="text-align:center; font-weight:800;">
+                    <input type="text" name="no_urut" value="<?php echo htmlspecialchars($nextAutoNoGuru); ?>" placeholder="<?php echo htmlspecialchars($nextAutoNoGuru); ?>" class="spmb-input" style="text-align:center; font-weight:800;" title="Nomor Urut Otomatis">
                 </div>
                 <div>
                     <label class="spmb-label">Nama Lengkap &amp; Gelar *</label>

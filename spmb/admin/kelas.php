@@ -53,10 +53,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $jurusanFull   = trim($_POST['jurusan_full'] ?? ($jurusanFullMap[$jurusan] ?? $jurusan));
         $namaWalikelas = trim($_POST['nama_walikelas'] ?? '');
         $kodeWalikelas = trim($_POST['kode_walikelas'] ?? '');
-        $mapelWali     = trim($_POST['mapel_walikelas'] ?? '');
-        $siswaL        = max(0, (int)($_POST['siswa_l'] ?? 0));
-        $siswaP        = max(0, (int)($_POST['siswa_p'] ?? 0));
-        $jumlahSiswa   = ($siswaL + $siswaP > 0) ? ($siswaL + $siswaP) : (int)($_POST['jumlah_siswa'] ?? 36);
         $ruang         = trim($_POST['ruang'] ?? '');
         $isAktif       = isset($_POST['is_aktif']) ? 1 : 0;
 
@@ -78,10 +74,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'jurusan_full'    => $jurusanFull,
             'kode_walikelas'  => $kodeWalikelas,
             'nama_walikelas'  => $namaWalikelas,
-            'mapel_walikelas' => $mapelWali,
-            'siswa_l'         => $siswaL,
-            'siswa_p'         => $siswaP,
-            'jumlah_siswa'    => $jumlahSiswa,
             'ruang'           => $ruang,
             'is_aktif'        => $isAktif
         ]);
@@ -105,10 +97,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $jurusanFull   = trim($_POST['jurusan_full'] ?? ($jurusanFullMap[$jurusan] ?? $jurusan));
         $namaWalikelas = trim($_POST['nama_walikelas'] ?? '');
         $kodeWalikelas = trim($_POST['kode_walikelas'] ?? '');
-        $mapelWali     = trim($_POST['mapel_walikelas'] ?? '');
-        $siswaL        = max(0, (int)($_POST['siswa_l'] ?? 0));
-        $siswaP        = max(0, (int)($_POST['siswa_p'] ?? 0));
-        $jumlahSiswa   = ($siswaL + $siswaP > 0) ? ($siswaL + $siswaP) : (int)($_POST['jumlah_siswa'] ?? 36);
         $ruang         = trim($_POST['ruang'] ?? '');
         $isAktif       = isset($_POST['is_aktif']) ? 1 : 0;
 
@@ -130,10 +118,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'jurusan_full'    => $jurusanFull,
             'kode_walikelas'  => $kodeWalikelas,
             'nama_walikelas'  => $namaWalikelas,
-            'mapel_walikelas' => $mapelWali,
-            'siswa_l'         => $siswaL,
-            'siswa_p'         => $siswaP,
-            'jumlah_siswa'    => $jumlahSiswa,
             'ruang'           => $ruang,
             'is_aktif'        => $isAktif
         ]);
@@ -155,9 +139,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['flash_msg'] = [
                 'type'  => 'success',
                 'title' => 'Kelas Dihapus',
-                'text'  => 'Data rombel kelas berhasil dihapus dari sistem.'
+                'text'  => 'Data rombel kelas berhasil dihapus dan nomor urut diperbarui otomatis.'
             ];
         }
+        header("Location: kelas.php");
+        exit;
+    }
+
+    // 5. RAPIKAN / URUTKAN ULANG NOMOR KELAS
+    if ($action === 'reorder') {
+        reorder_kelas();
+        $_SESSION['flash_msg'] = [
+            'type'  => 'success',
+            'title' => 'Nomor Urut Dirapikan!',
+            'text'  => 'Semua nomor rombel kelas telah diurutkan ulang secara otomatis.'
+        ];
         header("Location: kelas.php");
         exit;
     }
@@ -172,12 +168,13 @@ $daftarKelas = get_all_kelas(false, $filterTingkat, $filterJurusan, $searchQuery
 
 // STATS
 $statTotalRombel = (int)$pdo->query("SELECT COUNT(*) FROM `data_kelas`")->fetchColumn();
-$statTotalSiswa  = (int)$pdo->query("SELECT SUM(`jumlah_siswa`) FROM `data_kelas`")->fetchColumn();
-$statTotalL      = (int)$pdo->query("SELECT SUM(`siswa_l`) FROM `data_kelas`")->fetchColumn();
-$statTotalP      = (int)$pdo->query("SELECT SUM(`siswa_p`) FROM `data_kelas`")->fetchColumn();
+$statTotalSiswa  = (int)$pdo->query("SELECT COUNT(*) FROM `data_siswa` WHERE `is_aktif` = 1")->fetchColumn();
+$statTotalL      = (int)$pdo->query("SELECT COUNT(*) FROM `data_siswa` WHERE `is_aktif` = 1 AND `jk` = 'L'")->fetchColumn();
+$statTotalP      = (int)$pdo->query("SELECT COUNT(*) FROM `data_siswa` WHERE `is_aktif` = 1 AND `jk` = 'P'")->fetchColumn();
 $statKelasXII    = (int)$pdo->query("SELECT COUNT(*) FROM `data_kelas` WHERE `tingkat` = 'XII'")->fetchColumn();
 $statKelasXI     = (int)$pdo->query("SELECT COUNT(*) FROM `data_kelas` WHERE `tingkat` = 'XI'")->fetchColumn();
 $statKelasX      = (int)$pdo->query("SELECT COUNT(*) FROM `data_kelas` WHERE `tingkat` = 'X'")->fetchColumn();
+$nextAutoNoKelas = sprintf('%02d', $statTotalRombel + 1);
 
 $flash = $_SESSION['flash_msg'] ?? null;
 unset($_SESSION['flash_msg']);
@@ -267,6 +264,12 @@ require_once __DIR__ . '/header.php';
         <button type="button" class="adm-btn adm-btn-yellow" onclick="openTambahModal()" style="font-weight: 800; display: inline-flex; align-items: center; gap: 8px;">
             <i class="ph-bold ph-plus-circle" style="font-size: 1.25rem;"></i> Tambah Kelas Baru
         </button>
+        <form method="POST" action="kelas.php" style="display:inline;">
+            <input type="hidden" name="action" value="reorder">
+            <button type="submit" class="adm-btn adm-btn-white" style="font-weight: 700; display: inline-flex; align-items: center; gap: 8px;" title="Urutkan & Rapikan Nomor Urut Semua Kelas">
+                <i class="ph-bold ph-arrows-down-up"></i> Rapikan Nomor
+            </button>
+        </form>
         <a href="../../data/kelas.php" target="_blank" class="adm-btn adm-btn-white" style="font-weight: 700; display: inline-flex; align-items: center; gap: 8px;" title="Lihat Halaman Kelas di Web">
             <i class="ph-bold ph-arrow-square-out"></i> Halaman Publik
         </a>
@@ -375,7 +378,7 @@ require_once __DIR__ . '/header.php';
                         <th style="padding:14px 18px; font-size:0.8rem; font-weight:800; text-transform:uppercase; color:#475569; width:60px;">No</th>
                         <th style="padding:14px 18px; font-size:0.8rem; font-weight:800; text-transform:uppercase; color:#475569; width:140px;">Nama Kelas</th>
                         <th style="padding:14px 18px; font-size:0.8rem; font-weight:800; text-transform:uppercase; color:#475569; width:160px;">Jurusan</th>
-                        <th style="padding:14px 18px; font-size:0.8rem; font-weight:800; text-transform:uppercase; color:#475569;">Wali Kelas &amp; Mapel</th>
+                        <th style="padding:14px 18px; font-size:0.8rem; font-weight:800; text-transform:uppercase; color:#475569;">Wali Kelas</th>
                         <th style="padding:14px 18px; font-size:0.8rem; font-weight:800; text-transform:uppercase; color:#475569; width:140px; text-align:center;">Jml Siswa</th>
                         <th style="padding:14px 18px; font-size:0.8rem; font-weight:800; text-transform:uppercase; color:#475569; width:180px;">Ruang Kelas</th>
                         <th style="padding:14px 18px; font-size:0.8rem; font-weight:800; text-transform:uppercase; color:#475569; width:100px; text-align:center;">Tampil</th>
@@ -400,11 +403,6 @@ require_once __DIR__ . '/header.php';
                                 <div style="font-weight:800; font-size:0.92rem; color:#0F172A; display:flex; align-items:center; gap:6px;">
                                     <i class="ph-bold ph-user-circle" style="color:#0284C7;"></i> <?php echo htmlspecialchars($k['nama_walikelas']); ?>
                                 </div>
-                                <?php if (!empty($k['mapel_walikelas'])): ?>
-                                    <div style="font-size:0.78rem; color:#64748B; margin-top:2px;">
-                                        <i class="ph-bold ph-book-open"></i> <?php echo htmlspecialchars($k['mapel_walikelas']); ?>
-                                    </div>
-                                <?php endif; ?>
                             </td>
                             <td style="padding:14px 18px; text-align:center;">
                                 <div style="display:inline-flex; flex-direction:column; align-items:center; gap:5px;">
@@ -472,7 +470,7 @@ require_once __DIR__ . '/header.php';
             <div style="display:grid; grid-template-columns: 100px 1fr 1fr; gap:14px; margin-bottom:16px;">
                 <div>
                     <label class="spmb-label">No. Urut</label>
-                    <input type="text" name="no_urut" placeholder="01" class="spmb-input" style="text-align:center; font-weight:800;">
+                    <input type="text" name="no_urut" value="<?php echo htmlspecialchars($nextAutoNoKelas); ?>" placeholder="<?php echo htmlspecialchars($nextAutoNoKelas); ?>" class="spmb-input" style="text-align:center; font-weight:800;" title="Nomor Urut Otomatis">
                 </div>
                 <div>
                     <label class="spmb-label">Nama Kelas *</label>
@@ -511,38 +509,6 @@ require_once __DIR__ . '/header.php';
                 <div>
                     <label class="spmb-label">Kode / No. Guru</label>
                     <input type="text" name="kode_walikelas" placeholder="44" class="spmb-input">
-                </div>
-            </div>
-
-            <div style="margin-bottom:16px;">
-                <label class="spmb-label">Mata Pelajaran Wali Kelas</label>
-                <input type="text" name="mapel_walikelas" placeholder="Contoh: Seni Budaya / DKV" class="spmb-input">
-            </div>
-
-            <!-- Input Rincian Siswa: Laki-laki (L) + Perempuan (P) = Total Otomatis -->
-            <div style="background:#F8FAFC; border:2px solid var(--adm-black); border-radius:10px; padding:14px; margin-bottom:16px; box-shadow:3px 3px 0px var(--adm-black);">
-                <div style="font-weight:800; font-size:0.85rem; color:#0F172A; margin-bottom:10px; display:flex; align-items:center; gap:6px;">
-                    <i class="ph-bold ph-users-three" style="color:#0284C7; font-size:1.15rem;"></i> Rincian Jumlah Siswa Rombel
-                </div>
-                <div style="display:grid; grid-template-columns: 1fr 1fr 1.1fr; gap:12px;">
-                    <div>
-                        <label class="spmb-label" style="display:flex; align-items:center; gap:4px; font-size:0.8rem;">
-                            <i class="ph-bold ph-gender-male" style="color:#0284C7;"></i> Laki-laki (L) *
-                        </label>
-                        <input type="number" name="siswa_l" id="tambah_siswa_l" value="18" min="0" max="60" class="spmb-input" style="text-align:center; font-weight:800; background:#fff;" required oninput="calcTotalSiswa('tambah')">
-                    </div>
-                    <div>
-                        <label class="spmb-label" style="display:flex; align-items:center; gap:4px; font-size:0.8rem;">
-                            <i class="ph-bold ph-gender-female" style="color:#EC4899;"></i> Perempuan (P) *
-                        </label>
-                        <input type="number" name="siswa_p" id="tambah_siswa_p" value="18" min="0" max="60" class="spmb-input" style="text-align:center; font-weight:800; background:#fff;" required oninput="calcTotalSiswa('tambah')">
-                    </div>
-                    <div>
-                        <label class="spmb-label" style="display:flex; align-items:center; gap:4px; font-size:0.8rem;">
-                            <i class="ph-bold ph-calculator" style="color:#16A34A;"></i> Total Siswa
-                        </label>
-                        <input type="number" name="jumlah_siswa" id="tambah_jumlah_siswa" value="36" class="spmb-input" readonly style="text-align:center; font-weight:800; background:#DCFCE7; color:#166534; cursor:not-allowed;" title="Total otomatis = Laki-laki + Perempuan">
-                    </div>
                 </div>
             </div>
 
@@ -625,38 +591,6 @@ require_once __DIR__ . '/header.php';
                 </div>
             </div>
 
-            <div style="margin-bottom:16px;">
-                <label class="spmb-label">Mata Pelajaran Wali Kelas</label>
-                <input type="text" name="mapel_walikelas" id="edit_mapel_walikelas" class="spmb-input">
-            </div>
-
-            <!-- Input Rincian Siswa: Laki-laki (L) + Perempuan (P) = Total Otomatis -->
-            <div style="background:#F8FAFC; border:2px solid var(--adm-black); border-radius:10px; padding:14px; margin-bottom:16px; box-shadow:3px 3px 0px var(--adm-black);">
-                <div style="font-weight:800; font-size:0.85rem; color:#0F172A; margin-bottom:10px; display:flex; align-items:center; gap:6px;">
-                    <i class="ph-bold ph-users-three" style="color:#0284C7; font-size:1.15rem;"></i> Rincian Jumlah Siswa Rombel
-                </div>
-                <div style="display:grid; grid-template-columns: 1fr 1fr 1.1fr; gap:12px;">
-                    <div>
-                        <label class="spmb-label" style="display:flex; align-items:center; gap:4px; font-size:0.8rem;">
-                            <i class="ph-bold ph-gender-male" style="color:#0284C7;"></i> Laki-laki (L) *
-                        </label>
-                        <input type="number" name="siswa_l" id="edit_siswa_l" value="0" min="0" max="60" class="spmb-input" style="text-align:center; font-weight:800; background:#fff;" required oninput="calcTotalSiswa('edit')">
-                    </div>
-                    <div>
-                        <label class="spmb-label" style="display:flex; align-items:center; gap:4px; font-size:0.8rem;">
-                            <i class="ph-bold ph-gender-female" style="color:#EC4899;"></i> Perempuan (P) *
-                        </label>
-                        <input type="number" name="siswa_p" id="edit_siswa_p" value="0" min="0" max="60" class="spmb-input" style="text-align:center; font-weight:800; background:#fff;" required oninput="calcTotalSiswa('edit')">
-                    </div>
-                    <div>
-                        <label class="spmb-label" style="display:flex; align-items:center; gap:4px; font-size:0.8rem;">
-                            <i class="ph-bold ph-calculator" style="color:#16A34A;"></i> Total Siswa
-                        </label>
-                        <input type="number" name="jumlah_siswa" id="edit_jumlah_siswa" value="0" class="spmb-input" readonly style="text-align:center; font-weight:800; background:#DCFCE7; color:#166534; cursor:not-allowed;" title="Total otomatis = Laki-laki + Perempuan">
-                    </div>
-                </div>
-            </div>
-
             <div style="margin-bottom:20px;">
                 <label class="spmb-label">Ruang / Gedung Kelas</label>
                 <input type="text" name="ruang" id="edit_ruang" class="spmb-input">
@@ -701,26 +635,12 @@ function openEditModal(item) {
     document.getElementById('edit_jurusan_full').value = item.jurusan_full || (fullMap[item.jurusan] || '');
     document.getElementById('edit_nama_walikelas').value = item.nama_walikelas || '';
     document.getElementById('edit_kode_walikelas').value = item.kode_walikelas || '';
-    document.getElementById('edit_mapel_walikelas').value = item.mapel_walikelas || '';
-    document.getElementById('edit_siswa_l').value = (item.siswa_l !== undefined && item.siswa_l !== null) ? item.siswa_l : 0;
-    document.getElementById('edit_siswa_p').value = (item.siswa_p !== undefined && item.siswa_p !== null) ? item.siswa_p : 0;
-    document.getElementById('edit_jumlah_siswa').value = item.jumlah_siswa || (parseInt(item.siswa_l || 0) + parseInt(item.siswa_p || 0));
     document.getElementById('edit_ruang').value = item.ruang || '';
     document.getElementById('edit_is_aktif').checked = (parseInt(item.is_aktif) === 1);
     document.getElementById('modalEdit').style.display = 'flex';
 }
 function closeEditModal() {
     document.getElementById('modalEdit').style.display = 'none';
-}
-
-function calcTotalSiswa(prefix) {
-    const lInput = document.getElementById(prefix + '_siswa_l');
-    const pInput = document.getElementById(prefix + '_siswa_p');
-    const totInput = document.getElementById(prefix + '_jumlah_siswa');
-    if (!lInput || !pInput || !totInput) return;
-    const l = parseInt(lInput.value) || 0;
-    const p = parseInt(pInput.value) || 0;
-    totInput.value = l + p;
 }
 
 function confirmHapus(e, form, nama) {

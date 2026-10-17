@@ -150,7 +150,7 @@ function init_data_sekolah_tables($pdo) {
     $cntKelas = (int)$pdo->query("SELECT COUNT(*) FROM `data_kelas`")->fetchColumn();
     if ($cntKelas === 0) {
         $defaultKelas = get_default_seed_kelas();
-        $ins = $pdo->prepare("INSERT INTO `data_kelas` (`no_urut`, `kelas`, `tingkat`, `jurusan`, `jurusan_full`, `kode_walikelas`, `nama_walikelas`, `mapel_walikelas`, `jumlah_siswa`, `ruang`, `is_aktif`, `urutan`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?)");
+        $ins = $pdo->prepare("INSERT INTO `data_kelas` (`no_urut`, `kelas`, `tingkat`, `jurusan`, `jurusan_full`, `kode_walikelas`, `nama_walikelas`, `jumlah_siswa`, `ruang`, `is_aktif`, `urutan`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?)");
         $u = 1;
         foreach ($defaultKelas as $k) {
             $ins->execute([
@@ -161,7 +161,6 @@ function init_data_sekolah_tables($pdo) {
                 $k['jurusan_full'] ?? '',
                 $k['kode_walikelas'] ?? '',
                 $k['nama_walikelas'] ?? '',
-                $k['mapel_walikelas'] ?? '',
                 (int)($k['jumlah_siswa'] ?? 0),
                 $k['ruang'] ?? '',
                 $u
@@ -263,7 +262,7 @@ function add_guru($data) {
     $mapel = is_array($data['mapel']) ? json_encode(array_values($data['mapel']), JSON_UNESCAPED_UNICODE) : json_encode(array_filter(array_map('trim', explode(',', (string)$data['mapel']))), JSON_UNESCAPED_UNICODE);
 
     $stmt = $pdo->prepare("INSERT INTO `data_guru` (`no_urut`, `nama`, `peran`, `mapel`, `kategori`, `foto`, `is_aktif`, `urutan`) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
-    return $stmt->execute([
+    $res = $stmt->execute([
         $noUrut,
         trim($data['nama']),
         trim($data['peran'] ?? 'Guru Pengajar'),
@@ -273,22 +272,34 @@ function add_guru($data) {
         isset($data['is_aktif']) ? (int)$data['is_aktif'] : 1,
         (int)($data['urutan'] ?? $nextUrutan)
     ]);
+    if ($res) {
+        reorder_guru();
+    }
+    return $res;
 }
 
 function update_guru($id, $data) {
     $pdo = get_db_connection();
     $mapel = is_array($data['mapel']) ? json_encode(array_values($data['mapel']), JSON_UNESCAPED_UNICODE) : json_encode(array_filter(array_map('trim', explode(',', (string)$data['mapel']))), JSON_UNESCAPED_UNICODE);
 
+    $curr = $pdo->query("SELECT `urutan`, `no_urut` FROM `data_guru` WHERE `id` = " . (int)$id)->fetch(PDO::FETCH_ASSOC);
+    $urutan = isset($data['urutan']) && (int)$data['urutan'] > 0
+        ? (int)$data['urutan']
+        : (!empty($data['no_urut']) && is_numeric($data['no_urut'])
+            ? (int)$data['no_urut']
+            : (int)($curr['urutan'] ?? 1));
+    $noUrut = !empty($data['no_urut']) ? trim($data['no_urut']) : sprintf('%02d', $urutan);
+
     $stmt = $pdo->prepare("UPDATE `data_guru` SET `no_urut` = ?, `nama` = ?, `peran` = ?, `mapel` = ?, `kategori` = ?, `foto` = ?, `is_aktif` = ?, `urutan` = ? WHERE `id` = ?");
     return $stmt->execute([
-        trim($data['no_urut']),
+        $noUrut,
         trim($data['nama']),
         trim($data['peran']),
         $mapel,
         trim($data['kategori']),
         $data['foto'] ?? null,
         isset($data['is_aktif']) ? (int)$data['is_aktif'] : 1,
-        (int)($data['urutan'] ?? 0),
+        $urutan,
         (int)$id
     ]);
 }
@@ -296,7 +307,23 @@ function update_guru($id, $data) {
 function delete_guru($id) {
     $pdo = get_db_connection();
     $stmt = $pdo->prepare("DELETE FROM `data_guru` WHERE `id` = ?");
-    return $stmt->execute([(int)$id]);
+    $res = $stmt->execute([(int)$id]);
+    reorder_guru();
+    return $res;
+}
+
+function reorder_guru() {
+    $pdo = get_db_connection();
+    $stmt = $pdo->query("SELECT `id` FROM `data_guru` ORDER BY CASE WHEN `urutan` > 0 THEN `urutan` ELSE CAST(`no_urut` AS UNSIGNED) END ASC, `id` ASC");
+    $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    if (empty($rows)) return;
+
+    $upd = $pdo->prepare("UPDATE `data_guru` SET `no_urut` = ?, `urutan` = ? WHERE `id` = ?");
+    $num = 1;
+    foreach ($rows as $r) {
+        $upd->execute([sprintf('%02d', $num), $num, (int)$r['id']]);
+        $num++;
+    }
 }
 
 function toggle_guru_aktif($id) {
@@ -368,7 +395,7 @@ function add_siswa($data) {
     $noUrut = !empty($data['no_urut']) ? $data['no_urut'] : sprintf('%02d', $nextUrutan);
 
     $stmt = $pdo->prepare("INSERT INTO `data_siswa` (`no_urut`, `nis`, `nisn`, `nama`, `jk`, `tingkat`, `jurusan`, `kelas`, `status`, `foto`, `is_aktif`, `urutan`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-    return $stmt->execute([
+    $res = $stmt->execute([
         $noUrut,
         trim($data['nis'] ?? ''),
         trim($data['nisn'] ?? ''),
@@ -382,13 +409,25 @@ function add_siswa($data) {
         isset($data['is_aktif']) ? (int)$data['is_aktif'] : 1,
         (int)($data['urutan'] ?? $nextUrutan)
     ]);
+    if ($res) {
+        reorder_siswa();
+    }
+    return $res;
 }
 
 function update_siswa($id, $data) {
     $pdo = get_db_connection();
+    $curr = $pdo->query("SELECT `urutan`, `no_urut` FROM `data_siswa` WHERE `id` = " . (int)$id)->fetch(PDO::FETCH_ASSOC);
+    $urutan = isset($data['urutan']) && (int)$data['urutan'] > 0
+        ? (int)$data['urutan']
+        : (!empty($data['no_urut']) && is_numeric($data['no_urut'])
+            ? (int)$data['no_urut']
+            : (int)($curr['urutan'] ?? 1));
+    $noUrut = !empty($data['no_urut']) ? trim($data['no_urut']) : sprintf('%02d', $urutan);
+
     $stmt = $pdo->prepare("UPDATE `data_siswa` SET `no_urut` = ?, `nis` = ?, `nisn` = ?, `nama` = ?, `jk` = ?, `tingkat` = ?, `jurusan` = ?, `kelas` = ?, `status` = ?, `foto` = ?, `is_aktif` = ?, `urutan` = ? WHERE `id` = ?");
     return $stmt->execute([
-        trim($data['no_urut']),
+        $noUrut,
         trim($data['nis']),
         trim($data['nisn']),
         trim($data['nama']),
@@ -399,7 +438,7 @@ function update_siswa($id, $data) {
         trim($data['status']),
         $data['foto'] ?? null,
         isset($data['is_aktif']) ? (int)$data['is_aktif'] : 1,
-        (int)($data['urutan'] ?? 0),
+        $urutan,
         (int)$id
     ]);
 }
@@ -407,7 +446,23 @@ function update_siswa($id, $data) {
 function delete_siswa($id) {
     $pdo = get_db_connection();
     $stmt = $pdo->prepare("DELETE FROM `data_siswa` WHERE `id` = ?");
-    return $stmt->execute([(int)$id]);
+    $res = $stmt->execute([(int)$id]);
+    reorder_siswa();
+    return $res;
+}
+
+function reorder_siswa() {
+    $pdo = get_db_connection();
+    $stmt = $pdo->query("SELECT `id` FROM `data_siswa` ORDER BY CASE WHEN `urutan` > 0 THEN `urutan` ELSE CAST(`no_urut` AS UNSIGNED) END ASC, FIELD(`tingkat`, 'XII', 'XI', 'X') ASC, `kelas` ASC, `id` ASC");
+    $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    if (empty($rows)) return;
+
+    $upd = $pdo->prepare("UPDATE `data_siswa` SET `no_urut` = ?, `urutan` = ? WHERE `id` = ?");
+    $num = 1;
+    foreach ($rows as $r) {
+        $upd->execute([sprintf('%02d', $num), $num, (int)$r['id']]);
+        $num++;
+    }
 }
 
 function toggle_siswa_aktif($id) {
@@ -422,6 +477,27 @@ function toggle_siswa_aktif($id) {
 // =============================================================================
 // CRUD HELPER: KELAS & ROMBEL
 // =============================================================================
+
+function get_siswa_count_per_kelas() {
+    $pdo = get_db_connection();
+    $stmt = $pdo->query("SELECT `kelas`, `jk`, COUNT(*) as cnt FROM `data_siswa` WHERE `is_aktif` = 1 GROUP BY `kelas`, `jk`");
+    $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    $map = [];
+    foreach ($rows as $r) {
+        $kelas = $r['kelas'];
+        if (!isset($map[$kelas])) {
+            $map[$kelas] = ['siswa_l' => 0, 'siswa_p' => 0, 'jumlah_siswa' => 0];
+        }
+        if ($r['jk'] === 'L') {
+            $map[$kelas]['siswa_l'] += (int)$r['cnt'];
+        } else {
+            $map[$kelas]['siswa_p'] += (int)$r['cnt'];
+        }
+        $map[$kelas]['jumlah_siswa'] += (int)$r['cnt'];
+    }
+    return $map;
+}
 
 function get_all_kelas($onlyAktif = false, $tingkat = null, $jurusan = null, $search = null) {
     $pdo = get_db_connection();
@@ -452,8 +528,14 @@ function get_all_kelas($onlyAktif = false, $tingkat = null, $jurusan = null, $se
     $stmt = $pdo->prepare($sql);
     $stmt->execute($params);
     $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    $siswaMap = get_siswa_count_per_kelas();
     foreach ($rows as &$r) {
         $r['no'] = $r['no_urut'];
+        $namaKelas = $r['kelas'];
+        $r['siswa_l'] = $siswaMap[$namaKelas]['siswa_l'] ?? 0;
+        $r['siswa_p'] = $siswaMap[$namaKelas]['siswa_p'] ?? 0;
+        $r['jumlah_siswa'] = $siswaMap[$namaKelas]['jumlah_siswa'] ?? 0;
     }
     return $rows;
 }
@@ -472,12 +554,9 @@ function add_kelas($data) {
     $maxUrutan = (int)$pdo->query("SELECT MAX(`urutan`) FROM `data_kelas`")->fetchColumn();
     $nextUrutan = $maxUrutan + 1;
     $noUrut = !empty($data['no_urut']) ? $data['no_urut'] : sprintf('%02d', $nextUrutan);
-    $siswaL = (int)($data['siswa_l'] ?? 0);
-    $siswaP = (int)($data['siswa_p'] ?? 0);
-    $jmlSiswa = ($siswaL + $siswaP > 0) ? ($siswaL + $siswaP) : (int)($data['jumlah_siswa'] ?? 0);
 
-    $stmt = $pdo->prepare("INSERT INTO `data_kelas` (`no_urut`, `kelas`, `tingkat`, `jurusan`, `jurusan_full`, `kode_walikelas`, `nama_walikelas`, `mapel_walikelas`, `siswa_l`, `siswa_p`, `jumlah_siswa`, `ruang`, `is_aktif`, `urutan`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-    return $stmt->execute([
+    $stmt = $pdo->prepare("INSERT INTO `data_kelas` (`no_urut`, `kelas`, `tingkat`, `jurusan`, `jurusan_full`, `kode_walikelas`, `nama_walikelas`, `ruang`, `is_aktif`, `urutan`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+    $res = $stmt->execute([
         $noUrut,
         trim($data['kelas']),
         trim($data['tingkat'] ?? 'X'),
@@ -485,38 +564,39 @@ function add_kelas($data) {
         trim($data['jurusan_full'] ?? ''),
         trim($data['kode_walikelas'] ?? ''),
         trim($data['nama_walikelas'] ?? ''),
-        trim($data['mapel_walikelas'] ?? ''),
-        $siswaL,
-        $siswaP,
-        $jmlSiswa,
         trim($data['ruang'] ?? ''),
         isset($data['is_aktif']) ? (int)$data['is_aktif'] : 1,
-        (int)($data['urutan'] ?? $nextUrutan)
+        (int)($data['urutan'] ?? (is_numeric($noUrut) ? (int)$noUrut : $nextUrutan))
     ]);
+    if ($res) {
+        reorder_kelas();
+    }
+    return $res;
 }
 
 function update_kelas($id, $data) {
     $pdo = get_db_connection();
-    $siswaL = (int)($data['siswa_l'] ?? 0);
-    $siswaP = (int)($data['siswa_p'] ?? 0);
-    $jmlSiswa = ($siswaL + $siswaP > 0) ? ($siswaL + $siswaP) : (int)($data['jumlah_siswa'] ?? 0);
 
-    $stmt = $pdo->prepare("UPDATE `data_kelas` SET `no_urut` = ?, `kelas` = ?, `tingkat` = ?, `jurusan` = ?, `jurusan_full` = ?, `kode_walikelas` = ?, `nama_walikelas` = ?, `mapel_walikelas` = ?, `siswa_l` = ?, `siswa_p` = ?, `jumlah_siswa` = ?, `ruang` = ?, `is_aktif` = ?, `urutan` = ? WHERE `id` = ?");
+    $curr = $pdo->query("SELECT `urutan`, `no_urut` FROM `data_kelas` WHERE `id` = " . (int)$id)->fetch(PDO::FETCH_ASSOC);
+    $urutan = isset($data['urutan']) && (int)$data['urutan'] > 0
+        ? (int)$data['urutan']
+        : (!empty($data['no_urut']) && is_numeric($data['no_urut'])
+            ? (int)$data['no_urut']
+            : (int)($curr['urutan'] ?? 1));
+    $noUrut = !empty($data['no_urut']) ? trim($data['no_urut']) : sprintf('%02d', $urutan);
+
+    $stmt = $pdo->prepare("UPDATE `data_kelas` SET `no_urut` = ?, `kelas` = ?, `tingkat` = ?, `jurusan` = ?, `jurusan_full` = ?, `kode_walikelas` = ?, `nama_walikelas` = ?, `ruang` = ?, `is_aktif` = ?, `urutan` = ? WHERE `id` = ?");
     return $stmt->execute([
-        trim($data['no_urut']),
+        $noUrut,
         trim($data['kelas']),
         trim($data['tingkat']),
         trim($data['jurusan']),
         trim($data['jurusan_full']),
         trim($data['kode_walikelas']),
         trim($data['nama_walikelas']),
-        trim($data['mapel_walikelas']),
-        $siswaL,
-        $siswaP,
-        $jmlSiswa,
         trim($data['ruang']),
         isset($data['is_aktif']) ? (int)$data['is_aktif'] : 1,
-        (int)($data['urutan'] ?? 0),
+        $urutan,
         (int)$id
     ]);
 }
@@ -524,7 +604,30 @@ function update_kelas($id, $data) {
 function delete_kelas($id) {
     $pdo = get_db_connection();
     $stmt = $pdo->prepare("DELETE FROM `data_kelas` WHERE `id` = ?");
-    return $stmt->execute([(int)$id]);
+    $res = $stmt->execute([(int)$id]);
+    reorder_kelas();
+    return $res;
+}
+
+function reorder_kelas() {
+    $pdo = get_db_connection();
+    $stmt = $pdo->query("
+        SELECT `id` FROM `data_kelas` 
+        ORDER BY 
+            FIELD(`tingkat`, 'X', 'XI', 'XII') ASC,
+            CASE WHEN `urutan` > 0 THEN `urutan` ELSE CAST(`no_urut` AS UNSIGNED) END ASC,
+            `id` ASC
+    ");
+    $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    if (empty($rows)) return;
+
+    $upd = $pdo->prepare("UPDATE `data_kelas` SET `no_urut` = ?, `urutan` = ? WHERE `id` = ?");
+    $num = 1;
+    foreach ($rows as $r) {
+        $noFormatted = sprintf('%02d', $num);
+        $upd->execute([$noFormatted, $num, (int)$r['id']]);
+        $num++;
+    }
 }
 
 function toggle_kelas_aktif($id) {
@@ -604,7 +707,7 @@ function add_ekskul($data) {
     $iconBg   = $data['icon_bg'] ?? ($catMap[$cat]['bg'] ?? 'icon-olahraga');
 
     $stmt = $pdo->prepare("INSERT INTO `data_ekskul` (`kode_ekskul`, `nama`, `kategori`, `kategori_label`, `cat_class`, `icon`, `icon_bg`, `pembina`, `ketua`, `jadwal`, `lokasi`, `jumlah_anggota`, `prestasi`, `deskripsi`, `foto`, `is_aktif`, `urutan`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-    return $stmt->execute([
+    $res = $stmt->execute([
         $kode,
         trim($data['nama']),
         $cat,
@@ -623,6 +726,10 @@ function add_ekskul($data) {
         isset($data['is_aktif']) ? (int)$data['is_aktif'] : 1,
         (int)($data['urutan'] ?? $nextUrutan)
     ]);
+    if ($res) {
+        reorder_ekskul();
+    }
+    return $res;
 }
 
 function update_ekskul($id, $data) {
@@ -642,10 +749,16 @@ function update_ekskul($id, $data) {
     $icon     = !empty($data['icon']) ? $data['icon'] : ($catMap[$cat]['icon'] ?? 'ph-trophy');
     $iconBg   = !empty($data['icon_bg']) ? $data['icon_bg'] : ($catMap[$cat]['bg'] ?? 'icon-olahraga');
 
+    $curr = $pdo->query("SELECT `urutan`, `kode_ekskul` FROM `data_ekskul` WHERE `id` = " . (int)$id)->fetch(PDO::FETCH_ASSOC);
+    $urutan = isset($data['urutan']) && (int)$data['urutan'] > 0
+        ? (int)$data['urutan']
+        : (!empty($data['kode_ekskul']) && is_numeric($data['kode_ekskul'])
+            ? (int)$data['kode_ekskul']
+            : (int)($curr['urutan'] ?? 1));
+
     $kodeEkskul = trim($data['kode_ekskul'] ?? '');
     if (empty($kodeEkskul)) {
-        $existing = get_ekskul_by_id($id);
-        $kodeEkskul = $existing['kode_ekskul'] ?? sprintf('%02d', (int)$id);
+        $kodeEkskul = $curr['kode_ekskul'] ?? sprintf('%02d', $urutan);
     }
 
     $stmt = $pdo->prepare("UPDATE `data_ekskul` SET `kode_ekskul` = ?, `nama` = ?, `kategori` = ?, `kategori_label` = ?, `cat_class` = ?, `icon` = ?, `icon_bg` = ?, `pembina` = ?, `ketua` = ?, `jadwal` = ?, `lokasi` = ?, `jumlah_anggota` = ?, `prestasi` = ?, `deskripsi` = ?, `foto` = ?, `is_aktif` = ?, `urutan` = ? WHERE `id` = ?");
@@ -666,7 +779,7 @@ function update_ekskul($id, $data) {
         trim($data['deskripsi']),
         $data['foto'] ?? null,
         isset($data['is_aktif']) ? (int)$data['is_aktif'] : 1,
-        (int)($data['urutan'] ?? 0),
+        $urutan,
         (int)$id
     ]);
 }
@@ -674,7 +787,23 @@ function update_ekskul($id, $data) {
 function delete_ekskul($id) {
     $pdo = get_db_connection();
     $stmt = $pdo->prepare("DELETE FROM `data_ekskul` WHERE `id` = ?");
-    return $stmt->execute([(int)$id]);
+    $res = $stmt->execute([(int)$id]);
+    reorder_ekskul();
+    return $res;
+}
+
+function reorder_ekskul() {
+    $pdo = get_db_connection();
+    $stmt = $pdo->query("SELECT `id` FROM `data_ekskul` ORDER BY CASE WHEN `urutan` > 0 THEN `urutan` ELSE CAST(`kode_ekskul` AS UNSIGNED) END ASC, `id` ASC");
+    $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    if (empty($rows)) return;
+
+    $upd = $pdo->prepare("UPDATE `data_ekskul` SET `kode_ekskul` = ?, `urutan` = ? WHERE `id` = ?");
+    $num = 1;
+    foreach ($rows as $r) {
+        $upd->execute([sprintf('%02d', $num), $num, (int)$r['id']]);
+        $num++;
+    }
 }
 
 function toggle_ekskul_aktif($id) {

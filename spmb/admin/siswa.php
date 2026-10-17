@@ -135,9 +135,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['flash_msg'] = [
                 'type'  => 'success',
                 'title' => 'Siswa Dihapus',
-                'text'  => 'Data siswa berhasil dihapus dari sistem.'
+                'text'  => 'Data siswa berhasil dihapus dan nomor urut diperbarui otomatis.'
             ];
         }
+        header("Location: siswa.php");
+        exit;
+    }
+
+    // 5. RAPIKAN / URUTKAN ULANG NOMOR SISWA
+    if ($action === 'reorder') {
+        reorder_siswa();
+        $_SESSION['flash_msg'] = [
+            'type'  => 'success',
+            'title' => 'Nomor Urut Dirapikan!',
+            'text'  => 'Semua nomor urut siswa telah diurutkan ulang secara otomatis.'
+        ];
         header("Location: siswa.php");
         exit;
     }
@@ -306,6 +318,12 @@ require_once __DIR__ . '/header.php';
         <button type="button" class="adm-btn adm-btn-yellow" onclick="openTambahModal()" style="font-weight: 800; display: inline-flex; align-items: center; gap: 8px;">
             <i class="ph-bold ph-plus-circle" style="font-size: 1.25rem;"></i> Tambah Siswa Baru
         </button>
+        <form method="POST" action="siswa.php" style="display:inline;">
+            <input type="hidden" name="action" value="reorder">
+            <button type="submit" class="adm-btn adm-btn-white" style="font-weight: 700; display: inline-flex; align-items: center; gap: 8px;" title="Urutkan & Rapikan Nomor Urut Semua Siswa">
+                <i class="ph-bold ph-arrows-down-up"></i> Rapikan Nomor
+            </button>
+        </form>
         <a href="../../data/siswa.php" target="_blank" class="adm-btn adm-btn-white" style="font-weight: 700; display: inline-flex; align-items: center; gap: 8px;" title="Lihat Halaman Siswa di Web">
             <i class="ph-bold ph-arrow-square-out"></i> Halaman Publik
         </a>
