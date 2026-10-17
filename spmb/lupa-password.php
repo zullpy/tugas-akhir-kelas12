@@ -31,7 +31,11 @@ if (!empty($emailValue) && (isset($_GET['step']) && $_GET['step'] == '2' || isse
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action_request_otp'])) {
     $email = sanitize_input($_POST['email'] ?? '');
 
-    if (empty($email)) {
+    $lastOtpTime = $_SESSION['last_otp_sent_time'] ?? 0;
+    if (time() - $lastOtpTime < 60) {
+        $sisaDetik = 60 - (time() - $lastOtpTime);
+        $error = "Kode OTP baru saja dikirimkan. Harap tunggu {$sisaDetik} detik sebelum meminta kode baru.";
+    } elseif (empty($email)) {
         $error = "Silakan masukkan alamat email yang terdaftar.";
     } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $error = "Format alamat email tidak valid.";
@@ -56,6 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action_request_otp'])
             $mailResult = kirim_otp_brevo($user['email'], $otp, $user['nama_lengkap']);
 
             if ($mailResult['success']) {
+                $_SESSION['last_otp_sent_time'] = time();
                 $_SESSION['reset_email'] = $user['email'];
                 $emailValue = $user['email'];
                 $step = 2;
@@ -376,6 +381,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action_reset'])) {
     }
     setupPasswordToggle('togglePasswordBtn', 'password', 'togglePasswordIcon');
     setupPasswordToggle('togglePasswordKonfirmBtn', 'password_konfirmasi', 'togglePasswordKonfirmIcon');
+
+    // Cegah klik ganda / double-submit pada form
+    document.querySelectorAll('form').forEach(function(form) {
+        form.addEventListener('submit', function(e) {
+            const btn = form.querySelector('button[type="submit"]');
+            if (btn) {
+                if (btn.dataset.submitted === 'true') {
+                    e.preventDefault();
+                    return false;
+                }
+                btn.dataset.submitted = 'true';
+                btn.style.opacity = '0.75';
+                btn.style.pointerEvents = 'none';
+                btn.innerHTML = '<i class="ph-bold ph-spinner ph-spin"></i> Sedang memproses...';
+            }
+        });
+    });
     </script>
 </body>
 </html>
